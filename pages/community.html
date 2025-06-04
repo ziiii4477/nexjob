@@ -2244,7 +2244,8 @@
                                             <img src="${post.author?.avatar ? '/images/avatars/' + post.author.avatar : '../images/user logo.jpg'}" 
                                                  class="rounded-circle me-1 clickable-user" 
                                                  data-user-id="${post.author?._id}"
-                                                 style="cursor:pointer;">
+                                                 style="cursor:pointer;"
+                                                 width="32">
                                             <span class="clickable-user text-truncate" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
                                                 ${post.author?.nickname || post.author?.name || '匿名'}
                                                 ${isHRUser(post.author?.userType) ? '<span class="badge bg-primary ms-1" style="font-size:0.6rem;">HR</span>' : ''}
