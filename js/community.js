@@ -1,6 +1,13 @@
 // 处理图片URL的函数
 function getImageUrl(imagePath) {
+    console.log('getImageUrl调用:', {
+        输入路径: imagePath,
+        环境: window.location.hostname.includes('netlify.app') ? 'Netlify' : '本地',
+        主机名: window.location.hostname
+    });
+
     if (!imagePath) {
+        console.warn('getImageUrl: 未提供图片路径');
         return './images/empty-box.svg';
     }
     
@@ -9,29 +16,41 @@ function getImageUrl(imagePath) {
         return imagePath;
     }
     
-    // 处理后端上传的图片路径
-    if (imagePath.startsWith('/uploads/') || imagePath.includes('uploads/')) {
-        // 如果是在Netlify环境中
-        if (window.location.hostname.includes('netlify.app')) {
-            // 从uploads路径提取文件名
-            const filename = imagePath.split('/').pop();
-            // 使用images目录
-            return `${window.location.origin}/images/${filename}`;
-        }
-        
-        // 本地开发环境
+    // 检查是否在Netlify环境
+    if (window.location.hostname.includes('netlify.app')) {
+        // 提取文件名
+        const filename = imagePath.split('/').pop();
+        const newPath = `/images/${filename}`;
+        console.log('getImageUrl Netlify环境处理:', {
+            原始路径: imagePath,
+            文件名: filename,
+            新路径: newPath
+        });
+        return newPath;
+    } else {
+        // 本地环境
         const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
         const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-        return apiBaseUrl + cleanPath;
+        const fullUrl = apiBaseUrl + cleanPath;
+        console.log('getImageUrl本地环境处理:', {
+            原始路径: imagePath,
+            清理后路径: cleanPath,
+            完整URL: fullUrl
+        });
+        return fullUrl;
     }
-    
-    // 其他情况，返回原始路径
-    return imagePath;
 }
 
 // 处理用户头像URL的函数
 function getAvatarUrl(avatarPath) {
+    console.log('getAvatarUrl调用:', {
+        输入路径: avatarPath,
+        环境: window.location.hostname.includes('netlify.app') ? 'Netlify' : '本地',
+        主机名: window.location.hostname
+    });
+
     if (!avatarPath) {
+        console.warn('getAvatarUrl: 未提供头像路径');
         return './images/user logo.jpg';
     }
     
@@ -40,29 +59,29 @@ function getAvatarUrl(avatarPath) {
         return avatarPath;
     }
     
-    // 处理后端上传的头像路径
-    if (avatarPath.startsWith('/uploads/') || avatarPath.includes('uploads/')) {
-        // 如果是在Netlify环境中
-        if (window.location.hostname.includes('netlify.app')) {
-            // 从uploads路径提取文件名
-            const filename = avatarPath.split('/').pop();
-            // 使用images目录
-            return `${window.location.origin}/images/${filename}`;
-        }
-        
-        // 本地开发环境
+    // 检查是否在Netlify环境
+    if (window.location.hostname.includes('netlify.app')) {
+        // 提取文件名
+        const filename = avatarPath.split('/').pop();
+        const newPath = `/images/${filename}`;
+        console.log('getAvatarUrl Netlify环境处理:', {
+            原始路径: avatarPath,
+            文件名: filename,
+            新路径: newPath
+        });
+        return newPath;
+    } else {
+        // 本地环境
         const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
         const cleanPath = avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath;
-        return apiBaseUrl + cleanPath;
+        const fullUrl = apiBaseUrl + cleanPath;
+        console.log('getAvatarUrl本地环境处理:', {
+            原始路径: avatarPath,
+            清理后路径: cleanPath,
+            完整URL: fullUrl
+        });
+        return fullUrl;
     }
-    
-    // 检查是否是相对路径的头像
-    if (!avatarPath.startsWith('/')) {
-        return `/images/avatars/${avatarPath}`;
-    }
-    
-    // 其他情况，返回原始路径
-    return avatarPath;
 }
 
 // 渲染帖子的函数
