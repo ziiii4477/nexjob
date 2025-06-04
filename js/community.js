@@ -4,8 +4,18 @@ function getImageUrl(imagePath) {
         return './images/empty-box.svg';
     }
     
+    // 如果是完整URL或数据URI，直接返回
     if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
         return imagePath;
+    }
+    
+    // 处理后端上传的图片路径
+    if (imagePath.startsWith('/uploads/') || imagePath.includes('uploads/')) {
+        // 获取当前API基础URL
+        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+        // 确保路径格式正确
+        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+        return apiBaseUrl + cleanPath;
     }
     
     // 移除开头的斜杠（如果有）
@@ -30,8 +40,18 @@ function getAvatarUrl(avatarPath) {
         return './images/user logo.jpg';
     }
     
+    // 如果是完整URL或数据URI，直接返回
     if (avatarPath.startsWith('http') || avatarPath.startsWith('data:')) {
         return avatarPath;
+    }
+    
+    // 处理后端上传的头像路径
+    if (avatarPath.startsWith('/uploads/') || avatarPath.includes('uploads/')) {
+        // 获取当前API基础URL
+        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+        // 确保路径格式正确
+        const cleanPath = avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath;
+        return apiBaseUrl + cleanPath;
     }
     
     // 移除开头的斜杠（如果有）
@@ -55,10 +75,22 @@ function renderPost(post) {
     const postElement = document.createElement('div');
     postElement.className = 'masonry-grid-item';
     
-    const imageUrl = getImageUrl(post.image);
+    // 处理帖子图片
+    let imageUrl;
+    if (post.images && post.images.length > 0) {
+        // 优先使用images数组中的第一张图片
+        imageUrl = getImageUrl(post.images[0]);
+    } else if (post.image) {
+        // 兼容旧数据格式
+        imageUrl = getImageUrl(post.image);
+    } else {
+        // 无图片时使用默认图片
+        imageUrl = './images/empty-box.svg';
+    }
+    
     const avatarUrl = getAvatarUrl(post.author?.avatar);
     
-    console.log('渲染帖子图片:', post.image, '→', imageUrl);
+    console.log('渲染帖子图片:', post.title, '→', imageUrl);
     
     postElement.innerHTML = `
         <div class="post-card card">

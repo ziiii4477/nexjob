@@ -2960,8 +2960,10 @@
     <script>
         // 根据环境确定脚本路径
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const scriptPath = isLocalhost ? '../js/community.js' : './js/community.js';
-        const debugScriptPath = isLocalhost ? '../js/debug-images.js' : './js/debug-images.js';
+        // 使用绝对路径
+        const scriptPath = isLocalhost ? '/js/community.js' : '/js/community.js';
+        const debugScriptPath = isLocalhost ? '/js/debug-images.js' : '/js/debug-images.js';
+        const fixImageScriptPath = isLocalhost ? '/js/fix-image-paths.js' : '/js/fix-image-paths.js';
         
         // 动态加载社区脚本
         const script = document.createElement('script');
@@ -2971,6 +2973,12 @@
         };
         script.onerror = function(e) {
             console.error('社区页面脚本加载失败:', scriptPath, e);
+            // 尝试备用路径
+            const backupPath = '../js/community.js';
+            console.log('尝试备用路径:', backupPath);
+            const backupScript = document.createElement('script');
+            backupScript.src = backupPath;
+            document.body.appendChild(backupScript);
         };
         document.body.appendChild(script);
         
@@ -2982,8 +2990,31 @@
         };
         debugScript.onerror = function(e) {
             console.error('图片调试脚本加载失败:', debugScriptPath, e);
+            // 尝试备用路径
+            const backupPath = '../js/debug-images.js';
+            console.log('尝试备用路径:', backupPath);
+            const backupDebug = document.createElement('script');
+            backupDebug.src = backupPath;
+            document.body.appendChild(backupDebug);
         };
         document.body.appendChild(debugScript);
+        
+        // 动态加载图片路径修复脚本
+        const fixImageScript = document.createElement('script');
+        fixImageScript.src = fixImageScriptPath;
+        fixImageScript.onload = function() {
+            console.log('图片路径修复脚本加载成功:', fixImageScriptPath);
+        };
+        fixImageScript.onerror = function(e) {
+            console.error('图片路径修复脚本加载失败:', fixImageScriptPath, e);
+            // 尝试备用路径
+            const backupPath = '../js/fix-image-paths.js';
+            console.log('尝试备用路径:', backupPath);
+            const backupFixImage = document.createElement('script');
+            backupFixImage.src = backupPath;
+            document.body.appendChild(backupFixImage);
+        };
+        document.body.appendChild(fixImageScript);
     </script>
 </body>
 </html> 
