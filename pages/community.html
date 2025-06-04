@@ -2957,6 +2957,33 @@
     window.isJobSeekerUser = isJobSeekerUser;
     </script>
     <!-- 页面脚本 -->
-    <script src="../js/community.js"></script>
+    <script>
+        // 根据环境确定脚本路径
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const scriptPath = isLocalhost ? '../js/community.js' : './js/community.js';
+        const debugScriptPath = isLocalhost ? '../js/debug-images.js' : './js/debug-images.js';
+        
+        // 动态加载社区脚本
+        const script = document.createElement('script');
+        script.src = scriptPath;
+        script.onload = function() {
+            console.log('社区页面脚本加载成功:', scriptPath);
+        };
+        script.onerror = function(e) {
+            console.error('社区页面脚本加载失败:', scriptPath, e);
+        };
+        document.body.appendChild(script);
+        
+        // 动态加载调试脚本
+        const debugScript = document.createElement('script');
+        debugScript.src = debugScriptPath;
+        debugScript.onload = function() {
+            console.log('图片调试脚本加载成功:', debugScriptPath);
+        };
+        debugScript.onerror = function(e) {
+            console.error('图片调试脚本加载失败:', debugScriptPath, e);
+        };
+        document.body.appendChild(debugScript);
+    </script>
 </body>
 </html> 

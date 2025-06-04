@@ -1,7 +1,7 @@
 // 处理图片URL的函数
 function getImageUrl(imagePath) {
     if (!imagePath) {
-        return '../images/empty-box.svg';
+        return './images/empty-box.svg';
     }
     
     if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
@@ -11,19 +11,23 @@ function getImageUrl(imagePath) {
     // 移除开头的斜杠（如果有）
     const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
     
-    // 如果已经包含 images 目录，直接使用相对路径
+    // 判断当前环境
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const basePath = isLocalhost ? '..' : '.';
+    
+    // 如果已经包含 images 目录，使用相对于当前环境的路径
     if (cleanPath.startsWith('images/')) {
-        return `../${cleanPath}`;
+        return `${basePath}/${cleanPath}`;
     }
     
     // 否则添加 images 目录
-    return `../images/${cleanPath}`;
+    return `${basePath}/images/${cleanPath}`;
 }
 
 // 处理用户头像URL的函数
 function getAvatarUrl(avatarPath) {
     if (!avatarPath) {
-        return '../images/user logo.jpg';
+        return './images/user logo.jpg';
     }
     
     if (avatarPath.startsWith('http') || avatarPath.startsWith('data:')) {
@@ -33,13 +37,17 @@ function getAvatarUrl(avatarPath) {
     // 移除开头的斜杠（如果有）
     const cleanPath = avatarPath.startsWith('/') ? avatarPath.substring(1) : avatarPath;
     
-    // 如果已经包含 images/avatars 目录，直接使用相对路径
+    // 判断当前环境
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const basePath = isLocalhost ? '..' : '.';
+    
+    // 如果已经包含 images/avatars 目录，使用相对于当前环境的路径
     if (cleanPath.startsWith('images/avatars/')) {
-        return `../${cleanPath}`;
+        return `${basePath}/${cleanPath}`;
     }
     
     // 否则添加 images/avatars 目录
-    return `../images/avatars/${cleanPath}`;
+    return `${basePath}/images/avatars/${cleanPath}`;
 }
 
 // 渲染帖子的函数
@@ -50,12 +58,14 @@ function renderPost(post) {
     const imageUrl = getImageUrl(post.image);
     const avatarUrl = getAvatarUrl(post.author?.avatar);
     
+    console.log('渲染帖子图片:', post.image, '→', imageUrl);
+    
     postElement.innerHTML = `
         <div class="post-card card">
             <img src="${imageUrl}" 
                  class="card-img-top" 
                  alt="${post.title || '帖子图片'}"
-                 onerror="this.onerror=null; this.src='../images/empty-box.svg';">
+                 onerror="this.onerror=null; this.src='./images/empty-box.svg';">
             <div class="card-body">
                 <h5 class="card-title">${post.title || '无标题'}</h5>
                 <div class="post-meta">
@@ -63,7 +73,7 @@ function renderPost(post) {
                         <img src="${avatarUrl}" 
                              class="avatar" 
                              alt="用户头像"
-                             onerror="this.onerror=null; this.src='../images/user logo.jpg';">
+                             onerror="this.onerror=null; this.src='./images/user logo.jpg';">
                         <span>${post.author?.name || '匿名用户'}</span>
                     </div>
                     <div class="post-stats">
@@ -81,8 +91,12 @@ function renderPost(post) {
 
 // 初始化社区页面
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('社区页面初始化');
     const postsContainer = document.querySelector('.masonry-grid');
-    if (!postsContainer) return;
+    if (!postsContainer) {
+        console.warn('找不到帖子容器元素');
+        return;
+    }
 
     // 模拟一些测试数据
     const testPosts = [
@@ -110,9 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    console.log('准备渲染测试帖子，数量:', testPosts.length);
+    
     // 渲染测试帖子
     testPosts.forEach(post => {
         const postElement = renderPost(post);
         postsContainer.appendChild(postElement);
     });
+    
+    console.log('测试帖子渲染完成');
 }); 
