@@ -25,21 +25,8 @@ function getImageUrl(imagePath) {
         return apiBaseUrl + cleanPath;
     }
     
-    // 处理静态资源图片
-    // 移除开头的斜杠（如果有）
-    const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-    
-    // 判断当前环境
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const basePath = isLocalhost ? '..' : '.';
-    
-    // 如果已经包含 images 目录，使用相对于当前环境的路径
-    if (cleanPath.startsWith('images/')) {
-        return `${basePath}/${cleanPath}`;
-    }
-    
-    // 否则添加 images 目录
-    return `${basePath}/images/${cleanPath}`;
+    // 其他情况，返回原始路径
+    return imagePath;
 }
 
 // 处理用户头像URL的函数
@@ -69,21 +56,13 @@ function getAvatarUrl(avatarPath) {
         return apiBaseUrl + cleanPath;
     }
     
-    // 处理静态资源头像
-    // 移除开头的斜杠（如果有）
-    const cleanPath = avatarPath.startsWith('/') ? avatarPath.substring(1) : avatarPath;
-    
-    // 判断当前环境
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const basePath = isLocalhost ? '..' : '.';
-    
-    // 如果已经包含 images/avatars 目录，使用相对于当前环境的路径
-    if (cleanPath.startsWith('images/avatars/')) {
-        return `${basePath}/${cleanPath}`;
+    // 检查是否是相对路径的头像
+    if (!avatarPath.startsWith('/')) {
+        return `/images/avatars/${avatarPath}`;
     }
     
-    // 否则添加 images/avatars 目录
-    return `${basePath}/images/avatars/${cleanPath}`;
+    // 其他情况，返回原始路径
+    return avatarPath;
 }
 
 // 渲染帖子的函数

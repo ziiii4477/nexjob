@@ -2214,9 +2214,25 @@
                         let postImage = '../images/default-post.jpg'; // 默认图片
                         
                         if (post.images && post.images.length > 0) {
-                            postImage = post.images[0];
+                            // 检查是否在Netlify环境中
+                            const isNetlify = window.location.hostname.includes('netlify.app');
+                            if (isNetlify && (post.images[0].includes('/uploads/') || post.images[0].includes('uploads/'))) {
+                                // 提取文件名
+                                const filename = post.images[0].split('/').pop();
+                                postImage = `/images/${filename}`;
+                            } else {
+                                postImage = post.images[0];
+                            }
                         } else if (post.image) {
-                            postImage = post.image;
+                            // 检查是否在Netlify环境中
+                            const isNetlify = window.location.hostname.includes('netlify.app');
+                            if (isNetlify && (post.image.includes('/uploads/') || post.image.includes('uploads/'))) {
+                                // 提取文件名
+                                const filename = post.image.split('/').pop();
+                                postImage = `/images/${filename}`;
+                            } else {
+                                postImage = post.image;
+                            }
                         }
                         
                         const deleteButton = containerId === '#my-posts-list' ? `
@@ -2228,11 +2244,25 @@
                             </button>
                         ` : '';
                         
+                        // 处理作者头像路径
+                        let avatarPath = '../images/user logo.jpg';
+                        if (post.author?.avatar) {
+                            // 检查是否在Netlify环境中
+                            const isNetlify = window.location.hostname.includes('netlify.app');
+                            if (isNetlify && (post.author.avatar.includes('/uploads/') || post.author.avatar.includes('uploads/'))) {
+                                // 提取文件名
+                                const filename = post.author.avatar.split('/').pop();
+                                avatarPath = `/images/${filename}`;
+                            } else {
+                                avatarPath = '/images/avatars/' + post.author.avatar;
+                            }
+                        }
+                        
                         html += `
                             <div class="masonry-grid-item">
                                 <div class="card post-card" data-id="${post._id}" style="cursor:pointer;">
                                     <div style="position:relative;margin:0;padding:0;">
-                                        <img src="${postImage}" class="card-img-top" alt="帖子图片">
+                                        <img src="${postImage}" class="card-img-top" alt="帖子图片" onerror="this.onerror=null; this.src='../images/default-post.jpg';">
                                         <span class="view-count">
                                             <i class="far fa-eye"></i> ${post.views || 0}
                                         </span>
@@ -2241,11 +2271,12 @@
                                     <div class="card-body">
                                         <h6 class="card-title">${post.title}</h6>
                                         <div class="d-flex align-items-center">
-                                            <img src="${post.author?.avatar ? '/images/avatars/' + post.author.avatar : '../images/user logo.jpg'}" 
+                                            <img src="${avatarPath}" 
                                                  class="rounded-circle me-1 clickable-user" 
                                                  data-user-id="${post.author?._id}"
                                                  style="cursor:pointer;"
-                                                 width="32">
+                                                 width="32"
+                                                 onerror="this.onerror=null; this.src='../images/user logo.jpg';">
                                             <span class="clickable-user text-truncate" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
                                                 ${post.author?.nickname || post.author?.name || '匿名'}
                                                 ${isHRUser(post.author?.userType) ? '<span class="badge bg-primary ms-1" style="font-size:0.6rem;">HR</span>' : ''}

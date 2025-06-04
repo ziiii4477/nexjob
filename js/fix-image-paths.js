@@ -1,17 +1,19 @@
 // 图片路径修复工具
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('图片路径修复工具已加载');
+(function() {
+    console.log('图片路径修复工具已初始化');
     
-    // 获取API基础URL
-    const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
-    console.log('API基础URL:', apiBaseUrl);
-    
-    // 检查是否在Netlify环境
-    const isNetlify = window.location.hostname.includes('netlify.app');
-    console.log('当前环境:', isNetlify ? 'Netlify生产环境' : '本地开发环境');
-    
-    // 延迟执行，确保页面中的图片元素都已加载
-    setTimeout(function() {
+    // 立即执行函数，确保尽早运行
+    function fixImagePaths() {
+        console.log('开始执行图片路径修复');
+        
+        // 获取API基础URL
+        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+        console.log('API基础URL:', apiBaseUrl);
+        
+        // 检查是否在Netlify环境
+        const isNetlify = window.location.hostname.includes('netlify.app');
+        console.log('当前环境:', isNetlify ? 'Netlify生产环境' : '本地开发环境');
+        
         // 查找所有图片元素
         const allImages = document.querySelectorAll('img');
         console.log(`开始修复 ${allImages.length} 张图片的路径`);
@@ -64,5 +66,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
             }
         });
-    }, 1500);
-}); 
+    }
+
+    // 在DOM内容加载完成后立即执行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fixImagePaths);
+    } else {
+        // 如果DOM已经加载完成，立即执行
+        fixImagePaths();
+    }
+
+    // 在页面完全加载后再次执行，确保处理动态加载的图片
+    window.addEventListener('load', function() {
+        setTimeout(fixImagePaths, 500);
+    });
+
+    // 创建一个MutationObserver来监视DOM变化，处理动态添加的图片
+    const observer = new MutationObserver(function(mutations) {
+        let hasNewImages = false;
+        
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeName === 'IMG') {
+                        hasNewImages = true;
+                    } else if (node.querySelectorAll) {
+                        const images = node.querySelectorAll('img');
+                        if (images.length > 0) {
+                            hasNewImages = true;
+                        }
+                    }
+                });
+            }
+        });
+        
+        if (hasNewImages) {
+            console.log('检测到新图片，重新执行路径修复');
+            fixImagePaths();
+        }
+    });
+
+    // 开始观察整个文档的变化
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+})(); 
