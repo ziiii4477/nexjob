@@ -101,22 +101,10 @@ app.use(morgan('dev'));
 
 // CORS配置
 app.use(cors({
-    origin: function(origin, callback) {
-        const allowedOrigins = [
-            'http://localhost:3000', 
-            'http://127.0.0.1:5500', 
-            'https://your-netlify-site.netlify.app'  // 替换为您的实际Netlify URL
-        ];
-        // 允许没有origin的请求（如移动应用或Postman）
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS policy violation'));
-        }
-    },
+    origin: true, // 允许所有域名的请求（仅用于开发和测试）
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 
 app.use(express.urlencoded({ extended: true }));

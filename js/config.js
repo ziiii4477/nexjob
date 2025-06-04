@@ -5,7 +5,7 @@ const config = {
     },
     // 生产环境API地址
     production: {
-        apiUrl: 'https://nexjob-backend.onrender.com' // 替换为您从Render获得的实际URL
+        apiUrl: 'https://nexjob-backend.onrender.com' // 替换为您实际的Render后端URL
     }
 };
 
