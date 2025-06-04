@@ -1,138 +1,158 @@
 // 处理图片URL的函数
 function getImageUrl(imagePath) {
     console.log('getImageUrl调用:', {
-        输入路径: imagePath,
-        环境: window.location.hostname.includes('netlify.app') ? 'Netlify' : '本地',
-        主机名: window.location.hostname
+        输入路径: imagePath
     });
 
     if (!imagePath) {
-        console.warn('getImageUrl: 未提供图片路径');
-        return './images/empty-box.svg';
+        console.warn('getImageUrl: 未提供图片路径, 返回本地默认占位图。');
+        return './images/empty-box.svg'; // 本地备用
     }
-    
-    // 如果是完整URL或数据URI，直接返回
-    if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
+
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+        console.log('getImageUrl: 路径已经是完整URL或Data URI:', imagePath);
         return imagePath;
     }
     
-    // 检查是否在Netlify环境
-    if (window.location.hostname.includes('netlify.app')) {
-        // 提取文件名
-        const filename = imagePath.split('/').pop();
-        const newPath = `/images/${filename}`;
-        console.log('getImageUrl Netlify环境处理:', {
+    const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+    
+    try {
+        // 确保 imagePath 是相对路径， new URL 会处理前导/的问题
+        const fullUrl = new URL(imagePath, apiBaseUrl).href;
+        console.log('getImageUrl处理结果:', {
             原始路径: imagePath,
-            文件名: filename,
-            新路径: newPath
-        });
-        return newPath;
-    } else {
-        // 本地环境
-        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
-        const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-        const fullUrl = apiBaseUrl + cleanPath;
-        console.log('getImageUrl本地环境处理:', {
-            原始路径: imagePath,
-            清理后路径: cleanPath,
-            完整URL: fullUrl
+            API基础URL: apiBaseUrl,
+            构造的URL: fullUrl
         });
         return fullUrl;
+    } catch (e) {
+        console.error('getImageUrl: 构建URL失败', { 
+            error: e.message, 
+            imagePath: imagePath, 
+            apiBaseUrl: apiBaseUrl 
+        });
+        return './images/empty-box.svg'; // 构建失败时的回退
     }
 }
 
 // 处理用户头像URL的函数
 function getAvatarUrl(avatarPath) {
     console.log('getAvatarUrl调用:', {
-        输入路径: avatarPath,
-        环境: window.location.hostname.includes('netlify.app') ? 'Netlify' : '本地',
-        主机名: window.location.hostname
+        输入路径: avatarPath
     });
 
     if (!avatarPath) {
-        console.warn('getAvatarUrl: 未提供头像路径');
-        return './images/user logo.jpg';
+        console.warn('getAvatarUrl: 未提供头像路径, 返回本地默认头像。');
+        return './images/user logo.jpg'; // 本地备用
     }
-    
-    // 如果是完整URL或数据URI，直接返回
-    if (avatarPath.startsWith('http') || avatarPath.startsWith('data:')) {
+
+    if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://') || avatarPath.startsWith('data:')) {
+        console.log('getAvatarUrl: 路径已经是完整URL或Data URI:', avatarPath);
         return avatarPath;
     }
-    
-    // 检查是否在Netlify环境
-    if (window.location.hostname.includes('netlify.app')) {
-        // 提取文件名
-        const filename = avatarPath.split('/').pop();
-        const newPath = `/images/${filename}`;
-        console.log('getAvatarUrl Netlify环境处理:', {
+
+    const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
+
+    try {
+        const fullUrl = new URL(avatarPath, apiBaseUrl).href;
+        console.log('getAvatarUrl处理结果:', {
             原始路径: avatarPath,
-            文件名: filename,
-            新路径: newPath
-        });
-        return newPath;
-    } else {
-        // 本地环境
-        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
-        const cleanPath = avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath;
-        const fullUrl = apiBaseUrl + cleanPath;
-        console.log('getAvatarUrl本地环境处理:', {
-            原始路径: avatarPath,
-            清理后路径: cleanPath,
-            完整URL: fullUrl
+            API基础URL: apiBaseUrl,
+            构造的URL: fullUrl
         });
         return fullUrl;
+    } catch (e) {
+        console.error('getAvatarUrl: 构建URL失败', {
+            error: e.message,
+            avatarPath: avatarPath,
+            apiBaseUrl: apiBaseUrl
+        });
+        return './images/user logo.jpg'; // 构建失败时的回退
     }
 }
 
 // 渲染帖子的函数
 function renderPost(post) {
-    const postElement = document.createElement('div');
-    postElement.className = 'masonry-grid-item';
-    
-    // 处理帖子图片
+    console.log('渲染帖子:', {
+        id: post._id,
+        有图片: !!post.image,
+        图片路径: post.image,
+        作者: post.author?.name,
+        头像路径: post.author?.avatar
+    });
+
+    // 帖子图片
     let imageUrl;
     if (post.images && post.images.length > 0) {
-        // 优先使用images数组中的第一张图片
         imageUrl = getImageUrl(post.images[0]);
     } else if (post.image) {
-        // 兼容旧数据格式
         imageUrl = getImageUrl(post.image);
     } else {
-        // 无图片时使用默认图片
-        imageUrl = './images/empty-box.svg';
+        // 帖子无图时，可使用本地备用或CDN备用
+        imageUrl = './images/empty-box.svg'; // 优先尝试本地
     }
+    const cdnPostFallback = 'https://via.placeholder.com/300x200/cccccc/666666?text=Post+Image';
+    const imageHtml = `<img src="${imageUrl}" class="card-img-top post-image" alt="${post.title || '帖子图片'}" onerror="this.onerror=null; this.src='${cdnPostFallback}';">`;
+
+    // 用户头像
+    const avatarPath = post.author?.avatar;
+    const avatarUrl = getAvatarUrl(avatarPath);
+    const cdnAvatarFallback = 'https://via.placeholder.com/150x150/cccccc/666666?text=User';
+    const avatarHtml = `<img src="${avatarUrl}" class="avatar rounded-circle" alt="用户头像" onerror="this.onerror=null; this.src='${cdnAvatarFallback}';">`;
     
-    const avatarUrl = getAvatarUrl(post.author?.avatar);
-    
-    console.log('渲染帖子图片:', post.title, '→', imageUrl);
-    
-    postElement.innerHTML = `
-        <div class="post-card card">
-            <img src="${imageUrl}" 
-                 class="card-img-top" 
-                 alt="${post.title || '帖子图片'}"
-                 onerror="this.onerror=null; this.src='./images/empty-box.svg';">
+    // 构建帖子HTML (返回字符串)
+    return `
+        <div class="card post-card" data-post-id="${post._id}">
+            ${imageHtml}
             <div class="card-body">
                 <h5 class="card-title">${post.title || '无标题'}</h5>
-                <div class="post-meta">
+                <p class="card-text">${post.content || '无内容'}</p>
+                <div class="post-footer">
                     <div class="user-info">
-                        <img src="${avatarUrl}" 
-                             class="avatar" 
-                             alt="用户头像"
-                             onerror="this.onerror=null; this.src='./images/user logo.jpg';">
-                        <span>${post.author?.name || '匿名用户'}</span>
+                        ${avatarHtml}
+                        <span>${post.author?.name || '未知用户'}</span>
                     </div>
-                    <div class="post-stats">
-                        <span><i class="far fa-heart"></i> ${post.likes?.length || 0}</span>
-                        <span><i class="far fa-star"></i> ${post.favorites?.length || 0}</span>
-                        <span><i class="far fa-comment"></i> ${post.comments?.length || 0}</span>
+                    <div class="post-actions">
+                        <button class="btn btn-sm btn-outline-primary like-btn" data-post-id="${post._id}">
+                            <i class="fas fa-thumbs-up"></i> ${post.likes?.length || 0}
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary comment-btn" data-post-id="${post._id}">
+                            <i class="fas fa-comment"></i> ${post.comments?.length || 0}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     `;
+}
+
+// 渲染帖子卡片的函数 (确保此函数存在且正确)
+function renderPostCards(posts, containerId) {
+    console.log(`渲染帖子到容器: #${containerId} 帖子数量: ${posts.length}`);
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`找不到容器: #${containerId}`);
+        return;
+    }
     
-    return postElement;
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 遍历帖子，生成HTML
+    let postsHTML = '';
+    posts.forEach(post => {
+        // renderPost 现在返回 HTML 字符串
+        postsHTML += `<div class="masonry-grid-item">${renderPost(post)}</div>`; 
+    });
+    
+    // 将生成的HTML添加到容器中
+    container.innerHTML = postsHTML;
+    
+    // 延迟初始化Masonry，等待图片加载
+    setTimeout(() => {
+        console.log(`准备初始化Masonry布局: #${containerId}`);
+        initMasonryForGrid(containerId); // 确保 initMasonryForGrid 正确处理新内容
+    }, 100);
 }
 
 // 初始化社区页面
