@@ -11,13 +11,23 @@ function getImageUrl(imagePath) {
     
     // 处理后端上传的图片路径
     if (imagePath.startsWith('/uploads/') || imagePath.includes('uploads/')) {
-        // 获取当前API基础URL
+        // 获取当前API基础URL - 使用实际的API地址
         const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
-        // 确保路径格式正确
+        
+        // 如果是在Netlify环境中
+        if (window.location.hostname.includes('netlify.app')) {
+            // 确保路径格式正确并指向正确的存储位置
+            const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+            // 使用Netlify的图片存储路径
+            return `${window.location.origin}/images${cleanPath}`;
+        }
+        
+        // 本地开发环境
         const cleanPath = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
         return apiBaseUrl + cleanPath;
     }
     
+    // 处理静态资源图片
     // 移除开头的斜杠（如果有）
     const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
     
@@ -49,11 +59,21 @@ function getAvatarUrl(avatarPath) {
     if (avatarPath.startsWith('/uploads/') || avatarPath.includes('uploads/')) {
         // 获取当前API基础URL
         const apiBaseUrl = window.API_BASE_URL || 'http://localhost:3001';
-        // 确保路径格式正确
+        
+        // 如果是在Netlify环境中
+        if (window.location.hostname.includes('netlify.app')) {
+            // 确保路径格式正确并指向正确的存储位置
+            const cleanPath = avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath;
+            // 使用Netlify的图片存储路径
+            return `${window.location.origin}/images${cleanPath}`;
+        }
+        
+        // 本地开发环境
         const cleanPath = avatarPath.startsWith('/') ? avatarPath : '/' + avatarPath;
         return apiBaseUrl + cleanPath;
     }
     
+    // 处理静态资源头像
     // 移除开头的斜杠（如果有）
     const cleanPath = avatarPath.startsWith('/') ? avatarPath.substring(1) : avatarPath;
     
