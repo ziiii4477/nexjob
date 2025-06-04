@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexJob - 连接欧洲职场，赋能华人社区</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    
+    <style>
+        /* 设置基础页面元素的z-index */
+        body * {
+            z-index: 1;
+        }
+        
+        /* 聊天框相关元素的最高z-index */
+        .nlux-chat-window,
+        .nlux-chat-window-wrapper,
+        .nlux-chat-window-inner,
+        .nlux-chat-launcher,
+        .nlux-chat-container,
+        .nlux-chat-frame,
+        .nlux-chat-overlay,
+        .nlux-chat-popup,
+        [class*="nlux-chat"] {
+            z-index: 2147483647 !important;
+        }
+    </style>
+
+    <!-- Chatbot UI -->
+    <link rel="stylesheet" crossorigin href="https://g.alicdn.com/aliyun-documentation/web-chatbot-ui/0.0.24/index.css" />
+    <script type="module" crossorigin src="https://g.alicdn.com/aliyun-documentation/web-chatbot-ui/0.0.24/index.js"></script>
+    <script>
+      window.CHATBOT_CONFIG = {
+        endpoint: "https://webchat-bot-pup-zlxhjozzls.cn-hangzhou.fcapp.run/chat",
+        displayByDefault: false,
+        title: 'AI 助手',
+        draggable: true,
+        aiChatOptions: {
+          conversationOptions: {
+            conversationStarters: [
+              {prompt: '这个网站是干什么的？'},
+              {prompt: '你可以帮我做什么？'},
+              {prompt: '网站收费的吗？'},
+            ]
+          },
+          displayOptions: {
+            height: 600,
+            zIndex: 2147483647
+          },
+          personaOptions: {
+            assistant: {
+              name: '你好，我是你的 AI 助手',
+              avatar: 'https://img.alicdn.com/imgextra/i2/O1CN01Pda9nq1YDV0mnZ31H_!!6000000003025-54-tps-120-120.apng',
+              tagline: '您可以尝试点击下方的快捷入口开启体验！',
+            }
+          },
+          messageOptions: {
+            waitTimeBeforeStreamCompletion: 'never'
+          }
+        },
+        dataProcessor: {
+          rewritePrompt(prompt) {
+            return prompt;
+          }
+        }
+      };
+    </script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="images/nexjob logo.png" alt="NexJob Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/community.html">社区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/events.html">活动</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/ai-assistant.html">AI助手</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pages/about.html">关于我们</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="language-switch me-3">
+                        <a href="index-en.html" class="btn btn-outline-secondary btn-sm">EN</a>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="pages/login.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 功能卡片区域 -->
+    <section class="feature-cards-section py-5 bg-light content-container">
+        <div class="container h-100">
+            <div class="section-header text-center mb-5">
+                <h1 class="display-4 mb-4">连接欧洲职场，赋能华人社区</h1>
+                <p class="lead mb-5">发现欧洲优质工作机会，加入充满活力的华人职业社区</p>
+            </div>
+            <div class="row justify-content-center align-items-stretch g-4">
+                <!-- 精彩活动卡片 -->
+                <div class="col-md-2 feature-card-wrapper">
+                    <div class="feature-card small with-shadow">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>精彩活动</h3>
+                        <p>参与线上线下活动，拓展人脉资源</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 行业分享会</li>
+                            <li><i class="fas fa-check"></i> 求职经验交流</li>
+                            <li><i class="fas fa-check"></i> 企业见面会</li>
+                        </ul>
+                        <a href="pages/events.html" class="btn btn-outline-primary mt-3">浏览活动</a>
+                    </div>
+                </div>
+                <!-- 热门职位卡片 -->
+                <div class="col-md-2">
+                    <div class="feature-card small">
+                        <div class="card-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3>热门职位</h3>
+                        <p>发现欧洲最新最热门的工作机会</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 精选职位推荐</li>
+                            <li><i class="fas fa-check"></i> 薪资福利透明</li>
+                            <li><i class="fas fa-check"></i> 一键快速投递</li>
+                        </ul>
+                        <a href="pages/community.html" class="btn btn-outline-primary mt-3">社区讨论</a>
+                    </div>
+                </div>
+                <!-- AI助手卡片 -->
+                <div class="col-md-3">
+                    <div class="feature-card large">
+                        <div class="card-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI助手</h3>
+                        <p>智能AI助手为您提供全方位的求职支持</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 智能职位匹配</li>
+                            <li><i class="fas fa-check"></i> 简历优化建议</li>
+                            <li><i class="fas fa-check"></i> 面试技巧指导</li>
+                            <li><i class="fas fa-check"></i> 职业发展规划</li>
+                        </ul>
+                        <a href="pages/ai-assistant.html" class="btn btn-outline-primary mt-3">开始对话</a>
+                    </div>
+                </div>
+                <!-- 社区动态卡片 -->
+                <div class="col-md-2">
+                    <div class="feature-card small">
+                        <div class="card-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>社区动态</h3>
+                        <p>加入充满活力的华人职业社区，分享经验与见解</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 职场经验交流</li>
+                            <li><i class="fas fa-check"></i> 行业资讯分享</li>
+                            <li><i class="fas fa-check"></i> 人脉资源拓展</li>
+                        </ul>
+                        <a href="pages/community.html" class="btn btn-outline-primary mt-3">了解更多</a>
+                    </div>
+                </div>
+                <!-- 更多惊喜卡片 -->
+                <div class="col-md-2 feature-card-wrapper">
+                    <div class="feature-card small with-shadow">
+                        <div class="card-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3>更多惊喜</h3>
+                        <p>探索更多专属会员权益与优质服务</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> 专属内推机会</li>
+                            <li><i class="fas fa-check"></i> 一对一咨询</li>
+                            <li><i class="fas fa-check"></i> 会员专享福利</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline-primary mt-3">了解详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 合作伙伴部分 -->
+    <section class="partners-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h2 class="section-title">合作伙伴</h2>
+                <p class="section-subtitle">与行业领先企业携手，为您提供优质的就业机会</p>
+            </div>
+            <div class="partners-grid">
+                <div class="partner-card">
+                    <img src="images/partners/volvo_logo.png" alt="Volvo Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/ericsson logo.jpg" alt="Ericsson Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/nio-inc-logo.png" alt="NIO Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/IKEA-Logo.png" alt="IKEA Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/logo-spotify.png" alt="Spotify Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/Bosch-Logo.png" alt="Bosch Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/axis_logo.png" alt="Axis Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/paradox-interactive-logo.png" alt="Paradox Interactive Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/huaweilogo.jpg" alt="Huawei Logo">
+                </div>
+                <div class="partner-card">
+                    <img src="images/partners/xiaomi logo.jpg" alt="Xiaomi Logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>NexJob总部位于瑞典隆德，致力于连接欧洲职场和华人社区，为在欧洲的华人提供职业发展机会和社区支持。</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">首页</a></li>
+                        <li><a href="pages/community.html">社区</a></li>
+                        <li><a href="pages/events.html">活动</a></li>
+                        <li><a href="pages/ai-assistant.html">AI助手</a></li>
+                        <li><a href="pages/about.html">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 隆德, 瑞典</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>关注我们</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">使用条款</a>
+                    <a href="#" class="text-light">隐私政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html> 

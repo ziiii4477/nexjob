@@ -1,0 +1,49 @@
+# 依赖
+node_modules/
+/node_modules
+*/node_modules/*
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# 编辑器目录和文件
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 上传文件目录
+uploads/
+/uploads
+*/uploads/*
+
+# 构建输出
+/dist
+/build
+/out
+
+# 缓存
+.cache/
+.temp/
+.tmp/
+
+# 其他
+*.pid
+*.seed
+*.pid.lock 

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Registration - NexJob</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    HR Registration
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Already have an account?
+                    <a href="login-en.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Login here
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" id="registerForm">
+                <!-- Personal Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input type="email" id="email" name="email" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
+                            <input type="text" id="position" name="position" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="password" name="password" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$">
+                            <p class="mt-1 text-sm text-gray-500">At least 8 characters, must include letters and numbers</p>
+                        </div>
+                        <div>
+                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="inviteCode" class="block text-sm font-medium text-gray-700">Beta Invite Code</label>
+                            <input type="text" id="inviteCode" name="inviteCode" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <p class="mt-1 text-sm text-gray-500">Please enter your beta invitation code</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Information -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Company Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="companyName" class="block text-sm font-medium text-gray-700">Company Name</label>
+                            <input type="text" id="companyName" name="companyName" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="companySize" class="block text-sm font-medium text-gray-700">Company Size</label>
+                            <select id="companySize" name="companySize" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="">Please select</option>
+                                <option value="1-50">1-50 employees</option>
+                                <option value="51-200">51-200 employees</option>
+                                <option value="201-500">201-500 employees</option>
+                                <option value="501-1000">501-1000 employees</option>
+                                <option value="1000+">1000+ employees</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="companyAddress" class="block text-sm font-medium text-gray-700">Company Address</label>
+                            <input type="text" id="companyAddress" name="companyAddress" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="businessLicense" class="block text-sm font-medium text-gray-700">Business License</label>
+                            <input type="file" id="businessLicense" name="businessLicense" accept="image/*,.pdf" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <p class="mt-1 text-sm text-gray-500">Supported formats: JPG, PNG, PDF. Max file size: 5MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input id="agreeTerms" name="agreeTerms" type="checkbox" required
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="agreeTerms" class="ml-2 block text-sm text-gray-900">
+                        I have read and agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> and 
+                        <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Register
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Password matching validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Password strength validation
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const hasLetter = /[A-Za-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const isLongEnough = password.length >= 8;
+            
+            let message = '';
+            if (!isLongEnough) message += 'Password must be at least 8 characters\n';
+            if (!hasLetter) message += 'Must include letters\n';
+            if (!hasNumber) message += 'Must include numbers';
+            
+            this.setCustomValidity(message);
+        });
+
+        // Handle registration form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const formData = new FormData();
+                formData.append('name', document.getElementById('fullName').value);
+                formData.append('email', document.getElementById('email').value);
+                formData.append('password', document.getElementById('password').value);
+                formData.append('phone', document.getElementById('phone').value);
+                formData.append('inviteCode', document.getElementById('inviteCode').value);
+
+                // Build company information object
+                const company = {
+                    name: document.getElementById('companyName').value,
+                    position: document.getElementById('position').value,
+                    size: document.getElementById('companySize').value,
+                    address: document.getElementById('companyAddress').value
+                };
+                formData.append('company', JSON.stringify(company));
+                
+                const businessLicense = document.getElementById('businessLicense').files[0];
+                if (businessLicense) {
+                    formData.append('businessLicense', businessLicense);
+                }
+
+                const response = await fetch('http://localhost:3001/api/v1/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Registration response:', data);
+
+                if (response.ok) {
+                    alert('Registration successful! Please check your email for confirmation.');
+                    window.location.href = 'login-en.html';
+                } else {
+                    const errorMessage = data.message || data.error || 'Registration failed, please check your input';
+                    console.error('Registration error details:', data);
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed, please try again later');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - NexJob</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <img src="../images/nexjob logo.png" alt="NexJob" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="community.html">社区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events.html">活动</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ai-assistant.html">AI助手</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">关于我们</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="language-switch me-3">
+                        <a href="profile-en.html" class="btn btn-outline-secondary btn-sm">EN</a>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="profile.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 个人中心主要内容 -->
+    <section class="profile-section py-5">
+        <div class="container">
+            <div class="row">
+                <!-- 左侧个人信息 -->
+                <div class="col-lg-3">
+                    <div class="profile-sidebar bg-white p-4 rounded shadow-sm">
+                        <div class="text-center mb-4">
+                            <div class="profile-avatar mb-3 position-relative">
+                                <img src="../images/user logo.jpg" alt="用户头像" class="rounded-circle" width="120" id="userAvatar">
+                                <!-- 相机按钮已删除 -->
+                            </div>
+                            <h5 class="mb-1">用户名</h5>
+                            <p class="text-muted small mb-3">user@example.com</p>
+                        </div>
+                        <hr>
+                        <ul class="nav flex-column profile-nav">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#" data-section="profile-info">
+                                    <i class="fas fa-user me-2"></i>个人资料
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-section="resume">
+                                    <i class="fas fa-file-alt me-2"></i>我的简历
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-section="applications">
+                                    <i class="fas fa-briefcase me-2"></i>投递记录
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-section="saved-jobs">
+                                    <i class="fas fa-heart me-2"></i>收藏职位
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-section="settings">
+                                    <i class="fas fa-cog me-2"></i>账号设置
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 右侧内容区域 -->
+                <div class="col-lg-9">
+                    <div class="profile-content bg-white p-4 rounded shadow-sm">
+                        <!-- 个人资料部分 -->
+                        <div id="profile-info">
+                            <h4 class="mb-4">个人资料</h4>
+                            <p class="text-muted mb-4">这些信息将在社区中公开显示，您可以决定哪些信息对其他用户可见</p>
+                            
+                            <form id="profileForm">
+                                <!-- 基本个人资料 -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">基本信息</h5>
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">用户名</label>
+                                            <input type="text" class="form-control" name="displayName" placeholder="您希望他人如何称呼您">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">可见性</label>
+                                            <select class="form-select" name="nameVisibility">
+                                                <option value="public">公开</option>
+                                                <option value="connections">仅联系人可见</option>
+                                                <option value="private">私密</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">头像</label>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3 position-relative">
+                                                    <img src="../images/user logo.jpg" alt="用户头像" class="rounded-circle" width="80" height="80" id="profileImage">
+                                                </div>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                                                    选择头像
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">可见性</label>
+                                            <select class="form-select" name="avatarVisibility">
+                                                <option value="public">公开</option>
+                                                <option value="connections">仅联系人可见</option>
+                                                <option value="private">私密</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 联系方式 -->
+                                <div class="mb-4">
+                                    <h5 class="mb-3">联系方式</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">电子邮箱</label>
+                                            <input type="email" class="form-control" name="email" value="user@example.com" disabled>
+                                            <div class="form-text">主邮箱不可更改，用于接收重要通知</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">可见性</label>
+                                            <select class="form-select" name="emailVisibility">
+                                                <option value="private" selected>私密</option>
+                                                <option value="connections">仅联系人可见</option>
+                                                <option value="public">公开</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">手机号码</label>
+                                            <input type="tel" class="form-control" name="phone" placeholder="例如：+46 123 456789">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">可见性</label>
+                                            <select class="form-select" name="phoneVisibility">
+                                                <option value="private" selected>私密</option>
+                                                <option value="connections">仅联系人可见</option>
+                                                <option value="public">公开</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary" id="saveProfile">保存个人资料</button>
+                            </form>
+                        </div>
+
+                        <div id="resume" style="display: none;">
+                            <h4 class="mb-4">我的简历</h4>
+                            
+                            <!-- 简历选项卡 -->
+                            <ul class="nav nav-tabs mb-4" id="resumeTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="linkedin-tab" data-bs-toggle="tab" data-bs-target="#linkedin" type="button" role="tab">领英导入</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">上传简历</button>
+                                </li>
+                            </ul>
+                            
+                            <!-- 选项卡内容 -->
+                            <div class="tab-content" id="resumeTabContent">
+                                <!-- 领英导入 -->
+                                <div class="tab-pane fade show active" id="linkedin" role="tabpanel">
+                                    <div class="text-center py-4">
+                                        <i class="fab fa-linkedin fa-3x text-primary mb-3"></i>
+                                        <h5 class="mb-3">导入领英资料</h5>
+                                        <p class="mb-4">通过领英账号快速导入您的个人资料</p>
+                                        
+                                        <!-- 未连接状态 -->
+                                        <div id="linkedinNotConnected" class="mb-4">
+                                            <button type="button" class="btn btn-primary btn-lg" id="connectLinkedin">
+                                                <i class="fab fa-linkedin me-2"></i>连接领英账号
+                                            </button>
+                                            <div class="form-text text-muted mt-2">我们将获取您的公开资料信息</div>
+                                        </div>
+
+                                        <!-- 已连接状态 -->
+                                        <div id="linkedinConnected" style="display: none;">
+                                            <div class="alert alert-success mb-4">
+                                                <i class="fas fa-check-circle me-2"></i>已成功连接领英账号
+                                            </div>
+                                            <div class="mb-4">
+                                                <img src="" alt="领英头像" class="rounded-circle mb-3" width="80" height="80" id="linkedinAvatar">
+                                                <h6 id="linkedinName"></h6>
+                                                <p class="text-muted" id="linkedinHeadline"></p>
+                                            </div>
+                                            <div class="d-flex justify-content-center gap-3">
+                                                <button type="button" class="btn btn-outline-primary" id="importLinkedinData">
+                                                    <i class="fas fa-sync-alt me-2"></i>更新资料
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" id="disconnectLinkedin">
+                                                    <i class="fas fa-unlink me-2"></i>断开连接
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 上传简历 -->
+                                <div class="tab-pane fade" id="upload" role="tabpanel">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5 class="mb-3">上传您的简历</h5>
+                                        <p class="mb-4">仅支持PDF格式，文件大小不超过5MB</p>
+                                        
+                                        <!-- 中文简历上传 -->
+                                        <div class="card mb-4">
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-3">
+                                                    <i class="fas fa-file-alt me-2"></i>中文简历
+                                                </h6>
+                                                <div class="mb-3">
+                                                    <input type="file" class="form-control" id="chineseResumeFile" accept=".pdf,.docx,.doc">
+                                                    <div class="form-text">上传中文版简历，用于申请中文职位</div>
+                                                </div>
+                                                <button type="button" class="btn btn-primary" onclick="uploadResume(document.getElementById('chineseResumeFile').files[0], 'zh')">
+                                                    <i class="fas fa-upload me-2"></i>上传中文简历
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 英文简历上传 -->
+                                        <div class="card mb-4">
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-3">
+                                                    <i class="fas fa-file-alt me-2"></i>英文简历
+                                                </h6>
+                                                <div class="mb-3">
+                                                    <input type="file" class="form-control" id="englishResumeFile" accept=".pdf,.docx,.doc">
+                                                    <div class="form-text">上传英文版简历，用于申请英文职位</div>
+                                                </div>
+                                                <button type="button" class="btn btn-primary" onclick="uploadResume(document.getElementById('englishResumeFile').files[0], 'en')">
+                                                    <i class="fas fa-upload me-2"></i>上传英文简历
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 已上传的简历列表 -->
+                                    <div class="mt-5" id="uploadedResumes">
+                                        <h6 class="mb-3">已上传的简历</h6>
+                                        <div class="list-group" id="resumeFilesList">
+                                            <!-- 简历文件将在这里动态显示 -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 投递记录部分 -->
+                        <div id="applications" style="display: none;">
+                            <h4 class="mb-4">投递记录</h4>
+                            
+                            <!-- 统计摘要 -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="card-title" id="totalApplications">0</h3>
+                                            <p class="card-text text-muted mb-0">总投递数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="card-title" id="activeApplications">0</h3>
+                                            <p class="card-text text-muted mb-0">处理中</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="card-title" id="interviewCount">0</h3>
+                                            <p class="card-text text-muted mb-0">面试邀请</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 class="card-title" id="offerCount">0</h3>
+                                            <p class="card-text text-muted mb-0">收到Offer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 投递记录列表 -->
+                            <div id="applicationsList">
+                                <!-- 如果没有投递记录 -->
+                                <div id="noApplications" class="text-center py-5">
+                                    <img src="../images/empty-box.svg" alt="没有投递记录" class="mb-3" width="120">
+                                    <h5 class="text-muted">您还没有投递任何职位</h5>
+                                    <p class="text-muted mb-4">在"职位搜索"中找到合适的职位并投递简历</p>
+                                    <a href="jobs.html" class="btn btn-primary">浏览职位</a>
+                                </div>
+                                
+                                <!-- 投递记录卡片 (应用时会隐藏上面的空记录提示并显示实际记录) -->
+                                <div id="hasApplications" style="display: none;">
+                                    <div class="application-card mb-3 p-3 border rounded bg-white">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h5 class="mb-1">高级前端开发工程师</h5>
+                                                <p class="text-muted mb-2">Neo科技 • 斯德哥尔摩</p>
+                                                <div class="d-flex gap-3 mb-2">
+                                                    <span class="badge bg-light text-dark">
+                                                        <i class="fas fa-clock me-1"></i>全职
+                                                    </span>
+                                                    <span class="badge bg-light text-dark">
+                                                        <i class="fas fa-money-bill-wave me-1"></i>40,000-50,000 SEK/月
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-md-end">
+                                                <span class="badge bg-success mb-2">面试邀请</span>
+                                                <p class="small text-muted mb-0">投递于 2024-04-15</p>
+                                                <p class="small text-muted mb-0">更新于 2024-04-17</p>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-eye me-1"></i>查看详情
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-comments me-1"></i>联系HR
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash-alt me-1"></i>删除记录
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 分页 -->
+                                    <nav aria-label="Page navigation" class="mt-4">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+                                            </li>
+                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="#">下一页</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 收藏职位部分 -->
+                        <div id="saved-jobs" style="display: none;">
+                            <h4 class="mb-4">收藏职位</h4>
+                            
+                            <!-- 搜索和筛选 -->
+                            <div class="row mb-4">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="搜索职位名称或公司" id="savedJobSearch">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <select class="form-select" id="jobSortFilter">
+                                        <option value="newest">最新收藏</option>
+                                        <option value="salary-high">薪资从高到低</option>
+                                        <option value="salary-low">薪资从低到高</option>
+                                        <option value="company">公司名称</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 没有收藏时显示 -->
+                            <div id="noSavedJobs" class="text-center py-5">
+                                <i class="far fa-bookmark fa-5x mb-3 text-muted"></i>
+                                <h5 class="text-muted">您还没有收藏任何职位</h5>
+                                <p class="text-muted mb-4">浏览职位并点击"收藏"按钮，将感兴趣的职位保存在这里</p>
+                                <a href="jobs.html" class="btn btn-primary">浏览职位</a>
+                            </div>
+                            
+                            <!-- 有收藏时显示 -->
+                            <div id="hasSavedJobs" style="display: none;">
+                                <div class="row row-cols-1 row-cols-md-2 g-4">
+                                    <!-- 职位卡片 -->
+                                    <div class="col">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h5 class="card-title mb-0">高级前端开发工程师</h5>
+                                                    <button class="btn btn-sm btn-outline-danger" title="取消收藏">
+                                                        <i class="fas fa-heart"></i>
+                                                    </button>
+                                                </div>
+                                                <h6 class="card-subtitle mb-2 text-muted">Neo科技 • 斯德哥尔摩</h6>
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <span class="badge bg-light text-dark">全职</span>
+                                                    <span class="badge bg-light text-dark">40,000-50,000 SEK/月</span>
+                                                    <span class="badge bg-light text-dark">3-5年经验</span>
+                                                </div>
+                                                <p class="card-text text-truncate-3" style="max-height: 4.5rem; overflow: hidden;">
+                                                    负责公司产品的前端开发，使用React和TypeScript构建高性能、可扩展的用户界面。与设计师和后端工程师紧密合作，确保产品的用户体验和技术实现保持一致。
+                                                </p>
+                                            </div>
+                                            <div class="card-footer bg-white border-top-0">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">收藏于 2024-04-15</small>
+                                                    <div>
+                                                        <a href="job-detail.html?id=1" class="btn btn-sm btn-outline-primary me-2">查看详情</a>
+                                                        <a href="apply.html?id=1" class="btn btn-sm btn-primary">立即申请</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h5 class="card-title mb-0">DevOps工程师</h5>
+                                                    <button class="btn btn-sm btn-outline-danger" title="取消收藏">
+                                                        <i class="fas fa-heart"></i>
+                                                    </button>
+                                                </div>
+                                                <h6 class="card-subtitle mb-2 text-muted">Spotify • 斯德哥尔摩</h6>
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <span class="badge bg-light text-dark">全职</span>
+                                                    <span class="badge bg-light text-dark">45,000-60,000 SEK/月</span>
+                                                    <span class="badge bg-light text-dark">2-4年经验</span>
+                                                </div>
+                                                <p class="card-text text-truncate-3" style="max-height: 4.5rem; overflow: hidden;">
+                                                    负责构建和维护我们的CI/CD流程，确保安全、可靠的部署。管理和优化我们的Kubernetes集群，并与开发团队密切合作，提高开发效率和系统可靠性。
+                                                </p>
+                                            </div>
+                                            <div class="card-footer bg-white border-top-0">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">收藏于 2024-04-10</small>
+                                                    <div>
+                                                        <a href="job-detail.html?id=2" class="btn btn-sm btn-outline-primary me-2">查看详情</a>
+                                                        <a href="apply.html?id=2" class="btn btn-sm btn-primary">立即申请</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 分页 -->
+                                <nav aria-label="Page navigation" class="mt-4">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">下一页</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        
+                        <!-- 账号设置部分 -->
+                        <div id="settings" style="display: none;">
+                            <h4 class="mb-4">账号设置</h4>
+                            
+                            <!-- 设置选项卡 -->
+                            <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-settings" type="button" role="tab">密码安全</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy-settings" type="button" role="tab">隐私设置</button>
+                                </li>
+                            </ul>
+                            
+                            <!-- 选项卡内容 -->
+                            <div class="tab-content" id="settingsTabContent">
+                                <!-- 密码安全 -->
+                                <div class="tab-pane fade show active" id="password-settings" role="tabpanel">
+                                    <form id="passwordSettingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">当前密码</label>
+                                            <input type="password" class="form-control" id="currentPassword" required>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">新密码</label>
+                                            <input type="password" class="form-control" id="newPassword" required>
+                                            <small class="form-text text-muted">密码长度至少8位，包含字母、数字和特殊字符</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">确认新密码</label>
+                                            <input type="password" class="form-control" id="confirmPassword" required>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary">更新密码</button>
+                                    </form>
+                                </div>
+                                
+                                <!-- 隐私设置 -->
+                                <div class="tab-pane fade" id="privacy-settings" role="tabpanel">
+                                    <form id="privacySettingsForm">
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">接收邮件更新</h6>
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="emailSubscription" checked>
+                                                <label class="form-check-label" for="emailSubscription">
+                                                    接收邮件更新
+                                                </label>
+                                                <div class="form-text text-muted">接收职位推荐、活动通知等重要更新</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">数据管理</h6>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">删除我的账号</button>
+                                            <div class="form-text text-muted">这将永久删除您的账号和所有相关数据</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>NexJob致力于连接欧洲职场和华人社区，为在欧洲的华人提供职业发展机会和社区支持。</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="jobs.html">职位搜索</a></li>
+                        <li><a href="community.html">社区</a></li>
+                        <li><a href="events.html">活动</a></li>
+                        <li><a href="about.html">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 瑞典隆德</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>关注我们</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">使用条款</a>
+                    <a href="#" class="text-light">隐私政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- MockAPI服务 - 模拟服务器响应 -->
+    <!-- ...（整个 <script> ... </script> 块已被删除）... -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户类型，确保只有求职者可以访问此页面
+            const userType = localStorage.getItem('userType');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (userType === 'hr') {
+                console.log('HR用户尝试访问求职者页面，重定向到HR仪表板');
+                window.location.href = 'hr-dashboard.html';
+                return;
+            }
+            
+            // 继续加载页面内容
+            getCurrentUser();
+        });
+
+        // 获取用户信息
+        async function getCurrentUser() {
+            try {
+                const token = localStorage.getItem('token');
+                const userType = localStorage.getItem('userType');
+                
+                console.log('当前存储的认证信息:', {
+                    token: token ? '存在' : '不存在',
+                    userType: userType
+                });
+                
+                if (!token) {
+                    console.log('未找到token，重定向到登录页面');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const apiEndpoint = userType === 'hr' ? 
+                    'http://localhost:3001/api/v1/auth/me' : 
+                    'http://localhost:3001/api/v1/jobseeker/me';
+
+                console.log('正在请求用户信息，API端点:', apiEndpoint);
+                console.log('使用的token:', token);
+
+                // 使用 window.fetch 而不是直接使用 fetch
+                const response = await window.fetch(apiEndpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                console.log('API响应状态:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API响应数据:', data);
+                
+                if (data.success) {
+                    console.log('成功获取用户信息:', data.data);
+                    updateUserInfo(data.data);
+                } else {
+                    console.error('获取用户信息失败:', data.error);
+                    if (data.error === 'Unauthorized' || response.status === 401) {
+                        console.log('认证失败，重定向到登录页面');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userType');
+                        window.location.href = 'login.html';
+                    }
+                }
+            } catch (error) {
+                console.error('获取用户信息出错:', error);
+                console.error('错误详情:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    alert('网络连接失败，请检查您的网络连接或服务器状态');
+                } else {
+                    alert('获取用户信息失败，请重新登录');
+                }
+                
+                localStorage.removeItem('token');
+                localStorage.removeItem('userType');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // 更新用户信息显示
+        function updateUserInfo(user) {
+            console.log('开始更新用户信息显示，收到的用户数据:', user);
+            
+            // 更新左侧个人信息
+            const nameElement = document.querySelector('.profile-sidebar h5');
+            const emailElement = document.querySelector('.profile-sidebar .text-muted.small');
+            
+            if (nameElement) nameElement.textContent = user.name || '用户名';
+            if (emailElement) emailElement.textContent = user.email || '';
+
+            // 更新个人资料表单信息
+            const profileFormElements = {
+                displayName: document.querySelector('input[name="displayName"]'),
+                email: document.querySelector('input[name="email"]'),
+                phone: document.querySelector('input[name="phone"]')
+            };
+
+            if (profileFormElements.displayName) profileFormElements.displayName.value = user.name || '';
+            if (profileFormElements.email) profileFormElements.email.value = user.email || '';
+            if (profileFormElements.phone) profileFormElements.phone.value = user.phone || '';
+
+            // 更新邮件订阅开关状态
+            const emailSubscription = document.getElementById('emailSubscription');
+            if (emailSubscription) {
+                emailSubscription.checked = user.emailSubscription === undefined ? false : user.emailSubscription;
+            }
+
+            // 更新头像 - 确保使用正确的相对路径
+            if (user.avatar) {
+                // 检查avatar是否已经是完整路径
+                const avatarPath = user.avatar.includes('http') ? 
+                    user.avatar : 
+                    `../images/avatars/${user.avatar}`;
+                
+                const userAvatar = document.getElementById('userAvatar');
+                const profileImage = document.getElementById('profileImage');
+                
+                if (userAvatar) userAvatar.src = avatarPath;
+                if (profileImage) profileImage.src = avatarPath;
+                
+                console.log('更新头像路径为:', avatarPath);
+            }
+
+            console.log('用户信息更新完成');
+        }
+
+        // 头像选择功能
+        function selectAvatar(avatarSrc) {
+            // 从完整URL中提取文件名
+            const avatarFileName = avatarSrc.split('/').pop();
+            
+            // 更新显示的头像（使用相对路径）
+            document.getElementById('userAvatar').src = `../images/avatars/${avatarFileName}`;
+            document.getElementById('profileImage').src = `../images/avatars/${avatarFileName}`;
+            
+            // 获取用户类型和token
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+
+            // 先关闭模态框，确保用户体验
+            forceCloseModal();
+
+            // 构建API请求URL
+            const apiEndpoint = userType === 'hr'
+                ? 'http://localhost:3001/api/v1/auth/updatedetails'
+                : 'http://localhost:3001/api/v1/jobseeker/updatedetails';
+
+            // 发送更新请求
+            fetch(apiEndpoint, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    avatar: avatarFileName  // 只发送文件名
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新本地存储的用户信息
+                    const currentUser = JSON.parse(localStorage.getItem('user'));
+                    if (currentUser) {
+                        currentUser.avatar = avatarFileName;  // 保存文件名
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                    }
+
+                    // 显示成功消息
+                    console.log('头像更新成功');
+                } else {
+                    throw new Error(data.error || '更新头像失败');
+                }
+            })
+            .catch(error => {
+                console.error('更新头像失败:', error);
+                alert('更新头像失败，请稍后重试');
+            });
+        }
+
+        // 强制关闭模态框并重置页面状态
+        function forceCloseModal() {
+            try {
+                // 1. 尝试使用Bootstrap API关闭模态框
+                const modalElement = document.getElementById('avatarModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            } catch (e) {
+                console.error('关闭模态框出错:', e);
+            }
+            
+            // 2. 强制重置DOM状态
+            document.body.className = document.body.className.replace(/\bmodal-open\b/, '');
+            
+            // 3. 移除所有模态框背景
+            try {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => {
+                    backdrop.parentNode.removeChild(backdrop);
+                });
+            } catch (e) {
+                console.error('移除背景出错:', e);
+            }
+            
+            // 4. 重置模态框状态
+            try {
+                const modalElement = document.getElementById('avatarModal');
+                modalElement.style.display = 'none';
+                modalElement.classList.remove('show');
+                modalElement.setAttribute('aria-hidden', 'true');
+                modalElement.removeAttribute('aria-modal');
+                modalElement.removeAttribute('role');
+            } catch (e) {
+                console.error('重置模态框状态出错:', e);
+            }
+            
+            // 5. 强制重置body样式
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+            
+            // 6. 重置navbar位置和样式
+            try {
+                const navbar = document.querySelector('.navbar.fixed-top');
+                if (navbar) {
+                    navbar.style.removeProperty('padding-right');
+                    navbar.style.removeProperty('margin-right');
+                }
+            } catch (e) {
+                console.error('重置导航栏样式出错:', e);
+            }
+            
+            // 7. 最后的手段 - 添加一个小延迟后强制启用滚动和重置所有样式
+            setTimeout(() => {
+                // 重置body样式
+                document.body.style.overflow = 'visible';
+                document.body.style.paddingRight = '0';
+                
+                // 重置html样式
+                document.documentElement.style.overflow = 'auto';
+                document.documentElement.style.height = 'auto';
+                
+                // 重置所有容器的位置
+                try {
+                    document.querySelectorAll('.container').forEach(container => {
+                        container.style.paddingRight = '';
+                        container.style.marginRight = '';
+                    });
+                } catch (e) {
+                    console.error('重置容器样式出错:', e);
+                }
+                
+                // 重置页面布局，强制浏览器重排
+                document.body.style.display = 'none';
+                // 强制回流
+                void document.body.offsetHeight;
+                document.body.style.display = '';
+                
+                // 尝试触发window的resize事件，有时这可以重置页面状态
+                try {
+                    window.dispatchEvent(new Event('resize'));
+                } catch (e) {
+                    console.error('触发resize事件出错:', e);
+                }
+            }, 100);
+        }
+
+        // 邮件订阅开关的即时保存
+        document.getElementById('emailSubscription').addEventListener('change', async function(e) {
+            const isChecked = e.target.checked;
+            const userType = localStorage.getItem('userType');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert('请先登录');
+                return;
+            }
+
+            try {
+                console.log('正在保存邮件订阅设置:', isChecked);
+                console.log('用户类型:', userType);
+                
+                const response = await fetch(`http://localhost:3001/api/v1/${userType === 'hr' ? 'auth' : 'jobseeker'}/updatedetails`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        emailSubscription: isChecked
+                    })
+                });
+
+                console.log('服务器响应状态:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('服务器错误响应:', errorText);
+                    throw new Error(`保存设置失败: ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('保存邮件订阅设置响应:', data);
+                
+                if (data.success) {
+                    // 更新本地存储的用户信息
+                    const currentUser = JSON.parse(localStorage.getItem('user'));
+                    if (currentUser) {
+                        currentUser.emailSubscription = isChecked;
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                    }
+                    // 重新获取用户信息以更新显示
+                    await getCurrentUser();
+                } else {
+                    throw new Error(data.error || '保存失败');
+                }
+            } catch (error) {
+                console.error('保存邮件订阅设置失败:', error);
+                e.target.checked = !isChecked; // 恢复开关状态
+                alert('保存设置失败，请稍后重试');
+            }
+        });
+
+        // 领英登录相关功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const connectLinkedinBtn = document.getElementById('connectLinkedin');
+            const importLinkedinDataBtn = document.getElementById('importLinkedinData');
+            const disconnectLinkedinBtn = document.getElementById('disconnectLinkedin');
+            const linkedinNotConnected = document.getElementById('linkedinNotConnected');
+            const linkedinConnected = document.getElementById('linkedinConnected');
+
+            // 检查是否已连接领英
+            async function checkLinkedinConnection() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/linkedin/status', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.connected) {
+                            showConnectedState(data.profile);
+                        } else {
+                            showDisconnectedState();
+                        }
+                    }
+                } catch (error) {
+                    console.error('检查领英连接状态失败:', error);
+                    showDisconnectedState();
+                }
+            }
+
+            // 显示已连接状态
+            function showConnectedState(profile) {
+                linkedinNotConnected.style.display = 'none';
+                linkedinConnected.style.display = 'block';
+                
+                // 更新用户信息显示
+                document.getElementById('linkedinAvatar').src = profile.pictureUrl || '../images/user logo.jpg';
+                document.getElementById('linkedinName').textContent = profile.name;
+                document.getElementById('linkedinHeadline').textContent = profile.headline;
+            }
+
+            // 显示未连接状态
+            function showDisconnectedState() {
+                linkedinNotConnected.style.display = 'block';
+                linkedinConnected.style.display = 'none';
+            }
+
+            // 连接领英账号
+            connectLinkedinBtn.addEventListener('click', async function() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/linkedin/auth-url', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // 在新窗口打开领英授权页面
+                        window.open(data.authUrl, 'linkedin-auth', 'width=600,height=600');
+                    }
+                } catch (error) {
+                    console.error('获取领英授权链接失败:', error);
+                    alert('连接领英账号失败，请稍后重试');
+                }
+            });
+
+            // 导入领英数据
+            importLinkedinDataBtn.addEventListener('click', async function() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/linkedin/import', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert('领英资料导入成功！');
+                        // 更新显示
+                        showConnectedState(data.profile);
+                    }
+                } catch (error) {
+                    console.error('导入领英数据失败:', error);
+                    alert('导入领英数据失败，请稍后重试');
+                }
+            });
+
+            // 断开领英连接
+            disconnectLinkedinBtn.addEventListener('click', async function() {
+                if (!confirm('确定要断开领英账号连接吗？')) {
+                    return;
+                }
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/linkedin/disconnect', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        showDisconnectedState();
+                        alert('已成功断开领英账号连接');
+                    }
+                } catch (error) {
+                    console.error('断开领英连接失败:', error);
+                    alert('断开连接失败，请稍后重试');
+                }
+            });
+
+            // 页面加载时检查领英连接状态
+            checkLinkedinConnection();
+        });
+    </script>
+
+    <!-- 头像选择模态框 -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="avatarModalLabel">选择头像</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar1.svg" alt="头像1" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar2.svg" alt="头像2" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar3.svg" alt="头像3" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar4.svg" alt="头像4" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar5.svg" alt="头像5" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar6.svg" alt="头像6" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 导航切换功能
+        document.querySelectorAll('.profile-nav .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有导航项的active类
+                document.querySelectorAll('.profile-nav .nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // 添加当前点击项的active类
+                this.classList.add('active');
+                
+                // 隐藏所有内容区域
+                const contentSections = [
+                    'profile-info',
+                    'resume',
+                    'applications',
+                    'saved-jobs',
+                    'settings'
+                ];
+                
+                contentSections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.style.display = 'none';
+                    }
+                });
+                
+                // 显示对应的内容区域
+                const sectionId = this.getAttribute('data-section');
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+            });
+        });
+
+        // 简历上传相关功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const chineseResumeFile = document.getElementById('chineseResumeFile');
+            const englishResumeFile = document.getElementById('englishResumeFile');
+            const resumeFilesList = document.getElementById('resumeFilesList');
+
+            // 加载已上传的简历列表
+            async function loadResumeList() {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/resumes', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateResumeList(data.resumes);
+                    }
+                } catch (error) {
+                    console.error('加载简历列表失败:', error);
+                }
+            }
+
+            // 更新简历列表显示
+            function updateResumeList(resumes) {
+                resumeFilesList.innerHTML = '';
+                
+                if (!resumes || resumes.length === 0) {
+                    resumeFilesList.innerHTML = `
+                        <div class="text-center p-4 text-muted">
+                            <i class="fas fa-file-alt fa-3x mb-3"></i>
+                            <p>暂无上传的简历</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                resumes.forEach(resume => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${resume.language === 'zh' ? '中文简历' : '英文简历'}</h6>
+                                <small class="text-muted">
+                                    ${resume.filename} · ${formatFileSize(resume.size)} · 
+                                    上传于 ${formatDate(resume.uploadDate)}
+                                </small>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="downloadResume('${resume._id}')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteResume('${resume._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    resumeFilesList.appendChild(item);
+                });
+            }
+
+            // 上传中文简历
+            async function uploadResume(file, language) {
+                if (!file) {
+                    alert('请选择要上传的文件');
+                    return;
+                }
+
+                try {
+                    // 检查文件大小
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('文件大小不能超过5MB');
+                        return;
+                    }
+
+                    // 检查文件类型
+                    const allowedTypes = ['.pdf'];
+                    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                    if (!allowedTypes.includes(fileExtension)) {
+                        alert('仅支持PDF格式，文件大小不超过5MB');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('resume', file);
+                    formData.append('language', language);
+
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('http://localhost:3001/api/v1/resumes/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        alert('简历上传成功！');
+                        // 清空文件输入
+                        chineseResumeFile.value = '';
+                        englishResumeFile.value = '';
+                        // 重新加载简历列表
+                        await loadResumeList();
+                    } else {
+                        throw new Error('上传失败');
+                    }
+                } catch (error) {
+                    console.error('上传简历失败:', error);
+                    alert('上传简历失败，请稍后重试');
+                }
+            }
+
+            // 下载简历
+            window.downloadResume = async function(resumeId) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`http://localhost:3001/api/v1/resumes/${resumeId}/download`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '下载失败');
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `resume-${resumeId}${blob.type === 'application/pdf' ? '.pdf' : '.docx'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } catch (error) {
+                    console.error('下载简历失败:', error);
+                    alert(error.message || '下载简历失败，请稍后重试');
+                }
+            };
+
+            // 删除简历
+            window.deleteResume = async function(resumeId) {
+                if (!confirm('确定要删除这份简历吗？')) {
+                    return;
+                }
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`http://localhost:3001/api/v1/resumes/${resumeId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '删除失败');
+                    }
+
+                    alert('简历删除成功！');
+                    await loadResumeList();
+                } catch (error) {
+                    console.error('删除简历失败:', error);
+                    alert(error.message || '删除简历失败，请稍后重试');
+                }
+            };
+
+            // 格式化文件大小
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // 格式化日期
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            // 页面加载时加载简历列表
+            loadResumeList();
+        });
+    </script>
+
+    <script>
+    async function uploadResume(file, language) {
+        if (!file) {
+            alert('请选择要上传的文件');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('resume', file);
+            formData.append('language', language);
+
+            const response = await fetch('http://localhost:3001/api/v1/resumes/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('上传失败');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                alert('简历上传成功');
+                location.reload(); // 刷新页面以显示新上传的简历
+            } else {
+                throw new Error(data.error || '上传失败');
+            }
+        } catch (error) {
+            console.error('上传简历失败:', error);
+            alert(error.message);
+        }
+    }
+    </script>
+</body>
+</html>

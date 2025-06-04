@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - NexJob</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* iOS风格的开关样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+            height: 34px;
+            margin: 20px 0;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E5E7EB;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 96px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            box-sizing: border-box;
+            color: #6B7280;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .toggle-labels span {
+            z-index: 1;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #E5E7EB;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(96px);
+        }
+        
+        input:checked ~ .toggle-labels span {
+            color: #6B7280;
+        }
+        
+        .toggle-labels span:first-child {
+            color: #4F46E5;
+        }
+        
+        input:checked ~ .toggle-labels span:last-child {
+            color: #4F46E5;
+        }
+        
+        input:checked ~ .toggle-labels span:first-child {
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 添加网站logo和返回首页链接 -->
+    <div class="fixed top-0 left-0 right-0 bg-white shadow-sm py-4 px-6 flex justify-between items-center">
+        <a href="../index.html" class="flex items-center">
+            <img src="../images/nexjob logo.png" alt="NexJob Logo" class="h-10">
+        </a>
+        <a href="../index.html" class="text-indigo-600 hover:text-indigo-800 flex items-center">
+            <i class="fas fa-home mr-2"></i>
+            返回首页
+        </a>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 mt-16">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    登录 NexJob
+                </h2>
+                <div class="flex justify-center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="userTypeToggle">
+                        <span class="toggle-slider"></span>
+                        <div class="toggle-labels">
+                            <span>我是求职者</span>
+                            <span>我是HR</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <form class="mt-8 space-y-6" id="loginForm">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email" class="sr-only">邮箱地址</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="邮箱地址">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">密码</label>
+                        <input id="password" name="password" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="密码">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember" name="remember" type="checkbox"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-900">
+                            记住我
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500" id="registerLink">
+                            没有账号？立即注册
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        登录
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 获取上次登录的用户类型
+        const lastUserType = localStorage.getItem('lastUserType') || 'jobseeker';
+        const userTypeToggle = document.getElementById('userTypeToggle');
+        const registerLink = document.getElementById('registerLink');
+
+        // 设置初始状态
+        userTypeToggle.checked = lastUserType === 'hr';
+        updateRegisterLink();
+
+        // 监听身份切换
+        userTypeToggle.addEventListener('change', function() {
+            updateRegisterLink();
+        });
+
+        // 更新注册链接
+        function updateRegisterLink() {
+            const isHR = userTypeToggle.checked;
+            registerLink.href = isHR ? 'hr-register.html' : 'jobseeker-register.html';
+        }
+
+        // 处理登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const isHR = userTypeToggle.checked;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            const userType = isHR ? 'hr' : 'jobseeker';
+            const apiEndpoint = isHR ? 
+                'http://localhost:3001/api/v1/auth/login' : 
+                'http://localhost:3001/api/v1/jobseeker/login';
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                console.log('登录响应完整数据:', data);
+
+                if (data.success) {
+                    // 检查并打印token信息
+                    console.log('登录响应完整数据:', data);
+
+                    // 确保获取正确的token
+                    let token;
+                    if (data.token) {
+                        token = data.token;
+                    } else if (data.data && data.data.token) {
+                        token = data.data.token;
+                    } else {
+                        console.error('找不到有效的token');
+                        alert('登录失败：无法获取认证信息');
+                        return;
+                    }
+
+                    // 清除之前的存储
+                    localStorage.clear();
+                    
+                    // 保存新的认证信息
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('userType', userType);
+                    
+                    // 如果是HR用户，保存用户信息
+                    if (isHR && data.data) {
+                        localStorage.setItem('hrUser', JSON.stringify(data.data));
+                    }
+                    
+                    // 如果选择了"记住我"，保存最后登录的用户类型
+                    if (remember) {
+                        localStorage.setItem('lastUserType', userType);
+                    }
+
+                    console.log('保存的认证信息:', {
+                        token: localStorage.getItem('token'),
+                        userType: localStorage.getItem('userType'),
+                        hrUser: localStorage.getItem('hrUser')
+                    });
+
+                    // 根据用户类型跳转到不同的页面
+                    if (isHR) {
+                        // HR用户直接跳转到HR仪表板
+                        window.location.href = 'hr-dashboard.html';
+                    } else {
+                        // 求职者用户跳转到个人资料页面
+                        window.location.href = 'profile.html';
+                    }
+                } else {
+                    console.error('登录失败:', data.error || '未知错误');
+                    alert(data.error || '登录失败，请检查邮箱和密码');
+                }
+            } catch (error) {
+                console.error('登录错误:', error);
+                alert('登录失败，请稍后重试');
+            }
+        });
+    </script>
+</body>
+</html> 

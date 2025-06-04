@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户主页 - NexJob</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f7f8fa 0%, #f9f6f3 100%);
+        }
+        .user-profile-section {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+        .profile-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.04);
+            padding: 36px;
+            margin-bottom: 30px;
+        }
+        .follow-btn {
+            border-radius: 32px;
+            padding: 8px 24px;
+            font-weight: 600;
+        }
+        /* 修复帖子卡片样式 */
+        .post-card {
+            height: 100%;
+            border: none;
+            border-radius: 12px !important;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+        }
+        .post-card .card-body {
+            padding: 1rem !important;
+            display: flex;
+            flex-direction: column;
+            width: 90%; /* 设置卡片内容区域宽度为图片的90% */
+            margin: 0 auto; /* 水平居中 */
+        }
+        .post-card .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .post-card .card-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0; /* 移除正文内容预览行下面的冗余空白 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .post-card img {
+            height: 200px;
+            object-fit: cover;
+        }
+        /* 修复底部统计信息的样式 */
+        .post-card .d-flex.justify-content-between {
+            margin-top: auto;
+            padding-top: 0.5rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        .post-card .d-flex.justify-content-between > span {
+            font-size: 0.75rem;
+            color: #999;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .post-card .d-flex.justify-content-between > span i {
+            font-size: 0.875rem;
+            margin-right: 0.25rem;
+        }
+        .post-card .d-flex.justify-content-between > span.share-btn i {
+            margin-right: 0;
+        }
+        /* 添加浏览量覆盖图片的样式 */
+        .view-count {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            padding: 1px 3px;
+            border-radius: 6px;
+            font-size: 0.6rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <img src="../images/nexjob logo.png" alt="NexJob Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="community.html">社区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events.html">活动</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ai-assistant.html">AI助手</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">关于我们</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="language-switch me-3">
+                        <a href="user-profile-en.html" class="btn btn-outline-secondary btn-sm">EN</a>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="login.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 用户主页内容 -->
+    <section class="user-profile-section">
+        <div class="container">
+            <!-- 用户信息卡片 -->
+            <div class="profile-card text-center">
+                <img id="user-avatar" class="rounded-circle mb-3" width="120" height="120">
+                <h3 id="user-name"></h3>
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="mx-4">
+                        <h5 id="following-count">0</h5>
+                        <p class="text-muted">关注</p>
+                    </div>
+                    <div class="mx-4">
+                        <h5 id="follower-count">0</h5>
+                        <p class="text-muted">粉丝</p>
+                    </div>
+                </div>
+                <!-- 关注按钮（仅在查看他人主页时显示） -->
+                <button id="follow-btn" class="btn btn-primary follow-btn" style="display:none;">
+                    <span class="follow-text">关注</span>
+                </button>
+            </div>
+
+            <!-- 用户内容标签页 -->
+            <div class="profile-card">
+                <ul class="nav nav-tabs mb-4" id="profileTab">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#posts">帖子</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#favorites">收藏</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#likes">点赞</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="posts">
+                        <div class="row" id="posts-list"></div>
+                    </div>
+                    <div class="tab-pane fade" id="favorites">
+                        <div class="row" id="favorites-list"></div>
+                    </div>
+                    <div class="tab-pane fade" id="likes">
+                        <div class="row" id="likes-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>NexJob总部位于瑞典隆德，致力于连接欧洲职场和华人社区，为在欧洲的华人提供职业发展机会和社区支持。</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="community.html">社区</a></li>
+                        <li><a href="events.html">活动</a></li>
+                        <li><a href="ai-assistant.html">AI助手</a></li>
+                        <li><a href="about.html">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>联系我们</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 瑞典隆德</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>关注我们</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. 保留所有权利。</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">使用条款</a>
+                    <a href="#" class="text-light">隐私政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let currentUserId = null;
+        let viewingUserId = null;
+
+        // 获取URL参数中的用户ID
+        function getUserIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // 获取当前登录用户ID
+        function fetchCurrentUserId(callback) {
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            
+            console.log('Token exists:', !!token, 'UserType:', userType); // 调试信息
+            
+            if (!token) {
+                console.log('用户未登录'); // 调试信息
+                if (callback) callback();
+                return;
+            }
+
+            // 确保使用正确的API端点
+            const apiEndpoint = userType === 'hr' 
+                ? 'http://localhost:3001/api/v1/auth/me'
+                : 'http://localhost:3001/api/v1/jobseeker/me';
+
+            console.log('使用API端点:', apiEndpoint); // 调试信息
+
+            $.ajax({
+                url: apiEndpoint,
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token },
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    if (res.success) {
+                        currentUserId = res.data._id;
+                        if (typeof callback === 'function') callback();
+                    } else {
+                        console.error('获取用户信息失败:', res.error);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('获取用户信息失败:', xhr.status, xhr.responseText);
+                    if (xhr.status === 401) {
+                        // token无效，清除本地存储
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userType');
+                    }
+                }
+            });
+        }
+
+        // 加载用户资料
+        function loadUserProfile() {
+            viewingUserId = getUserIdFromUrl();
+            console.log('正在查看的用户ID:', viewingUserId); // 调试信息
+            if (!viewingUserId) {
+                alert('无效的用户ID');
+                window.location.href = 'community.html';
+                return;
+            }
+
+            $.ajax({
+                url: `http://localhost:3001/api/v1/users/${viewingUserId}/profile`,
+                method: 'GET',
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    if (res.success) {
+                        const user = res.data;
+                        $('#user-avatar').attr('src', user.avatar ? '/images/avatars/' + user.avatar : '../images/user logo.jpg');
+                        $('#user-name').text(user.nickname || user.name || '匿名用户');
+                        $('#following-count').text(user.followingCount || 0);
+                        $('#follower-count').text(user.followerCount || 0);
+
+                        // 设置关注按钮
+                        console.log('设置关注按钮 - currentUserId:', currentUserId, 'viewingUserId:', viewingUserId); // 调试信息
+                        if (currentUserId && currentUserId !== viewingUserId) {
+                            console.log('显示关注按钮'); // 调试信息
+                            const $followBtn = $('#follow-btn');
+                            $followBtn.show();
+                            
+                            if (user.isFollowing) {
+                                $followBtn.removeClass('btn-primary').addClass('btn-outline-primary');
+                                $followBtn.find('.follow-text').text('取消关注');
+                            } else {
+                                $followBtn.removeClass('btn-outline-primary').addClass('btn-primary');
+                                $followBtn.find('.follow-text').text('关注');
+                            }
+                        } else {
+                            console.log('不显示关注按钮 - 原因:', !currentUserId ? '未登录' : '查看自己的主页'); // 调试信息
+                        }
+
+                        // 加载用户的帖子
+                        loadUserPosts();
+                    }
+                },
+                error: function(xhr) {
+                    alert('获取用户资料失败');
+                    window.location.href = 'community.html';
+                }
+            });
+        }
+
+        // 加载用户的帖子
+        function loadUserPosts() {
+            $.ajax({
+                url: `http://localhost:3001/api/v1/users/${viewingUserId}/posts`,
+                method: 'GET',
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    renderPostCards(res.data, '#posts-list');
+                }
+            });
+        }
+
+        // 加载用户的收藏
+        function loadUserFavorites() {
+            $.ajax({
+                url: `http://localhost:3001/api/v1/users/${viewingUserId}/favorites`,
+                method: 'GET',
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    renderPostCards(res.data, '#favorites-list');
+                }
+            });
+        }
+
+        // 加载用户的点赞
+        function loadUserLikes() {
+            $.ajax({
+                url: `http://localhost:3001/api/v1/users/${viewingUserId}/likes`,
+                method: 'GET',
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    renderPostCards(res.data, '#likes-list');
+                }
+            });
+        }
+
+        // 渲染帖子卡片
+        function renderPostCards(posts, containerId) {
+            let html = '';
+            if (!posts || posts.length === 0) {
+                html = '<div class="col-12 text-center text-muted my-5">暂无内容</div>';
+            } else {
+                posts.forEach(function(post) {
+                    // 兼容处理：同时支持旧的image字段和新的images数组
+                    let postImage = null;
+                    let imagesCount = 0;
+                    let hasMultipleImages = false;
+                    
+                    if (post.images && post.images.length > 0) {
+                        // 新格式：使用images数组
+                        postImage = post.images[0];
+                        imagesCount = post.images.length;
+                        hasMultipleImages = post.images.length > 1;
+                    } else if (post.image) {
+                        // 旧格式：使用单个image字段
+                        postImage = post.image;
+                        imagesCount = 1;
+                        hasMultipleImages = false;
+                    }
+
+                    html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm post-card" onclick="window.location.href='community.html#${post._id}'" style="cursor:pointer;">
+                                ${postImage ? `
+                                    <div style="position:relative;">
+                                        <img src="${postImage}" class="card-img-top" alt="帖子图片">
+                                        <span class="view-count">
+                                            <i class="far fa-eye"></i> ${post.views || 0}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                                <div class="card-body">
+                                    <h6 class="card-title">${post.title}</h6>
+                                    <p class="card-text text-truncate">${post.content}</p>
+                                    <div class="d-flex justify-content-between text-muted small">
+                                        <span><i class="far fa-heart me-1"></i>${post.likes?.length || 0}</span>
+                                        <span><i class="far fa-comment me-1"></i>${post.totalCommentsCount || 0}</span>
+                                        <span><i class="far fa-star me-1"></i>${post.favorites?.length || 0}</span>
+                                        <span class="share-btn" data-id="${post._id}" data-title="${post.title}"><i class="fas fa-share-alt"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            $(containerId).html(html);
+        }
+
+        // 关注/取消关注
+        $(document).on('click', '#follow-btn', function() {
+            const $btn = $(this);
+            const isFollowing = $btn.hasClass('btn-outline-primary');
+            const method = isFollowing ? 'DELETE' : 'POST';
+
+            $.ajax({
+                url: `http://localhost:3001/api/v1/users/${viewingUserId}/follow`,
+                method: method,
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    if (res.success) {
+                        if (isFollowing) {
+                            $btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                            $btn.find('.follow-text').text('关注');
+                        } else {
+                            $btn.removeClass('btn-primary').addClass('btn-outline-primary');
+                            $btn.find('.follow-text').text('取消关注');
+                        }
+                        // 更新粉丝数
+                        $('#follower-count').text(res.data.followerCount);
+                    }
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON?.message || '操作失败');
+                }
+            });
+        });
+
+        // 标签页切换事件
+        $('#profileTab a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+            const target = $(e.target).attr('href');
+            
+            if (target === '#posts') {
+                loadUserPosts();
+            } else if (target === '#favorites') {
+                loadUserFavorites();
+            } else if (target === '#likes') {
+                loadUserLikes();
+            }
+        });
+
+        // 页面加载时执行
+        $(document).ready(function() {
+            fetchCurrentUserId(loadUserProfile);
+        });
+        
+        // 分享按钮点击事件
+        $(document).on('click', '.share-btn', function(e) {
+            e.stopPropagation(); // 阻止事件冒泡到帖子卡片
+            var postId = $(this).data('id');
+            var postTitle = $(this).data('title');
+            var url = window.location.origin + '/pages/community.html#' + postId;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: postTitle,
+                    url: url
+                }).catch(() => {});
+            } else {
+                var temp = $('<input>');
+                $('body').append(temp);
+                temp.val(url).select();
+                document.execCommand('copy');
+                temp.remove();
+                alert('帖子链接已复制到剪贴板！');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NexJob</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* iOS-style toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+            height: 34px;
+            margin: 20px 0;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E5E7EB;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 96px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            box-sizing: border-box;
+            color: #6B7280;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .toggle-labels span {
+            z-index: 1;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #E5E7EB;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(96px);
+        }
+        
+        input:checked ~ .toggle-labels span {
+            color: #6B7280;
+        }
+        
+        .toggle-labels span:first-child {
+            color: #4F46E5;
+        }
+        
+        input:checked ~ .toggle-labels span:last-child {
+            color: #4F46E5;
+        }
+        
+        input:checked ~ .toggle-labels span:first-child {
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Login to NexJob
+                </h2>
+                <div class="flex justify-center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="userTypeToggle">
+                        <span class="toggle-slider"></span>
+                        <div class="toggle-labels">
+                            <span>Job Seeker</span>
+                            <span>HR</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <form class="mt-8 space-y-6" id="loginForm">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email" class="sr-only">Email address</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Password">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember" name="remember" type="checkbox"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-900">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="register-en.html" class="font-medium text-indigo-600 hover:text-indigo-500" id="registerLink">
+                            No account? Register now
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Login
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <a href="login.html" class="text-sm text-gray-600 hover:text-gray-900">
+                        切换到中文
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get last user type
+        const lastUserType = localStorage.getItem('lastUserType') || 'jobseeker';
+        const userTypeToggle = document.getElementById('userTypeToggle');
+        const registerLink = document.getElementById('registerLink');
+
+        // Set initial state
+        userTypeToggle.checked = lastUserType === 'hr';
+        updateRegisterLink();
+
+        // Listen for identity switch
+        userTypeToggle.addEventListener('change', function() {
+            updateRegisterLink();
+        });
+
+        // Update register link
+        function updateRegisterLink() {
+            const isHR = userTypeToggle.checked;
+            registerLink.href = isHR ? 'hr-register-en.html' : 'jobseeker-register-en.html';
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const isHR = userTypeToggle.checked;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            const userType = isHR ? 'hr' : 'jobseeker';
+            const apiEndpoint = isHR ? 
+                'http://localhost:3001/api/v1/auth/login' : 
+                'http://localhost:3001/api/v1/jobseeker/login';
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Save token and user type
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userType', userType);
+                    
+                    // If "Remember me" is selected, save the last login user type
+                    if (remember) {
+                        localStorage.setItem('lastUserType', userType);
+                    }
+
+                    // Redirect to different dashboards based on user type
+                    window.location.href = isHR ? '/pages/hr-dashboard.html' : '/pages/profile.html';
+                } else {
+                    alert(data.error || 'Login failed, please check your email and password');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed, please try again later');
+            }
+        });
+    </script>
+</body>
+</html> 

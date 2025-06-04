@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - NexJob</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index-en.html">
+                <img src="../images/nexjob logo.png" alt="NexJob Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index-en.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="jobs-en.html">Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="ai-assistant-en.html">AI Assistant</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="community-en.html">Community</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events-en.html">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about-en.html">About Us</a>
+                    </li>
+                </ul>
+                <div class="nav-right d-flex align-items-center">
+                    <div class="language-switch me-3">
+                        <a href="ai-assistant.html" class="btn btn-outline-secondary btn-sm">中文</a>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="login-en.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- AI Assistant Chat Section -->
+    <section class="ai-chat-section py-5">
+        <div class="container">
+            <div class="row">
+                <!-- AI Assistant Introduction -->
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="ai-intro">
+                        <h1 class="display-5 fw-bold mb-4">Your Personal Career Planning Assistant</h1>
+                        <p class="lead mb-4">Experience personalized career guidance powered by advanced AI technology, backed by a high-quality knowledge base maintained by industry experts, senior HR professionals, and workplace elites. Get more precise, timely, and market-relevant career information, including resume optimization, interview preparation, career development planning, industry trend insights, and international employment visa guidance, helping you seize workplace opportunities with ease.</p>
+                        
+                        <div class="features-list mb-4">
+                            <div class="feature-item">
+                                <i class="fas fa-file-alt" style="color: #FF6B6B;"></i>
+                                <div>
+                                    <h5>Resume Optimization</h5>
+                                    <p>Precise job matching, quick ATS system screening</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-comments" style="color: #FF6B6B;"></i>
+                                <div>
+                                    <h5>Interview Preparation</h5>
+                                    <p>Professional interview techniques and practical exercises for target positions</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-route" style="color: #FF6B6B;"></i>
+                                <div>
+                                    <h5>Career Development Planning</h5>
+                                    <p>Help clarify career direction and achieve long-term workplace goals</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-chart-line" style="color: #FF6B6B;"></i>
+                                <div>
+                                    <h5>Industry Trend Insights</h5>
+                                    <p>Stay updated with market changes and seize industry opportunities</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-passport" style="color: #FF6B6B;"></i>
+                                <div>
+                                    <h5>International Employment Visa Guide</h5>
+                                    <p>Detailed answers about international visa policies for smooth cross-border employment</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-section mb-4">
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <div class="stat-card text-center">
+                                        <h3>98%</h3>
+                                        <p>Success Rate</p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-card text-center">
+                                        <h3>24/7</h3>
+                                        <p>Round-the-clock Service</p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-card text-center">
+                                        <h3>10k+</h3>
+                                        <p>Users Helped</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Chat Interface -->
+                <div class="col-lg-8">
+                    <div class="chat-container shadow-lg rounded-3 h-100 d-flex flex-column">
+                        <div class="chat-header p-3" style="background: #FF6B6B;">
+                            <h4 class="mb-0 text-white">AI Career Assistant</h4>
+                            <p class="mb-0 small text-white">24/7 Career Development Advice</p>
+                        </div>
+                        
+                        <div class="chat-messages p-3 flex-grow-1 overflow-auto" id="chatMessages" style="max-height: calc(100% - 140px);">
+                            <!-- Chat History -->
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>Hello, I'm planning to apply for an IT company in Sweden. How can I optimize my resume?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Hello! I'd be happy to help you optimize your resume! Based on our knowledge base, Swedish companies prefer concise and clear resumes, ideally 1-2 pages long, with emphasis on skills, education, and work experience relevant to your target position. Which position are you applying for?</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>I'm applying for a Software Development Engineer position.</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Based on our company's knowledge base, Swedish software development positions highly value practical project experience, familiar technology stacks (like Java, Python, JavaScript), and team collaboration abilities. If you have open-source project experience or a Github profile, it's recommended to highlight these in your resume. Additionally, removing irrelevant information and clearly listing technology stack keywords like Java, Python, or cloud technologies (AWS/Azure) will increase your chances of passing the ATS system screening.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>My resume is ready. Can you help me review it quickly?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Of course, please upload your resume.</p>
+                                </div>
+                            </div>
+                            <div class="message system-message">
+                                <div class="message-content text-muted">
+                                    <p><i class="fas fa-file-upload me-2"></i>User uploaded resume</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>I've reviewed your resume and found several areas for optimization:</p>
+                                    <ul>
+                                        <li>Clearly list your proficient programming languages and frameworks</li>
+                                        <li>Add technology keywords in project experience, such as React, Spring Boot, or Docker</li>
+                                        <li>Use quantifiable descriptions to highlight your achievements (e.g., improved product performance by 30%)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>Thank you! Also, how strict are they about Swedish language requirements?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Based on our knowledge base, most technical positions at this company use English as the working language, and Swedish is not strictly required, though it would be a significant advantage if you know it.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>I understand. What about the next step - the interview? Any suggestions?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Yes, during interviews, Swedish companies generally value team collaboration and communication skills. Based on our knowledge base, you should prepare examples demonstrating team cooperation, conflict resolution, and project management abilities. Additionally, for technical interviews, you should be prepared with knowledge of data structures and algorithms.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>Great, one more question - if I get an offer, how long does it take to process a Swedish work visa?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>According to our knowledge base, the average processing time for Swedish work visas is 1-2 months. If you're applying for a technical position and the salary meets the Swedish Migration Agency's standards, obtaining the visa shouldn't be difficult. However, you need to ensure the company's contract meets all requirements, such as minimum salary requirements and insurance benefits.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>I'm considering bringing my family. Is there anything extra to consider?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Bringing family members to Sweden for work requires meeting additional conditions, such as proving sufficient income and living space to support your family. Additionally, family members can apply for Swedish residence permits, which allow them to work or study, but require separate applications.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>That's very detailed, thank you! Can I consult you about visa issues anytime in the future?</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Of course! Our AI assistant is always available to provide the latest and most accurate information about European employment and visa matters based on our knowledge base.</p>
+                                </div>
+                            </div>
+                            <div class="message user-message">
+                                <div class="message-content">
+                                    <p>Perfect! Thank you for your help.</p>
+                                </div>
+                            </div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>You're welcome! Good luck with your job search!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input p-3 border-top">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Type your message here...">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>About Us</h5>
+                    <p>Headquartered in Lund, Sweden, NexJob is dedicated to connecting European workplaces with the Chinese community, providing career development opportunities and community support for Chinese professionals in Europe.</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index-en.html">Home</a></li>
+                        <li><a href="jobs-en.html">Jobs</a></li>
+                        <li><a href="community-en.html">Community</a></li>
+                        <li><a href="events-en.html">Events</a></li>
+                        <li><a href="about-en.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Lund, Sweden</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Follow Us</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">Terms of Service</a>
+                    <a href="#" class="text-light">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html> 

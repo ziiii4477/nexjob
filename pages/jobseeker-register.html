@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求职者注册 - NexJob</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- 添加网站logo和返回首页链接 -->
+    <div class="fixed top-0 left-0 right-0 bg-white shadow-sm py-4 px-6 flex justify-between items-center">
+        <a href="../index.html" class="flex items-center">
+            <img src="../images/nexjob logo.png" alt="NexJob Logo" class="h-10">
+        </a>
+        <a href="../index.html" class="text-indigo-600 hover:text-indigo-800 flex items-center">
+            <i class="fas fa-home mr-2"></i>
+            返回首页
+        </a>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 mt-16">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    求职者注册
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    已有账号？
+                    <a href="login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        立即登录
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" id="registerForm">
+                <div class="rounded-md shadow-sm space-y-3">
+                    <div>
+                        <label for="name" class="sr-only">姓名</label>
+                        <input id="name" name="name" type="text" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="姓名">
+                    </div>
+                    <div>
+                        <label for="email" class="sr-only">邮箱地址</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="邮箱地址">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">密码</label>
+                        <input id="password" name="password" type="password" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="密码（至少8位，包含字母和数字）">
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">确认密码</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="inviteCode" class="block text-sm font-medium text-gray-700">内测邀请码</label>
+                        <input type="text" id="inviteCode" name="inviteCode" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <p class="mt-1 text-sm text-gray-500">请输入您收到的内测邀请码</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input id="agreeTerms" name="agreeTerms" type="checkbox" required
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="agreeTerms" class="ml-2 block text-sm text-gray-900">
+                        我已阅读并同意 <a href="#" class="text-indigo-600 hover:text-indigo-500">服务条款</a> 和 
+                        <a href="#" class="text-indigo-600 hover:text-indigo-500">隐私政策</a>
+                    </label>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        注册
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 密码匹配验证
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('两次输入的密码不一致');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // 密码强度验证
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const hasLetter = /[A-Za-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const isLongEnough = password.length >= 8;
+            
+            let message = '';
+            if (!isLongEnough) message += '密码至少需要8位\n';
+            if (!hasLetter) message += '需要包含字母\n';
+            if (!hasNumber) message += '需要包含数字';
+            
+            this.setCustomValidity(message);
+        });
+
+        // 处理注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                inviteCode: document.getElementById('inviteCode').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:3001/api/v1/jobseeker/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('注册成功！请查看邮箱中的确认邮件。');
+                    window.location.href = 'login.html';
+                } else {
+                    alert(data.error || '注册失败，请检查输入信息');
+                }
+            } catch (error) {
+                console.error('注册错误:', error);
+                alert('注册失败，请稍后重试');
+            }
+        });
+    </script>
+</body>
+</html> 

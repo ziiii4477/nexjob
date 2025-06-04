@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新简历状态</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .info {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>更新简历状态</h1>
+    <p>点击下面的按钮将所有"viewed"和"uncertain"状态的简历更新为"pending_review"状态</p>
+    
+    <button id="updateBtn">更新简历状态</button>
+    <button id="checkAuthBtn">检查认证状态</button>
+    <button id="loginBtn" style="display: none;">返回登录</button>
+    
+    <div id="result">
+        <p>结果将显示在这里...</p>
+    </div>
+    
+    <script>
+        // 检查认证状态
+        async function checkAuth() {
+            const resultDiv = document.getElementById('result');
+            const updateBtn = document.getElementById('updateBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            try {
+                const token = localStorage.getItem('token');
+                const userType = localStorage.getItem('userType');
+                
+                resultDiv.innerHTML = `
+                    <p class="info">正在检查认证状态...</p>
+                    <p>Token: ${token ? '已存在' : '未找到'}</p>
+                    <p>用户类型: ${userType || '未知'}</p>
+                `;
+                
+                if (!token) {
+                    throw new Error('未找到认证token');
+                }
+                
+                if (userType !== 'hr') {
+                    throw new Error('非HR用户无权访问');
+                }
+                
+                // 验证token有效性
+                const response = await fetch('http://localhost:3001/api/v1/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('token验证失败');
+                }
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || '用户验证失败');
+                }
+                
+                resultDiv.innerHTML = '<p class="success">认证状态正常</p>';
+                updateBtn.disabled = false;
+                loginBtn.style.display = 'none';
+                
+            } catch (error) {
+                console.error('认证错误:', error);
+                resultDiv.innerHTML = `
+                    <p class="error">认证错误：${error.message}</p>
+                    <p>请重新登录后再试</p>
+                `;
+                updateBtn.disabled = true;
+                loginBtn.style.display = 'block';
+            }
+        }
+        
+        // 更新状态功能
+        document.getElementById('updateBtn').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            const updateBtn = document.getElementById('updateBtn');
+            
+            try {
+                updateBtn.disabled = true;
+                resultDiv.innerHTML = '<p class="info">正在更新状态...</p>';
+                
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('未找到认证token，请先登录');
+                }
+                
+                const response = await fetch('http://localhost:3001/api/v1/applications/update-status', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">更新成功！</p>
+                        <p>已更新 ${data.viewedCount + data.uncertainCount} 个应用状态</p>
+                        <p>viewed状态: ${data.viewedCount} 个</p>
+                        <p>uncertain状态: ${data.uncertainCount} 个</p>
+                    `;
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">请求错误：${error.message}</p>`;
+            } finally {
+                updateBtn.disabled = false;
+            }
+        });
+        
+        // 检查认证按钮
+        document.getElementById('checkAuthBtn').addEventListener('click', checkAuth);
+        
+        // 返回登录按钮
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            localStorage.clear();
+            window.location.href = '../index.html';
+        });
+        
+        // 页面加载时自动检查认证状态
+        window.addEventListener('load', checkAuth);
+    </script>
+</body>
+</html> 

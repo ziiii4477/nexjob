@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - NexJob</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index-en.html">
+                <img src="../images/nexjob logo.png" alt="NexJob Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index-en.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="jobs-en.html">Jobs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ai-assistant-en.html">AI Assistant</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="community-en.html">Community</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events-en.html">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about-en.html">About Us</a>
+                    </li>
+                </ul>
+                <div class="nav-right d-flex align-items-center">
+                    <div class="language-switch me-3">
+                        <a href="profile.html" class="btn btn-outline-secondary btn-sm">中文</a>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="profile-en.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="profile-section py-5">
+        <div class="container">
+            <div class="row">
+                <!-- Profile Sidebar -->
+                <div class="col-lg-3">
+                    <div class="profile-sidebar">
+                        <!-- Profile Card -->
+                        <div class="profile-card bg-white p-4 rounded-3 shadow-sm mb-4">
+                            <div class="text-center mb-4">
+                                <img src="../images/avatar.jpg" alt="Profile Picture" class="rounded-circle mb-3" width="120">
+                                <h4 class="mb-1">John Doe</h4>
+                                <p class="text-muted mb-0">Senior Software Engineer at Spotify</p>
+                            </div>
+                            <div class="profile-stats d-flex justify-content-around mb-4">
+                                <div class="text-center">
+                                    <h5 class="mb-0">128</h5>
+                                    <small class="text-muted">Posts</small>
+                                </div>
+                                <div class="text-center">
+                                    <h5 class="mb-0">256</h5>
+                                    <small class="text-muted">Following</small>
+                                </div>
+                                <div class="text-center">
+                                    <h5 class="mb-0">512</h5>
+                                    <small class="text-muted">Followers</small>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary">Edit Profile</button>
+                                <button class="btn btn-outline-primary">Share Profile</button>
+                            </div>
+                        </div>
+
+                        <!-- Skills Card -->
+                        <div class="skills-card bg-white p-4 rounded-3 shadow-sm mb-4">
+                            <h5 class="mb-3">Skills</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary">JavaScript</span>
+                                <span class="badge bg-primary">React</span>
+                                <span class="badge bg-primary">Node.js</span>
+                                <span class="badge bg-primary">Python</span>
+                                <span class="badge bg-primary">AWS</span>
+                                <span class="badge bg-primary">Docker</span>
+                                <span class="badge bg-primary">Git</span>
+                                <span class="badge bg-primary">Agile</span>
+                            </div>
+                        </div>
+
+                        <!-- Languages Card -->
+                        <div class="languages-card bg-white p-4 rounded-3 shadow-sm">
+                            <h5 class="mb-3">Languages</h5>
+                            <div class="language-item mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>English</span>
+                                    <span class="text-muted">Native</span>
+                                </div>
+                            </div>
+                            <div class="language-item mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>Chinese</span>
+                                    <span class="text-muted">Native</span>
+                                </div>
+                            </div>
+                            <div class="language-item">
+                                <div class="d-flex justify-content-between">
+                                    <span>Swedish</span>
+                                    <span class="text-muted">Intermediate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="col-lg-9">
+                    <!-- About Me -->
+                    <div class="about-me bg-white p-4 rounded-3 shadow-sm mb-4">
+                        <h4 class="mb-4">About Me</h4>
+                        <p>Experienced software engineer with a passion for building scalable web applications. Currently working at Spotify, focusing on frontend development and user experience optimization. Previously worked at Volvo and Ericsson, gaining expertise in various technologies and methodologies.</p>
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="experience bg-white p-4 rounded-3 shadow-sm mb-4">
+                        <h4 class="mb-4">Experience</h4>
+                        <div class="experience-item mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">Senior Software Engineer</h5>
+                                    <p class="text-muted mb-0">Spotify</p>
+                                </div>
+                                <span class="text-muted">2020 - Present</span>
+                            </div>
+                            <p>Leading frontend development for Spotify's web platform, implementing new features and optimizing performance. Working with React, TypeScript, and modern web technologies.</p>
+                        </div>
+                        <div class="experience-item mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">Software Engineer</h5>
+                                    <p class="text-muted mb-0">Volvo</p>
+                                </div>
+                                <span class="text-muted">2018 - 2020</span>
+                            </div>
+                            <p>Developed and maintained internal tools and applications using Python and JavaScript. Collaborated with cross-functional teams to deliver high-quality solutions.</p>
+                        </div>
+                        <div class="experience-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">Junior Developer</h5>
+                                    <p class="text-muted mb-0">Ericsson</p>
+                                </div>
+                                <span class="text-muted">2016 - 2018</span>
+                            </div>
+                            <p>Started career as a junior developer, working on telecommunications software and learning best practices in software development.</p>
+                        </div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="education bg-white p-4 rounded-3 shadow-sm mb-4">
+                        <h4 class="mb-4">Education</h4>
+                        <div class="education-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">Master of Computer Science</h5>
+                                    <p class="text-muted mb-0">Lund University</p>
+                                </div>
+                                <span class="text-muted">2014 - 2016</span>
+                            </div>
+                            <p>Specialized in software engineering and distributed systems. Completed thesis on scalable web applications.</p>
+                        </div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="certifications bg-white p-4 rounded-3 shadow-sm">
+                        <h4 class="mb-4">Certifications</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="certification-item p-3 border rounded">
+                                    <h6 class="mb-1">AWS Certified Solutions Architect</h6>
+                                    <p class="text-muted mb-0">Amazon Web Services</p>
+                                    <small class="text-muted">Issued: 2022</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="certification-item p-3 border rounded">
+                                    <h6 class="mb-1">Professional Scrum Master I</h6>
+                                    <p class="text-muted mb-0">Scrum.org</p>
+                                    <small class="text-muted">Issued: 2021</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>About Us</h5>
+                    <p>Headquartered in Lund, Sweden, NexJob is dedicated to connecting European workplaces with the Chinese community, providing career development opportunities and community support for Chinese professionals in Europe.</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index-en.html">Home</a></li>
+                        <li><a href="jobs-en.html">Jobs</a></li>
+                        <li><a href="community-en.html">Community</a></li>
+                        <li><a href="events-en.html">Events</a></li>
+                        <li><a href="about-en.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Lund, Sweden</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Follow Us</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">Terms of Service</a>
+                    <a href="#" class="text-light">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html> 

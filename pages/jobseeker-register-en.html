@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Seeker Registration - NexJob</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Job Seeker Registration
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Already have an account?
+                    <a href="login-en.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Login here
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" id="registerForm">
+                <div class="rounded-md shadow-sm space-y-3">
+                    <div>
+                        <label for="name" class="sr-only">Full Name</label>
+                        <input id="name" name="name" type="text" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Full Name">
+                    </div>
+                    <div>
+                        <label for="email" class="sr-only">Email Address</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Email Address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" required
+                            class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Password (min 8 characters, include letters and numbers)">
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="inviteCode" class="block text-sm font-medium text-gray-700">Beta Invite Code</label>
+                        <input type="text" id="inviteCode" name="inviteCode" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <p class="mt-1 text-sm text-gray-500">Please enter your beta invitation code</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input id="agreeTerms" name="agreeTerms" type="checkbox" required
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="agreeTerms" class="ml-2 block text-sm text-gray-900">
+                        I have read and agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a> and 
+                        <a href="#" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Register
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Password matching validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Password strength validation
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const hasLetter = /[A-Za-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const isLongEnough = password.length >= 8;
+            
+            let message = '';
+            if (!isLongEnough) message += 'Password must be at least 8 characters\n';
+            if (!hasLetter) message += 'Must include letters\n';
+            if (!hasNumber) message += 'Must include numbers';
+            
+            this.setCustomValidity(message);
+        });
+
+        // Handle registration form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('inviteCode', document.getElementById('inviteCode').value);
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/v1/jobseeker/register', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Registration successful! Please check your email for confirmation.');
+                    window.location.href = 'jobseeker-login-en.html';
+                } else {
+                    alert(data.error || 'Registration failed, please check your input');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed, please try again later');
+            }
+        });
+    </script>
+</body>
+</html> 

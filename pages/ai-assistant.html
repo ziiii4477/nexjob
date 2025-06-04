@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexJob Copilot - NexJob</title>
+    
+    <!-- CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="../css/style.css" rel="stylesheet">
+    <style>
+        .feature-card {
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #FFF3E0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .feature-icon i {
+            font-size: 24px;
+            color: #FF6B35;
+        }
+        .process-step {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 2.2rem;
+            font-size: 1.18rem;
+            line-height: 1.8;
+        }
+        .process-step:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            background-color: #FF6B35;
+            border-radius: 50%;
+        }
+        .process-step:after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 16px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background-color: #FF6B35;
+        }
+        .process-step:last-child:after {
+            display: none;
+        }
+        .ai-interview-section .btn-primary {
+            background-color: #FF6B35;
+            border-color: #FF6B35;
+        }
+        .ai-interview-section .btn-primary:hover {
+            background-color: #FF8C42;
+            border-color: #FF8C42;
+        }
+        .ai-interview-section .btn-outline-primary {
+            color: #FF6B35;
+            border-color: #FF6B35;
+        }
+        .ai-interview-section .btn-outline-primary:hover {
+            background-color: #FF6B35;
+            border-color: #FF6B35;
+        }
+        .ai-interview-section .text-primary {
+            color: #FF6B35 !important;
+        }
+        .ai-interview-section .badge.bg-primary {
+            background-color: #FF6B35 !important;
+        }
+        .hr-config-section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+        .hr-config-section-desc {
+            font-size: 1.18rem;
+            color: #222;
+            margin-bottom: 2.5rem;
+            line-height: 2.1;
+        }
+        @media (min-width: 992px) {
+            .hr-config-left {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+                min-height: 420px;
+                padding-left: 2vw;
+            }
+        }
+        .candidate-process-step {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 2.2rem;
+            font-size: 1.18rem;
+            line-height: 1.8;
+            display: flex;
+            align-items: flex-start;
+        }
+        .candidate-process-step:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            background-color: #FF6B35;
+            border-radius: 50%;
+        }
+        .candidate-process-title {
+            font-weight: 700;
+            margin-right: 12px;
+            white-space: nowrap;
+        }
+        .candidate-process-desc {
+            color: #222;
+            font-size: 1.08rem;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <img src="../images/nexjob logo.png" alt="NexJob Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="community.html">社区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="events.html">活动</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="ai-assistant.html">AI助手</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">关于我们</a>
+                    </li>
+                </ul>
+                <div class="nav-right d-flex align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="language-switch me-3">
+                            <a href="ai-assistant-en.html" class="btn btn-outline-secondary btn-sm">EN</a>
+                        </div>
+                    </div>
+                    <div class="customer-service me-3">
+                        <button class="btn btn-outline-primary btn-icon">
+                            <i class="fas fa-headset"></i>
+                        </button>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="login.html" class="btn btn-primary btn-icon">
+                            <i class="fas fa-user"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NexJob Copilot 介绍区域 -->
+    <section class="py-5 mt-5">
+        <div class="container">
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">NexJob <span class="text-primary">Copilot</span></h1>
+                    <p class="lead mb-4">一款基于GenAI的初级面试系统，提供AI面试报告来减少HR因不确定导致的误筛。同时，也为求职者提供AI面试练习机会，提升面试表现。</p>
+                </div>
+                <div class="col-lg-6 text-end">
+                    <img src="../images/ai-interview-illustration.png" alt="NexJob Copilot 概念图" class="img-fluid rounded-3">
+                </div>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2 class="mb-4">NexJob Copilot核心功能</h2>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h4 class="text-center mb-3">个性化的面试配置</h4>
+                    <p class="text-center">HR可以在录入岗位描述时选择开启AI面试功能，并可以自定义面试提纲</p>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h4 class="text-center mb-3">智能交互式面试</h4>
+                    <p class="text-center">支持语音面试，AI能根据候选人简历和回答进行动态追问，深入了解候选人信息</p>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4 class="text-center mb-3">数据分析与报告</h4>
+                    <p class="text-center">自动生成面试报告，辅助hr筛选简历，减少因不确定而导致的误判</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HR配置区域 -->
+    <section class="ai-interview-section py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 hr-config-left">
+                    <div class="hr-config-section-title">HR配置中心</div>
+                    <div class="process-step mb-4 d-flex align-items-start">
+                        <span style="min-width: 120px; font-weight: 600; white-space: nowrap; font-size:1.22rem;">面试提纲设计</span>
+                        <span style="margin-left: 16px; flex: 1;" class="hr-config-section-desc">根据岗位需求自定义结构化面试问题，可包含行为面试、情景问题、技能测试等。</span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0 rounded-3">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4">配置AI面试提纲</h4>
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">面试提纲</label>
+                                    <textarea class="form-control" rows="8" placeholder="请撰写本岗位的面试提纲，或点击下方按钮让AI自动生成模板..."></textarea>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary w-100 mb-3">根据岗位描述生成提纲</button>
+                                <button type="submit" class="btn btn-primary w-100">创建面试配置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 候选人面试区域 -->
+    <section class="ai-interview-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0 rounded-3 d-flex flex-column" style="height: 480px; min-height: 400px;">
+                        <div class="card-body d-flex flex-column p-0" style="height: 100%;">
+                            <div class="p-4 pb-2 border-bottom">
+                                <h4 class="mb-0">AI面试模拟</h4>
+                            </div>
+                            <div class="flex-grow-1 px-4 py-3" style="overflow-y: auto; background: #fff;">
+                                <!-- 只保留第一段对话示例 -->
+                                <div style="display: flex; margin-bottom: 16px;">
+                                    <div style="background: #f5f6fa; color: #222; border-radius: 16px 16px 16px 4px; padding: 12px 18px; max-width: 70%; font-size: 1.08rem;">
+                                        <b>AI面试官：</b>您好，请简单介绍一下你自己。
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+                                    <div style="background: #ff6b35; color: #fff; border-radius: 16px 16px 4px 16px; padding: 12px 18px; max-width: 70%; font-size: 1.08rem;">
+                                        <b>我：</b>我叫李明，毕业于隆德大学商学院，有两年游戏行业市场营销经验。
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3 border-top bg-light">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="输入您的回答...">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button class="btn btn-primary">发送</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-flex flex-column justify-content-center" style="height: 100%; min-height: 480px;">
+                    <h2 class="mb-4">求职者使用流程</h2>
+                    <div class="candidate-process-step">
+                        <span class="candidate-process-title">1. 选择面试岗位</span>
+                        <span class="candidate-process-desc">浏览可用的AI面试岗位，选择感兴趣的职位投递简历并面试</span>
+                    </div>
+                    <div class="candidate-process-step">
+                        <span class="candidate-process-title">2. 开始AI面试</span>
+                        <span class="candidate-process-desc">通过文字或语音与AI面试官进行交互式对话</span>
+                    </div>
+                    <div class="candidate-process-step">
+                        <span class="candidate-process-title">3. 面试报告</span>
+                        <span class="candidate-process-desc">获取详细的面试报告，包括信息总结、沟通能力分析等</span>
+                    </div>
+                    <div class="alert alert-primary mt-4">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>提示：</strong> 您可以多次参加AI面试，不断提升面试技巧
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 面试报告展示区域（简历+AI问答） -->
+    <section class="ai-interview-section py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2 style="font-weight:700;">面试报告示例</h2>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-lg border-0 rounded-3 mb-4">
+                        <div class="card-body">
+                            <h4 class="mb-4">简历</h4>
+                            <div class="resume-list">
+                                <div class="resume-section mb-3">
+                                    <div class="fw-bold text-secondary mb-2">教育经历</div>
+                                    <div class="resume-item" style="padding: 8px 12px; border-radius: 8px; cursor: pointer; background: #f5f6fa; border: 2px solid #FF6B35;">
+                                        <div class="fw-bold">隆德大学商学院</div>
+                                        <div class="small text-muted">市场营销硕士 2018-2020</div>
+                                    </div>
+                                </div>
+                                <div class="resume-section mb-3">
+                                    <div class="fw-bold text-secondary mb-2">项目经历</div>
+                                    <div class="resume-item active" style="padding: 8px 12px; border-radius: 8px; cursor: pointer; background: #fff7f3; border: 2px solid #FF6B35; margin-bottom: 8px;">
+                                        <div class="fw-bold">手游《奇幻冒险》市场推广</div>
+                                        <div class="small text-muted">2021.03-2022.06</div>
+                                    </div>
+                                    <div class="resume-item" style="padding: 8px 12px; border-radius: 8px; cursor: pointer; background: #f5f6fa; border: 2px solid #eee;">
+                                        <div class="fw-bold">独立游戏《星辰物语》品牌建设</div>
+                                        <div class="small text-muted">2020.07-2021.02</div>
+                                    </div>
+                                </div>
+                                <div class="resume-section mb-3">
+                                    <div class="fw-bold text-secondary mb-2">工作经历</div>
+                                    <div class="resume-item" style="padding: 8px 12px; border-radius: 8px; cursor: pointer; background: #f5f6fa; border: 2px solid #eee;">
+                                        <div class="fw-bold">XX游戏公司 市场专员</div>
+                                        <div class="small text-muted">2020.07-2022.12</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card shadow-lg border-0 rounded-3 mb-4">
+                        <div class="card-body">
+                            <h4 class="mb-4">AI面试问答记录</h4>
+                            <!-- 以"手游《奇幻冒险》市场推广"为例 -->
+                            <div style="margin-bottom: 18px;">
+                                <div style="background: #f5f6fa; color: #222; border-radius: 16px 16px 16px 4px; padding: 12px 18px; max-width: 80%; font-size: 1.08rem; margin-bottom: 10px;">
+                                    <b>AI面试官：</b>请介绍一下你在《奇幻冒险》市场推广项目中的主要职责。
+                                </div>
+                                <div style="background: #ff6b35; color: #fff; border-radius: 16px 16px 4px 16px; padding: 12px 18px; max-width: 80%; font-size: 1.08rem; margin-left: auto;">
+                                    <b>我：</b>我负责整体市场推广方案的制定与执行，包括社交媒体运营、KOL合作、用户增长活动等。
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 18px;">
+                                <div style="background: #f5f6fa; color: #222; border-radius: 16px 16px 16px 4px; padding: 12px 18px; max-width: 80%; font-size: 1.08rem; margin-bottom: 10px;">
+                                    <b>AI面试官：</b>你在推广过程中遇到过哪些挑战？是如何解决的？
+                                </div>
+                                <div style="background: #ff6b35; color: #fff; border-radius: 16px 16px 4px 16px; padding: 12px 18px; max-width: 80%; font-size: 1.08rem; margin-left: auto;">
+                                    <b>我：</b>最大的挑战是初期用户增长缓慢，我通过调整投放策略和优化内容，最终实现了用户量的快速提升。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>关于我们</h5>
+                    <p>NexJob总部位于瑞典隆德，致力于连接欧洲职场和华人社区，为在欧洲的华人提供职业发展机会和社区支持。</p>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index.html">首页</a></li>
+                        <li><a href="community.html">社区</a></li>
+                        <li><a href="events.html">活动</a></li>
+                        <li><a href="ai-assistant.html">AI助手</a></li>
+                        <li><a href="about.html">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope"></i> contact@nexjob.com</li>
+                        <li><i class="fas fa-phone"></i> +46 123 456789</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 隆德, 瑞典</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>关注我们</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-weixin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2024 NexJob. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-light me-3">使用条款</a>
+                    <a href="#" class="text-light">隐私政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+                <a href="login-en.html" class="nav-link" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a> 
+
+    <!-- Avatar Selection Modal -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="avatarModalLabel">Select Avatar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar7.svg" alt="Avatar 7" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar8.svg" alt="Avatar 8" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar9.svg" alt="Avatar 9" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar10.svg" alt="Avatar 10" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar11.svg" alt="Avatar 11" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="avatar-option">
+                                <img src="../images/avatars/avatar12.svg" alt="Avatar 12" class="img-fluid rounded-circle" onclick="selectAvatar(this.src)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // Check authentication status
+        async function checkAuth() {
+            console.log('Starting authentication check');
+
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+
+            console.log('Stored auth info:', { token, userType });
+
+            if (!token) {
+                console.log('Authentication failed: no token');
+                redirectToLogin();
+                return;
+            }
+            
+            if (userType !== 'hr') {
+                console.log('Job seeker trying to access HR page, redirecting');
+                window.location.href = 'profile-en.html';
+                return;
+            }
+
+            try {
+                // Use HR-specific API endpoint
+                const response = await fetch('http://localhost:3001/api/v1/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                console.log('Auth request status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Auth response data:', data);
+
+                if (data.success) {
+                    currentUser = data.data;
+                    updateUserInfo();
+                } else {
+                    throw new Error(data.message || 'Authentication failed');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                // If 401 error, redirect to login page
+                if (error.message.includes('401')) {
+                    console.log('Authentication failed: invalid or expired token');
+                    redirectToLogin();
+                } else {
+                    console.log('Other error:', error.message);
+                    alert('Failed to get user information, please login again');
+                    redirectToLogin();
+                }
+            }
+        }
+
+        function redirectToLogin() {
+            localStorage.clear();
+            // Return to home page
+            window.location.href = '../index.html';
+        }
+        
+        // Update user information display
+        function updateUserInfo() {
+            if (currentUser) {
+                const userNameElement = document.querySelector('#userName');
+                if (userNameElement) {
+                    userNameElement.textContent = currentUser.name || 'HR Name';
+                }
+                
+                const userEmailElement = document.querySelector('#userEmail');
+                if (userEmailElement) {
+                    userEmailElement.textContent = currentUser.email || 'hr@example.com';
+                }
+                
+                // Update avatar
+                if (currentUser.avatar) {
+                    const avatarPath = `../images/avatars/${currentUser.avatar}`;
+                    const avatarElements = document.querySelectorAll('#userAvatar, #profileImage');
+                    avatarElements.forEach(avatar => {
+                        if (avatar) avatar.src = avatarPath;
+                    });
+                }
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.clear();
+            // Return to home page
+            window.location.href = '../index.html';
+        }
+
+        // Force close modal and reset page state
+        function forceCloseModal() {
+            try {
+                // 1. Try to close using Bootstrap API
+                const modalElement = document.getElementById('avatarModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            } catch (e) {
+                console.error('Error closing modal:', e);
+            }
+            
+            // 2. Reset DOM state
+            document.body.className = document.body.className.replace(/\bmodal-open\b/, '');
+            
+            // 3. Remove all modal backdrops
+            try {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => {
+                    backdrop.parentNode.removeChild(backdrop);
+                });
+            } catch (e) {
+                console.error('Error removing backdrop:', e);
+            }
+            
+            // 4. Reset modal state
+            try {
+                const modalElement = document.getElementById('avatarModal');
+                modalElement.style.display = 'none';
+                modalElement.classList.remove('show');
+                modalElement.setAttribute('aria-hidden', 'true');
+                modalElement.removeAttribute('aria-modal');
+                modalElement.removeAttribute('role');
+            } catch (e) {
+                console.error('Error resetting modal state:', e);
+            }
+            
+            // 5. Reset body styles
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+            
+            // 6. Reset navbar position and styles
+            try {
+                const navbar = document.querySelector('.navbar.fixed-top');
+                if (navbar) {
+                    navbar.style.removeProperty('padding-right');
+                    navbar.style.removeProperty('margin-right');
+                }
+            } catch (e) {
+                console.error('Error resetting navbar styles:', e);
+            }
+            
+            // 7. Final measures - add a small delay to force enable scrolling and reset all styles
+            setTimeout(() => {
+                // Reset body styles
+                document.body.style.overflow = 'visible';
+                document.body.style.paddingRight = '0';
+                
+                // Reset html styles
+                document.documentElement.style.overflow = 'auto';
+                document.documentElement.style.height = 'auto';
+                
+                // Reset all container positions
+                try {
+                    document.querySelectorAll('.container').forEach(container => {
+                        container.style.paddingRight = '';
+                        container.style.marginRight = '';
+                    });
+                } catch (e) {
+                    console.error('Error resetting container styles:', e);
+                }
+                
+                // Reset page layout, force browser reflow
+                document.body.style.display = 'none';
+                // Force reflow
+                void document.body.offsetHeight;
+                document.body.style.display = '';
+                
+                // Try to trigger window resize event
+                try {
+                    window.dispatchEvent(new Event('resize'));
+                } catch (e) {
+                    console.error('Error triggering resize event:', e);
+                }
+            }, 100);
+        }
+
+        // Avatar selection functionality
+        function selectAvatar(avatarSrc) {
+            // Extract filename from full URL
+            const avatarFileName = avatarSrc.split('/').pop();
+            
+            // Update displayed avatars (using relative path)
+            const avatarPath = `../images/avatars/${avatarFileName}`;
+            
+            // Update all avatar previews
+            const userAvatars = document.querySelectorAll('#userAvatar, #profileImage');
+            userAvatars.forEach(avatar => {
+                if (avatar) avatar.src = avatarPath;
+            });
+            
+            // Get token
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert('Please login first');
+                return;
+            }
+
+            // Close modal first for better UX
+            forceCloseModal();
+
+            // Build API request URL
+            const apiEndpoint = 'http://localhost:3001/api/v1/auth/updatedetails';
+
+            // Send update request
+            fetch(apiEndpoint, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    avatar: avatarFileName  // Only send filename
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update current user in memory if available
+                    if (typeof currentUser !== 'undefined' && currentUser) {
+                        currentUser.avatar = avatarFileName;
+                    }
+                    
+                    // Also update user in localStorage
+                    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    storedUser.avatar = avatarFileName;
+                    localStorage.setItem('user', JSON.stringify(storedUser));
+
+                    // Show success message
+                    console.log('Avatar updated successfully');
+                } else {
+                    throw new Error(data.error || 'Failed to update avatar');
+                }
+            })
+            .catch(error => {
+                console.error('Failed to update avatar:', error);
+                alert('Failed to update avatar, please try again later');
+            });
+        }
+        
+        // Page load event
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication status
+            checkAuth();
+        });
+    </script>
+
+    <!-- Profile Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="text-center">
+                <img src="../images/user logo.jpg" alt="User Avatar" class="rounded-circle mb-3" width="80" height="80" id="profileImage">
+                <h5 class="card-title mb-1" id="userName">HR Name</h5>
+                <p class="card-text text-muted mb-3" id="userEmail">hr@example.com</p>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                    Select Avatar
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
