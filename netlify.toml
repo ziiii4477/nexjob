@@ -3,6 +3,12 @@
   command = "echo 'No build command needed for static site'"
 
 [[redirects]]
+  from = "/uploads/*"
+  to = "/images/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
