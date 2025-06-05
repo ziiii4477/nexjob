@@ -164,10 +164,8 @@
     <script>
         // API 配置
         function getApiBaseUrl() {
-            if (window.location.hostname.includes('netlify.app')) {
-                return 'https://nexjob.onrender.com';
-            }
-            return 'http://localhost:3001';
+            // 生产环境直接返回后端真实External URL
+            return 'https://nexjob-backend.onrender.com';
         }
 
         const API_BASE_URL = getApiBaseUrl();
