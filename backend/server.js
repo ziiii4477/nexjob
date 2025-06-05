@@ -100,24 +100,25 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 
 // CORS配置
-app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'https://aesthetic-cheesecake-0dcd44.netlify.app', 'https://nexjob.onrender.com'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    exposedHeaders: ['Access-Control-Allow-Origin'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-}));
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:5500',
+    'https://aesthetic-cheesecake-0dcd44.netlify.app',
+    'https://nexjob.onrender.com'
+];
 
-// 添加额外的 CORS 头部
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     if (req.method === 'OPTIONS') {
-        return res.status(204).send();
+        res.sendStatus(204);
+        return;
     }
     next();
 });
