@@ -134,8 +134,10 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 const sendTokenResponse = (user, statusCode, res) => {
     const token = user.getSignedJwtToken();
 
+    // 修复：确保 JWT_COOKIE_EXPIRE 为数字，默认7天
+    const expireDays = Number(process.env.JWT_COOKIE_EXPIRE) || 7;
     const options = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + expireDays * 24 * 60 * 60 * 1000),
         httpOnly: true
     };
 
