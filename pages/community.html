@@ -1401,7 +1401,10 @@
                 // 添加 HR 特有选项
                 const userType = localStorage.getItem('userType');
                 if (isHRUser(userType)) {
-                    formData.append('quickApply', $('#quickApply').is(':checked'));
+                    // 将布尔值转换为字符串，但确保后端能正确解析
+                    const isQuickApplyEnabled = $('#quickApply').is(':checked');
+                    formData.append('quickApply', isQuickApplyEnabled);
+                    console.log('添加一键投递选项:', isQuickApplyEnabled, typeof isQuickApplyEnabled);
                     formData.append('aiInterview', $('#aiInterview').is(':checked'));
                 }
                 
@@ -1421,12 +1424,14 @@
                     },
                     xhrFields: { withCredentials: true },
                     success: function(res) {
+                        console.log('帖子发布成功:', res);
                         $('#postModal').modal('hide');
                         $('#postForm')[0].reset();
                         $('#image-preview').empty();
                         loadPosts();
                     },
                     error: function(xhr) {
+                        console.error('发帖失败:', xhr);
                         alert('发帖失败：' + (xhr.responseJSON?.message || '未知错误'));
                     }
                 });
@@ -1543,15 +1548,22 @@
                     
                 // 显示或隐藏一键投递按钮
                 const $quickApplySection = $('#quick-apply-section');
-                console.log('帖子数据:', {
+                console.log('帖子数据详情:', {
+                    id: post._id,
+                    title: post.title,
                     quickApply: post.quickApply,
+                    quickApplyType: typeof post.quickApply,
                     authorType: post.authorType,
                     authorUserType: post.author?.userType,
                     currentUserType: localStorage.getItem('userType')
                 });
 
+                // 检查quickApply字段 - 既检查布尔值true，也检查字符串"true"
+                const isQuickApplyEnabled = post.quickApply === true || post.quickApply === 'true';
+                const isHrAuthor = post.authorType === 'HRUser' || isHRUser(post.author?.userType);
+
                 // 作者是HR用户且启用了一键投递
-                if (post.quickApply && (post.authorType === 'HRUser' || isHRUser(post.author?.userType))) {
+                if (isQuickApplyEnabled && isHrAuthor) {
                     $quickApplySection.show();
                     // 检查当前用户是否为求职者
                     const userType = localStorage.getItem('userType');
@@ -1596,6 +1608,9 @@
                 } else {
                     console.log('不显示投递按钮原因:', {
                         quickApply: post.quickApply,
+                        quickApplyType: typeof post.quickApply,
+                        isQuickApplyEnabled: isQuickApplyEnabled,
+                        isHrAuthor: isHrAuthor,
                         isHR: post.authorType === 'HRUser' || isHRUser(post.author?.userType)
                     });
                     $quickApplySection.hide();
