@@ -95,29 +95,12 @@ connectDB().then(connected => {
 });
 
 // 中间件
+// 将CORS作为第一个中间件，以确保所有请求都先经过它处理
+app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-
-// 引入cors中间件
-app.use(cors());
-
-// 添加自定义CORS中间件（确保所有请求都能正确处理）
-app.use((req, res, next) => {
-    // 允许所有来源访问
-    res.header('Access-Control-Allow-Origin', '*');
-    // 允许的请求方法
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    // 允许的请求头
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-
-    // 处理预检请求
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-    
-    next();
-});
 
 app.use(express.urlencoded({ extended: true }));
 
