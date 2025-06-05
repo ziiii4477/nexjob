@@ -25,78 +25,29 @@ const { protect } = require('./middleware/auth');
 
 const app = express();
 
-// 连接数据库
-const connectDB = async () => {
-  try {
-    console.log('尝试连接到MongoDB Atlas...');
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
-      maxPoolSize: 50,
-      retryWrites: true
-    });
-    console.log('MongoDB Atlas连接成功');
+// --- START CORS CONFIGURATION ---
+const allowedOrigins = [
+    'https://aesthetic-cheesecake-0dcd44.netlify.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:5500'
+];
 
-    // 测试代码：查询一个有点赞和收藏的帖子
-    setTimeout(async () => {
-      try {
-        // 查找任意一个帖子
-        const post = await Post.findOne({}).lean();
-        if (!post) {
-          console.log('没有找到帖子');
-          return;
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
         }
-        
-        console.log('============ 测试帖子数据格式 ============');
-        console.log('帖子ID:', post._id);
-        console.log('点赞数组:', post.likes);
-        console.log('点赞类型:', post.likes.length > 0 ? typeof post.likes[0] : 'N/A');
-        console.log('点赞ID示例:', post.likes.length > 0 ? post.likes[0].toString() : 'N/A');
-        console.log('收藏数组:', post.favorites);
-        console.log('收藏类型:', post.favorites.length > 0 ? typeof post.favorites[0] : 'N/A');
-        console.log('收藏ID示例:', post.favorites.length > 0 ? post.favorites[0].toString() : 'N/A');
-        console.log('帖子作者:', post.author);
-        console.log('作者类型:', typeof post.author);
-        console.log('作者ID示例:', post.author.toString());
-        console.log('==========================================');
-      } catch (error) {
-        console.error('测试查询失败:', error);
-      }
-    }, 2000);
-
-    return true;
-  } catch (err) {
-    console.log('MongoDB Atlas连接错误:', err);
-    console.log('尝试连接本地MongoDB...');
-    try {
-      await mongoose.connect('mongodb://localhost:27017/nexjob', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000
-      });
-      console.log('本地MongoDB连接成功');
-      return true;
-    } catch (localErr) {
-      console.log('本地MongoDB连接错误:', localErr);
-      console.log('所有数据库连接尝试失败');
-      return false;
-    }
-  }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200 // For legacy browser support
 };
 
-// 立即连接数据库
-connectDB().then(connected => {
-  if (!connected) {
-    console.log('无法连接到任何数据库，应用可能无法正常工作');
-  }
-});
-
-// 中间件
-// 将CORS作为第一个中间件，以确保所有请求都先经过它处理
-app.use(cors());
+// Enable CORS for all routes and handle pre-flight requests
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
+// --- END CORS CONFIGURATION ---
 
 app.use(express.json());
 app.use(cookieParser());
