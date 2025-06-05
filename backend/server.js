@@ -99,22 +99,21 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// CORS配置
+// 引入cors中间件
+app.use(cors());
+
+// 添加自定义CORS中间件（确保所有请求都能正确处理）
 app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin === 'https://aesthetic-cheesecake-0dcd44.netlify.app') {
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Max-Age', '86400'); // 24 hours
-        res.header('Vary', 'Origin');
-    }
-    
-    // 处理 OPTIONS 预检请求
+    // 允许所有来源访问
+    res.header('Access-Control-Allow-Origin', '*');
+    // 允许的请求方法
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    // 允许的请求头
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+    // 处理预检请求
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
     
     next();
