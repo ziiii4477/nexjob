@@ -1,22 +1,26 @@
-// 根据环境确定API基础URL
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000'  // 本地开发环境
-    : 'https://nexjob-backend.onrender.com';  // 生产环境
+// 根据当前环境确定 API 基础 URL
+function getApiBaseUrl() {
+    // 检查当前是否在 Netlify 部署环境
+    if (window.location.hostname.includes('netlify.app')) {
+        return 'https://nexjob.onrender.com';
+    }
+    // 本地开发环境
+    return 'http://localhost:3001';
+}
 
-// 替换所有API调用中的localhost:3001为正确的API URL
-document.addEventListener('DOMContentLoaded', function() {
-    // 拦截所有fetch请求
-    const originalFetch = window.fetch;
-    window.fetch = function(url, options) {
-        // 替换URL中的localhost:3001
-        if (typeof url === 'string' && url.includes('localhost:3001')) {
-            url = url.replace('http://localhost:3001', API_BASE_URL);
-        }
-        return originalFetch.call(this, url, options);
-    };
-    
-    console.log('API配置已加载，基础URL:', API_BASE_URL);
-});
+const API_BASE_URL = getApiBaseUrl();
 
-// 导出API基础URL供其他模块使用
-window.API_BASE_URL = API_BASE_URL; 
+// API 路径
+const API_PATHS = {
+    HR_LOGIN: `${API_BASE_URL}/api/v1/auth/login`,
+    HR_REGISTER: `${API_BASE_URL}/api/v1/auth/register`,
+    JOBSEEKER_LOGIN: `${API_BASE_URL}/api/v1/jobseeker/login`,
+    JOBSEEKER_REGISTER: `${API_BASE_URL}/api/v1/jobseeker/register`,
+    RESUMES: `${API_BASE_URL}/api/v1/resumes`,
+    JOBS: `${API_BASE_URL}/api/v1/jobs`,
+    APPLICATIONS: `${API_BASE_URL}/api/v1/applications`,
+    COMMUNITY: `${API_BASE_URL}/api/v1/community-posts`,
+    USERS: `${API_BASE_URL}/api/v1/users`
+};
+
+console.log('API配置脚本已注入'); 

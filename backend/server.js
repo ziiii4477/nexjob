@@ -101,10 +101,10 @@ app.use(morgan('dev'));
 
 // CORS配置
 app.use(cors({
-    origin: true, // 允许所有域名的请求（仅用于开发和测试）
+    origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'https://aesthetic-cheesecake-0dcd44.netlify.app', 'https://nexjob.onrender.com'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(express.urlencoded({ extended: true }));
