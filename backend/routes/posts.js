@@ -623,8 +623,8 @@ router.get('/my-posts', protect, async (req, res) => {
     }
 });
 
-// 获取单个帖子
-router.get('/:id', async (req, res) => {
+// 获取单个帖子（需登录）
+router.get('/:id', protect, async (req, res) => {
     try {
         const post = await Post.findById(req.params.id)
             .populate({
@@ -633,7 +633,7 @@ router.get('/:id', async (req, res) => {
                 model: 'JobSeeker'
             })
             .lean(); // 使用 lean() 以便添加自定义字段
-            
+        
         if (!post) {
             return res.status(404).json({ success: false, message: '帖子不存在' });
         }
