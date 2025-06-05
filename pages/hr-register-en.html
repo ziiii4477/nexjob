@@ -120,6 +120,7 @@
         </div>
     </div>
 
+    <script src="../js/api-config.js"></script>
     <script>
         // Password matching validation
         document.getElementById('confirmPassword').addEventListener('input', function() {
@@ -174,7 +175,7 @@
                     formData.append('businessLicense', businessLicense);
                 }
 
-                const response = await fetch('http://localhost:3001/api/v1/auth/register', {
+                const response = await fetch(API_PATHS.HR_REGISTER, {
                     method: 'POST',
                     body: formData
                 });
@@ -186,9 +187,7 @@
                     alert('Registration successful! Please check your email for confirmation.');
                     window.location.href = 'login-en.html';
                 } else {
-                    const errorMessage = data.message || data.error || 'Registration failed, please check your input';
-                    console.error('Registration error details:', data);
-                    alert(errorMessage);
+                    alert(data.error || 'Registration failed, please check your input');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
