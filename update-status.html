@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>更新简历状态</title>
+    <script type="module">
+        import { initToolbar } from './node_modules/@stagewise/toolbar/dist/index.js';
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,6 +61,16 @@
     </div>
     
     <script>
+        // Stagewise工具栏配置
+        const stagewiseConfig = {
+            plugins: []
+        };
+
+        // 只在开发环境中初始化工具栏
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            initToolbar(stagewiseConfig);
+        }
+
         // 检查认证状态
         async function checkAuth() {
             const resultDiv = document.getElementById('result');
