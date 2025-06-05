@@ -1058,6 +1058,9 @@
             $.ajax({
                 url: 'http://localhost:3001/api/v1/community-posts',
                 method: 'GET',
+                headers: { 
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
                 xhrFields: { withCredentials: true },
                 success: function(res) {
                     var posts = res.data;
@@ -1072,6 +1075,9 @@
                         $.ajax({
                             url: `http://localhost:3001/api/v1/community-posts/${post._id}/view`,
                             method: 'POST',
+                            headers: { 
+                                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                            },
                             xhrFields: { withCredentials: true },
                             success: function(res_view) {
                                 // 更新浏览量显示
@@ -1079,6 +1085,9 @@
                             }
                         });
                     }
+                },
+                error: function(err) {
+                    console.error('通过hash加载帖子详情失败:', err);
                 }
             });
         }
@@ -1436,6 +1445,9 @@
                 $.ajax({
                     url: 'http://localhost:3001/api/v1/community-posts',
                     method: 'GET',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
                     xhrFields: { withCredentials: true },
                     success: function(res) {
                         var posts = res.data;
@@ -1455,6 +1467,9 @@
                         $.ajax({
                             url: `http://localhost:3001/api/v1/community-posts/${post._id}/view`,
                             method: 'POST',
+                            headers: { 
+                                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                            },
                             xhrFields: { withCredentials: true },
                             success: function(res_view) {
                                 $('#detail-stats .fa-eye').parent().html(`<i class="far fa-eye"></i> ${res_view.views || 0}`);
@@ -1464,6 +1479,9 @@
 
                         // 加载评论
                         loadAndRenderComments(postId);
+                    },
+                    error: function(err) {
+                        console.error('获取帖子详情失败:', err);
                     }
                 });
             });
@@ -1702,13 +1720,24 @@
 
             // 获取未读通知数量
             function getUnreadNotifications() {
-                $.get('/api/v1/community-posts/notifications/unread-count', function(res) {
-                    const count = res.data;
-                    const badge = $('.notification-badge');
-                    if (count > 0) {
-                        badge.text(count).show();
-                    } else {
-                        badge.hide();
+                $.ajax({
+                    url: 'http://localhost:3001/api/v1/community-posts/notifications/unread-count',
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    xhrFields: { withCredentials: true },
+                    success: function(res) {
+                        const count = res.data;
+                        const badge = $('.notification-badge');
+                        if (count > 0) {
+                            badge.text(count).show();
+                        } else {
+                            badge.hide();
+                        }
+                    },
+                    error: function(err) {
+                        console.error('获取未读通知数量失败:', err);
                     }
                 });
             }
@@ -1722,165 +1751,176 @@
 
             // 通知tab拉取和展示
             $('#tab-message').on('click', function() {
-                $.get('/api/v1/community-posts/notifications/list', function(res) {
-                    let commentHtml = '';
-                    let likeFavoriteHtml = '';
-                    let followHtml = '';
-                    let hasComments = false;
-                    let hasLikesFavorites = false;
-                    let hasFollows = false;
+                $.ajax({
+                    url: 'http://localhost:3001/api/v1/community-posts/notifications/list',
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    xhrFields: { withCredentials: true },
+                    success: function(res) {
+                        let commentHtml = '';
+                        let likeFavoriteHtml = '';
+                        let followHtml = '';
+                        let hasComments = false;
+                        let hasLikesFavorites = false;
+                        let hasFollows = false;
 
-                    if (res.data.length === 0) {
-                        commentHtml = '<div class="text-center text-muted my-5">暂无评论和@通知</div>';
-                        likeFavoriteHtml = '<div class="text-center text-muted my-5">暂无赞和收藏通知</div>';
-                        followHtml = '<div class="text-center text-muted my-5">暂无新增关注通知</div>';
-                    } else {
-                        res.data.forEach(function(n) {
-                            const isRead = n.isRead ? '' : 'alert-primary';
-                            const fromUserId = n.fromUser?._id;
-                            const fromUserName = n.fromUser?.nickname || n.fromUser?.name || '用户';
-                            const fromUserAvatar = n.fromUser?.avatar ? `/images/avatars/${n.fromUser.avatar}` : '../images/user logo.jpg';
-                            const postId = n.post?._id;
-                            const postTitle = n.post?.title || '一个帖子';
-                            const commentText = n.comment?.text || '';
-                            const createdAt = new Date(n.createdAt).toLocaleString();
-                            
-                            // 构建可点击的用户名
-                            const userLink = `<b class="clickable-user" data-user-id="${fromUserId}" style="cursor: pointer; text-decoration: none;">${fromUserName}</b>`;
-                            
-                            // 构建可点击的帖子标题
-                            const postLink = postId ? `<b class="clickable-post" data-post-id="${postId}" style="cursor: pointer; text-decoration: none;">${postTitle}</b>` : `<b>${postTitle}</b>`;
-                            
-                            // 构建回复内容（限制长度）
-                            const replyContent = commentText ? `："${commentText.length > 30 ? commentText.substring(0, 30) + '...' : commentText}"` : '';
-
-                            let notificationHtml = '';
-
-                            switch (n.type) {
-                                case 'like':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 点赞了你的帖子 ${postLink}
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    likeFavoriteHtml += notificationHtml;
-                                    hasLikesFavorites = true;
-                                    break;
-                                    
-                                case 'favorite':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 收藏了你的帖子 ${postLink}
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    likeFavoriteHtml += notificationHtml;
-                                    hasLikesFavorites = true;
-                                    break;
-                                    
-                                case 'comment':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 评论了你的帖子 ${postLink}${replyContent}
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    commentHtml += notificationHtml;
-                                    hasComments = true;
-                                    break;
-                                    
-                                case 'reply':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 回复了你在 ${postLink} 的评论${replyContent}
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    commentHtml += notificationHtml;
-                                    hasComments = true;
-                                    break;
-                                    
-                                case 'mention':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 在 ${postLink} 中@了你${replyContent}
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    commentHtml += notificationHtml;
-                                    hasComments = true;
-                                    break;
-                                    
-                                case 'follow':
-                                    notificationHtml = `
-                                        <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
-                                            <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
-                                                 width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
-                                            <div class="flex-grow-1" style="min-width: 0;">
-                                                <div class="text-truncate">
-                                                    ${userLink} 开始关注你了
-                                                </div>
-                                            </div>
-                                            <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
-                                        </div>
-                                    `;
-                                    followHtml += notificationHtml;
-                                    hasFollows = true;
-                                    break;
-                                    
-                                default:
-                                    // 对于未知类型，记录日志但不显示
-                                    console.warn('未知的通知类型:', n.type, n);
-                            }
-                        });
-
-                        if (!hasComments) {
+                        if (res.data.length === 0) {
                             commentHtml = '<div class="text-center text-muted my-5">暂无评论和@通知</div>';
-                        }
-                        if (!hasLikesFavorites) {
                             likeFavoriteHtml = '<div class="text-center text-muted my-5">暂无赞和收藏通知</div>';
-                        }
-                        if (!hasFollows) {
                             followHtml = '<div class="text-center text-muted my-5">暂无新增关注通知</div>';
+                        } else {
+                            res.data.forEach(function(n) {
+                                const isRead = n.isRead ? '' : 'alert-primary';
+                                const fromUserId = n.fromUser?._id;
+                                const fromUserName = n.fromUser?.nickname || n.fromUser?.name || '用户';
+                                const fromUserAvatar = n.fromUser?.avatar ? `/images/avatars/${n.fromUser.avatar}` : '../images/user logo.jpg';
+                                const postId = n.post?._id;
+                                const postTitle = n.post?.title || '一个帖子';
+                                const commentText = n.comment?.text || '';
+                                const createdAt = new Date(n.createdAt).toLocaleString();
+                                
+                                // 构建可点击的用户名
+                                const userLink = `<b class="clickable-user" data-user-id="${fromUserId}" style="cursor: pointer; text-decoration: none;">${fromUserName}</b>`;
+                                
+                                // 构建可点击的帖子标题
+                                const postLink = postId ? `<b class="clickable-post" data-post-id="${postId}" style="cursor: pointer; text-decoration: none;">${postTitle}</b>` : `<b>${postTitle}</b>`;
+                                
+                                // 构建回复内容（限制长度）
+                                const replyContent = commentText ? `："${commentText.length > 30 ? commentText.substring(0, 30) + '...' : commentText}"` : '';
+
+                                let notificationHtml = '';
+
+                                switch (n.type) {
+                                    case 'like':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 点赞了你的帖子 ${postLink}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        likeFavoriteHtml += notificationHtml;
+                                        hasLikesFavorites = true;
+                                        break;
+                                        
+                                    case 'favorite':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 收藏了你的帖子 ${postLink}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        likeFavoriteHtml += notificationHtml;
+                                        hasLikesFavorites = true;
+                                        break;
+                                        
+                                    case 'comment':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 评论了你的帖子 ${postLink}${replyContent}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        commentHtml += notificationHtml;
+                                        hasComments = true;
+                                        break;
+                                        
+                                    case 'reply':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 回复了你在 ${postLink} 的评论${replyContent}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        commentHtml += notificationHtml;
+                                        hasComments = true;
+                                        break;
+                                        
+                                    case 'mention':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 在 ${postLink} 中@了你${replyContent}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        commentHtml += notificationHtml;
+                                        hasComments = true;
+                                        break;
+                                        
+                                    case 'follow':
+                                        notificationHtml = `
+                                            <div class="alert ${isRead} mb-2 notification-item d-flex align-items-center" data-id="${n._id}" style="overflow: hidden;">
+                                                <img src="${fromUserAvatar}" class="rounded-circle me-2 clickable-user flex-shrink-0" 
+                                                     width="32" height="32" data-user-id="${fromUserId}" style="cursor: pointer; object-fit: cover;">
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="text-truncate">
+                                                        ${userLink} 开始关注你了
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted ms-2 flex-shrink-0" style="font-size:0.8em;">${createdAt}</span>
+                                            </div>
+                                        `;
+                                        followHtml += notificationHtml;
+                                        hasFollows = true;
+                                        break;
+                                        
+                                    default:
+                                        // 对于未知类型，记录日志但不显示
+                                        console.warn('未知的通知类型:', n.type, n);
+                                }
+                            });
+
+                            if (!hasComments) {
+                                commentHtml = '<div class="text-center text-muted my-5">暂无评论和@通知</div>';
+                            }
+                            if (!hasLikesFavorites) {
+                                likeFavoriteHtml = '<div class="text-center text-muted my-5">暂无赞和收藏通知</div>';
+                            }
+                            if (!hasFollows) {
+                                followHtml = '<div class="text-center text-muted my-5">暂无新增关注通知</div>';
+                            }
                         }
+                        $('#tab-comment').html(commentHtml);
+                        $('#tab-like').html(likeFavoriteHtml);
+                        $('#tab-follow').html(followHtml);
+                        
+                        // 标记所有通知为已读
+                        markNotificationsAsRead();
+                    },
+                    error: function(err) {
+                        console.error('获取通知列表失败:', err);
                     }
-                    $('#tab-comment').html(commentHtml);
-                    $('#tab-like').html(likeFavoriteHtml);
-                    $('#tab-follow').html(followHtml);
-                    
-                    // 标记所有通知为已读
-                    markNotificationsAsRead();
                 });
             });
 
@@ -1900,8 +1940,19 @@
 
             // 标记通知为已读
             function markNotificationsAsRead() {
-                $.post('/api/v1/community-posts/notifications/mark-read', function() {
-                    getUnreadNotifications();
+                $.ajax({
+                    url: 'http://localhost:3001/api/v1/community-posts/notifications/mark-read',
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    xhrFields: { withCredentials: true },
+                    success: function() {
+                        getUnreadNotifications();
+                    },
+                    error: function(err) {
+                        console.error('标记通知为已读失败:', err);
+                    }
                 });
             }
 
