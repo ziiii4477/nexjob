@@ -46,9 +46,13 @@ const corsOptions = {
     optionsSuccessStatus: 200 // For legacy browser support
 };
 
+// 应用CORS到所有路由
 app.use(cors(corsOptions));
-// Handle pre-flight requests across all routes
-app.options('*', cors(corsOptions));
+
+// 明确处理所有OPTIONS预检请求，确保返回200状态码
+app.options('*', cors(corsOptions), (req, res) => {
+    res.sendStatus(200);
+});
 // --- END CORS CONFIGURATION ---
 
 
