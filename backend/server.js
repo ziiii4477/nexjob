@@ -100,28 +100,18 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 
 // CORS配置
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:5500',
-    'https://aesthetic-cheesecake-0dcd44.netlify.app',
-    'https://nexjob.onrender.com'
-];
-
-app.use(cors({
-    origin: function (origin, callback) {
-        // 允许没有origin的请求（比如来自Postman的请求）
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'production') {
-            callback(null, true);
-        } else {
-            callback(new Error('不允许的来源'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-}));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://aesthetic-cheesecake-0dcd44.netlify.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    
+    next();
+});
 
 app.use(express.urlencoded({ extended: true }));
 
