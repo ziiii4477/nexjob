@@ -26,7 +26,7 @@ const { protect } = require('./middleware/auth');
 const app = express();
 
 // --- START CORS CONFIGURATION ---
-// This must be the very first middleware to run.
+// 只在此处全局配置 CORS，必须放在所有中间件和路由之前
 const allowedOrigins = [
     'https://aesthetic-cheesecake-0dcd44.netlify.app',
     'http://localhost:3000',
@@ -47,19 +47,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions), (req, res) => {
-    res.sendStatus(200);
-});
-// --- END CORS CONFIGURATION ---
-
 // 全局兜底处理所有OPTIONS预检请求，必须放在所有中间件和路由之前
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
+app.options('*', cors(corsOptions));
+// --- END CORS CONFIGURATION ---
 
 // 连接数据库
 const connectDB = async () => {
