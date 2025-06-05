@@ -20,6 +20,11 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// 处理所有OPTIONS预检请求，确保CORS通过
+router.options('*', (req, res) => {
+  res.sendStatus(200);
+});
+
 router.post('/register', upload.single('businessLicense'), register);
 router.post('/login', login);
 router.get('/logout', logout);
