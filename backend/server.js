@@ -33,24 +33,18 @@ const allowedOrigins = [
     'http://127.0.0.1:5500'
 ];
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    optionsSuccessStatus: 200 // For legacy browser support
-};
-
-// 应用CORS到所有路由
-app.use(cors(corsOptions));
+// 更简单的CORS配置，允许所有来源访问
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+}));
 
 // 明确处理所有OPTIONS预检请求，确保返回200状态码
-app.options('*', cors(corsOptions), (req, res) => {
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
     res.sendStatus(200);
 });
 // --- END CORS CONFIGURATION ---
@@ -131,6 +125,29 @@ app.get('/index-en.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../index-en.html'));
 });
 
+// 添加调试路由
+app.get('/debug', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Debug route is working!',
+        time: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        port: process.env.PORT || 3001
+    });
+});
+
+// 添加特殊测试路由测试登录API
+app.all('/api-test/login', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Login API test route is working!',
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        query: req.query
+    });
+});
+
 // 挂载路由
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/jobs', jobs);
@@ -146,12 +163,17 @@ app.use('/api/v1/users', usersRoutes);
 app.use(errorHandler);
 
 // 启动服务器
+// 显示所有环境变量，帮助调试
+console.log('所有环境变量：', process.env);
+
 const PORT = process.env.PORT || 3001;
 const server = app.listen(PORT, () => {
     console.log(`服务器运行在端口 ${PORT}`);
-    console.log('环境变量：', {
+    console.log('关键环境变量：', {
         NODE_ENV: process.env.NODE_ENV,
-        MONGODB_URI: process.env.MONGODB_URI,
+        PORT: process.env.PORT,
+        RENDER_EXTERNAL_URL: process.env.RENDER_EXTERNAL_URL,
+        MONGODB_URI: process.env.MONGODB_URI ? '已设置' : '未设置',
         CLIENT_URL: process.env.CLIENT_URL
     });
 });
