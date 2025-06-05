@@ -12,16 +12,22 @@ const {
     activateAccount,
     verifyEmail
 } = require('../controllers/auth');
-const { uploadSingle } = require('../utils/fileUpload');
+const multer = require('multer');
 
-router.post('/register', uploadSingle('businessLicense'), register);
+// 配置 multer 为内存存储
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+router.post('/register', upload.single('businessLicense'), register);
 router.post('/login', login);
 router.get('/logout', logout);
-router.get('/verify/:token', verifyEmail);
+router.get('/verify-email/:token', verifyEmail);
+router.get('/activate/:token', activateAccount);
 router.get('/me', protect, getMe);
 router.put('/updatedetails', protect, updateDetails);
 router.put('/updatepassword', protect, updatePassword);
-router.put('/activate', protect, authorize('admin'), activateAccount);
 
 // 修改：允许用户查看自己的状态
 router.get('/check-status/:email', protect, async (req, res) => {

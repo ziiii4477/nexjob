@@ -6,69 +6,102 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const unlinkAsync = promisify(fs.unlink);
+const { uploadToFirebase } = require('../utils/firebaseStorage');
+const crypto = require('crypto');
 
 // @desc    注册HR用户
 // @route   POST /api/v1/auth/register
 // @access  Public
 exports.register = async (req, res, next) => {
     try {
+        const { fullName, email, password, phone, companyName, position, companySize, companyAddress } = req.body;
+
+        // 检查必填字段
+        if (!fullName || !email || !password || !phone || !companyName || !position || !companySize || !companyAddress) {
+            return res.status(400).json({
+                success: false,
+                message: '请填写所有必填字段'
+            });
+        }
+
+        // 检查是否上传了营业执照
         if (!req.file) {
-            return next(new ErrorResponse('请上传营业执照', 400));
+            return res.status(400).json({
+                success: false,
+                message: '请上传营业执照'
+            });
         }
 
-        const { name, email, password, phone } = req.body;
-        let company;
-        
-        try {
-            company = JSON.parse(req.body.company);
-        } catch (error) {
-            if (req.file) {
-                await unlinkAsync(req.file.path).catch(console.error);
-            }
-            return next(new ErrorResponse('公司信息格式不正确', 400));
-        }
+        // 上传营业执照到 Firebase Storage
+        const businessLicenseUrl = await uploadToFirebase(
+            req.file.buffer,
+            req.file.originalname,
+            'licenses'
+        );
 
-        if (!name || !email || !password || !phone || !company || !company.name || !company.position || !company.size || !company.address) {
-            if (req.file) {
-                await unlinkAsync(req.file.path).catch(console.error);
-            }
-            return next(new ErrorResponse('请填写所有必填字段', 400));
-        }
-
-        const existingUser = await HRUser.findOne({ email });
-        console.log(`Checking for existing user with email ${email}:`, existingUser);
-        if (existingUser) {
-            if (req.file) {
-                await unlinkAsync(req.file.path).catch(console.error);
-            }
-            return next(new ErrorResponse('该邮箱已被注册', 409));
-        }
-
+        // 创建用户
         const user = await HRUser.create({
-            name,
+            name: fullName,
             email,
             password,
             phone,
-            company,
-            businessLicense: req.file.path,
-            status: 'active'
+            company: {
+                name: companyName,
+                position,
+                size: companySize,
+                address: companyAddress
+            },
+            businessLicense: businessLicenseUrl
         });
 
-        res.status(201).json({
-            success: true,
-            message: '注册成功',
-            data: {
-                name: user.name,
+        // 生成验证令牌
+        const verificationToken = crypto.randomBytes(20).toString('hex');
+        user.verificationToken = verificationToken;
+        user.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24小时后过期
+        await user.save();
+
+        // 发送验证邮件
+        const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+        const message = `
+            <h1>邮箱验证</h1>
+            <p>请点击下面的链接验证您的邮箱：</p>
+            <a href="${verifyUrl}" target="_blank">验证邮箱</a>
+        `;
+
+        try {
+            await sendEmail({
                 email: user.email,
-                status: user.status
-            }
-        });
-    } catch (error) {
-        console.error('注册错误详情:', error);
-        if (req.file) {
-            await unlinkAsync(req.file.path).catch(console.error);
+                subject: 'NexJob 邮箱验证',
+                message
+            });
+
+            res.status(201).json({
+                success: true,
+                message: '注册成功，请查收验证邮件',
+                data: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    status: user.status
+                }
+            });
+        } catch (err) {
+            console.error('发送验证邮件失败:', err);
+            user.verificationToken = undefined;
+            user.verificationTokenExpires = undefined;
+            await user.save();
+
+            return res.status(500).json({
+                success: false,
+                message: '发送验证邮件失败，但用户已创建'
+            });
         }
-        next(error);
+    } catch (error) {
+        console.error('注册失败:', error);
+        return res.status(500).json({
+            success: false,
+            message: '注册失败: ' + error.message
+        });
     }
 };
 

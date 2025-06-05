@@ -2,6 +2,7 @@ const Resume = require('../models/Resume');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { uploadToFirebase } = require('../utils/firebaseStorage');
 
 // 确保上传目录存在
 const uploadDir = path.join(__dirname, '../uploads/resumes');
@@ -9,35 +10,19 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 配置文件存储
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-// 文件过滤器
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['.pdf', '.docx', '.doc'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(ext)) {
-        cb(null, true);
-    } else {
-        cb(new Error('不支持的文件类型'));
-    }
-};
-
-// 创建 multer 实例
+// 配置 multer 为内存存储
 const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
-    }
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['.pdf', '.docx', '.doc'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (allowedTypes.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('不支持的文件类型'));
+        }
+    },
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB 限制
 }).single('resume');
 
 // 获取简历列表
@@ -109,14 +94,21 @@ exports.uploadResume = async (req, res) => {
         }
 
         try {
+            // 上传简历到 Firebase Storage
+            const resumeUrl = await uploadToFirebase(
+                req.file.buffer,
+                req.file.originalname,
+                'resumes'
+            );
+
             const resume = new Resume({
                 jobseeker: req.user.id,
-                filename: req.file.filename,
+                filename: `${Date.now()}-${req.file.originalname}`,
                 originalName: req.file.originalname,
                 mimeType: req.file.mimetype,
                 size: req.file.size,
                 language: req.body.language || 'zh',
-                path: req.file.path
+                path: resumeUrl
             });
 
             await resume.save();
@@ -128,10 +120,6 @@ exports.uploadResume = async (req, res) => {
             });
         } catch (error) {
             console.error('保存简历信息失败:', error);
-            // 删除已上传的文件
-            if (req.file && req.file.path) {
-                await fs.promises.unlink(req.file.path).catch(console.error);
-            }
             res.status(500).json({
                 success: false,
                 message: '保存简历信息失败: ' + error.message
@@ -220,35 +208,34 @@ exports.downloadResume = async (req, res) => {
 // 删除简历
 exports.deleteResume = async (req, res) => {
     try {
-        const resume = await Resume.findOne({
-            _id: req.params.id,
-            jobseeker: req.user.id
-        });
+        const resume = await Resume.findById(req.params.id);
 
         if (!resume) {
             return res.status(404).json({
                 success: false,
-                error: '简历不存在'
+                message: '简历不存在'
             });
         }
 
-        // 删除文件
-        if (fs.existsSync(resume.path)) {
-            await fs.promises.unlink(resume.path);
+        // 确保只能删除自己的简历
+        if (resume.jobseeker.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: '无权删除此简历'
+            });
         }
 
-        // 删除数据库记录
-        await Resume.findByIdAndDelete(resume._id);
+        await Resume.findByIdAndDelete(req.params.id);
 
         res.json({
             success: true,
-            message: '简历删除成功'
+            message: '简历已删除'
         });
     } catch (error) {
         console.error('删除简历失败:', error);
         res.status(500).json({
             success: false,
-            error: '删除简历失败: ' + error.message
+            message: '删除简历失败'
         });
     }
 };

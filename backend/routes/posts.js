@@ -5,13 +5,16 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const upload = multer({
-    dest: path.join(__dirname, '../uploads/'),
-    limits: { fileSize: 5 * 1024 * 1024 }
-}).array('images', 9);
+const { uploadToFirebase } = require('../utils/firebaseStorage');
 const Notification = require('../models/Notification');
 const PostViewLog = require('../models/PostViewLog');
 const mongoose = require('mongoose');
+
+// 配置 multer 为内存存储
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }
+}).array('images', 9);
 
 // 获取所有帖子（需登录）
 router.get('/', protect, async (req, res) => {
@@ -80,8 +83,12 @@ router.post('/', protect, async (req, res) => {
                 return res.status(400).json({ success: false, message: '请至少上传一张图片' });
             }
             
-            req.body.author = req.user._id;
-            const imageUrls = req.files.map(file => '/uploads/' + file.filename);
+            // 上传图片到 Firebase Storage
+            const imageUrls = await Promise.all(
+                req.files.map(file => 
+                    uploadToFirebase(file.buffer, file.originalname, 'community-posts')
+                )
+            );
             
             const { title, content, category, tags } = req.body;
             
@@ -90,45 +97,27 @@ router.post('/', protect, async (req, res) => {
                 return res.status(400).json({ success: false, message: '标题和内容不能为空' });
             }
             
-            // 直接从认证用户信息中获取用户类型
+            // 获取用户类型
             const authorType = req.user.role === 'hr' ? 'HRUser' : 'JobSeeker';
             
-            console.log('创建帖子的用户类型:', req.user.role, '作者类型:', authorType);
-            
-            // 处理一键投递和AI面试选项
-            let quickApply = false;
-            let aiInterview = false;
-            
-            // 只有HR用户可以设置这些选项
-            if (req.user.role === 'hr') {
-                // 将字符串"true"转换为布尔值true
-                quickApply = req.body.quickApply === 'true';
-                aiInterview = req.body.aiInterview === 'true';
-                
-                console.log('HR用户设置的选项:', {
-                    quickApply: req.body.quickApply,
-                    aiInterview: req.body.aiInterview,
-                    parsedQuickApply: quickApply,
-                    parsedAiInterview: aiInterview
-                });
-            }
-            
-            const post = await Post.create({ 
-                title, 
-                content, 
-                category, 
-                tags, 
-                author: req.body.author,
-                authorType: authorType, 
-                images: imageUrls,
-                quickApply: quickApply,
-                aiInterview: aiInterview
+            // 创建帖子
+            const post = await Post.create({
+                title,
+                content,
+                author: req.user._id,
+                authorType,
+                category: category || 'other',
+                tags: tags ? JSON.parse(tags) : [],
+                images: imageUrls
             });
-            
-            res.json({ success: true, data: post });
+
+            res.status(201).json({
+                success: true,
+                data: post
+            });
         } catch (error) {
             console.error('创建帖子失败:', error);
-            res.status(500).json({ success: false, message: '创建帖子失败', error: error.message });
+            res.status(500).json({ success: false, message: '创建帖子失败' });
         }
     });
 });
@@ -689,10 +678,14 @@ router.put('/:id', protect, async (req, res) => {
                 post.category = req.body.category;
             }
             
-            // 如果上传了新图片，更新图片数组
+            // 如果上传了新图片，上传到 Firebase Storage
             if (req.files && req.files.length > 0) {
-                const newImageUrls = req.files.map(file => '/uploads/' + file.filename);
-                post.images = newImageUrls;
+                const imageUrls = await Promise.all(
+                    req.files.map(file => 
+                        uploadToFirebase(file.buffer, file.originalname, 'community-posts')
+                    )
+                );
+                post.images = imageUrls;
             }
 
             await post.save();
