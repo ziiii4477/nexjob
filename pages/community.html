@@ -1646,7 +1646,10 @@
                     url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
                     method: 'POST',
                     xhrFields: { withCredentials: true },
-                    contentType: 'application/json', // 指示发送JSON数据
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json' 
+                    },
                     data: JSON.stringify({ text: commentText }), // 将JS对象转为JSON字符串
                     success: function(res) {
                         if (res.success) {
@@ -2581,6 +2584,9 @@
                 $.ajax({
                     url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
                     method: 'GET',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
                     xhrFields: { withCredentials: true },
                     success: function(res) {
                         if (res.success && res.data && res.data.length > 0) {
@@ -2662,8 +2668,11 @@
                 $.ajax({
                     url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
                     method: 'POST',
+                    headers: { 
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    },
                     xhrFields: { withCredentials: true },
-                    contentType: 'application/json',
                     data: JSON.stringify({ text: commentText, parentId: parentId }),
                     success: function(res) {
                         if (res.success) {
