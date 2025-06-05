@@ -107,24 +107,21 @@ const allowedOrigins = [
     'https://nexjob.onrender.com'
 ];
 
-// 如果是生产环境，允许所有源
-const isProduction = process.env.NODE_ENV === 'production';
-
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (isProduction || allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin || '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(204);
-        return;
-    }
-    next();
-});
+app.use(cors({
+    origin: function (origin, callback) {
+        // 允许没有origin的请求（比如来自Postman的请求）
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error('不允许的来源'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+}));
 
 app.use(express.urlencoded({ extended: true }));
 
