@@ -26,6 +26,7 @@ const { protect } = require('./middleware/auth');
 const app = express();
 
 // --- START CORS CONFIGURATION ---
+// This must be the very first middleware to run.
 const allowedOrigins = [
     'https://aesthetic-cheesecake-0dcd44.netlify.app',
     'http://localhost:3000',
@@ -34,6 +35,7 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -44,15 +46,57 @@ const corsOptions = {
     optionsSuccessStatus: 200 // For legacy browser support
 };
 
-// Enable CORS for all routes and handle pre-flight requests
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+// Handle pre-flight requests across all routes
+app.options('*', cors(corsOptions));
 // --- END CORS CONFIGURATION ---
 
+
+// 连接数据库
+const connectDB = async () => {
+  try {
+    console.log('尝试连接到MongoDB Atlas...');
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
+      maxPoolSize: 50,
+      retryWrites: true
+    });
+    console.log('MongoDB Atlas连接成功');
+    return true;
+  } catch (err) {
+    console.log('MongoDB Atlas连接错误:', err);
+    console.log('尝试连接本地MongoDB...');
+    try {
+      await mongoose.connect('mongodb://localhost:27017/nexjob', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000
+      });
+      console.log('本地MongoDB连接成功');
+      return true;
+    } catch (localErr) {
+      console.log('本地MongoDB连接错误:', localErr);
+      console.log('所有数据库连接尝试失败');
+      return false;
+    }
+  }
+};
+
+// 立即连接数据库
+connectDB().then(connected => {
+  if (!connected) {
+    console.log('无法连接到任何数据库，应用可能无法正常工作');
+  }
+});
+
+// 其他中间件
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-
 app.use(express.urlencoded({ extended: true }));
 
 // 请求日志中间件
