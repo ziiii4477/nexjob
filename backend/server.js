@@ -107,10 +107,13 @@ const allowedOrigins = [
     'https://nexjob.onrender.com'
 ];
 
+// 如果是生产环境，允许所有源
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
+    if (isProduction || allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
         res.setHeader('Access-Control-Allow-Credentials', 'true');
