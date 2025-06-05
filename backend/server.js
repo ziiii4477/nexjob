@@ -33,18 +33,21 @@ const allowedOrigins = [
     'http://127.0.0.1:5500'
 ];
 
-// 更简单的CORS配置，允许所有来源访问
-app.use(cors({
-    origin: '*',
+const corsOptions = {
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, origin);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-}));
+};
 
-// 明确处理所有OPTIONS预检请求，确保返回200状态码
-app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions), (req, res) => {
     res.sendStatus(200);
 });
 // --- END CORS CONFIGURATION ---
