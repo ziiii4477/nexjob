@@ -22,7 +22,6 @@ const communityPosts = require('./routes/posts');
 const usersRoutes = require('./routes/users');
 const updateAllStatus = require('./routes/updateAllStatus');
 const { protect } = require('./middleware/auth');
-const hrAuth = require('./routes/hr-auth');
 
 const app = express();
 
@@ -173,7 +172,8 @@ app.use('/api/v1/applications', applications);
 app.use('/api/v1/resumes', resumeRoutes);
 app.use('/api/v1/community-posts', communityPosts);
 app.use('/api/v1/users', usersRoutes);
-app.use('/api/v1/hr', hrAuth);
+const hrRoutes = require('./routes/hr');
+app.use('/api/v1/hr', hrRoutes);
 
 // 错误处理中间件
 app.use(errorHandler);
