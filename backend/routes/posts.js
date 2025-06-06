@@ -626,21 +626,37 @@ router.get('/my-posts', protect, async (req, res) => {
 // 获取单个帖子（需登录）
 router.get('/:id', protect, async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id)
-            .populate({
-                path: 'author',
-                select: 'nickname avatar name',
-                model: 'JobSeeker'
-            })
-            .lean(); // 使用 lean() 以便添加自定义字段
-        
+        let post = await Post.findById(req.params.id).lean();
         if (!post) {
             return res.status(404).json({ success: false, message: '帖子不存在' });
         }
 
+        // 根据 authorType 填充作者信息
+        if (post.authorType === 'HRUser') {
+            const author = await mongoose.model('HRUser').findById(post.author).select('name avatar').lean();
+            if (author) {
+                post.author = {
+                    ...author,
+                    userType: 'hr'
+                };
+            } else {
+                post.author = { name: '未知HR', userType: 'hr' };
+            }
+        } else {
+            const author = await mongoose.model('JobSeeker').findById(post.author).select('nickname name avatar').lean();
+            if (author) {
+                post.author = {
+                    ...author,
+                    userType: 'jobseeker'
+                };
+            } else {
+                post.author = { name: '未知用户', userType: 'jobseeker' };
+            }
+        }
+
         // 计算总评论数
         const commentCount = await Comment.countDocuments({ post: post._id });
-        post.totalCommentsCount = commentCount; // 包括所有回复
+        post.totalCommentsCount = commentCount;
 
         res.json({ success: true, data: post });
     } catch (error) {
