@@ -745,7 +745,12 @@ async function loadUserProfile() {
     if (!userInfo.userId) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`, {
+        // 根据用户类型选择不同的 API 路径
+        const apiPath = userInfo.userType === 'hr' ? 
+            `${API_BASE_URL}/api/v1/hr/profile` : 
+            `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
+
+        const response = await fetch(apiPath, {
             headers: {
                 'Authorization': `Bearer ${userInfo.token}`,
                 'Accept': 'application/json'
@@ -757,7 +762,7 @@ async function loadUserProfile() {
         if (data.success) {
             const profile = data.data;
             $('#profile-avatar').attr('src', profile.avatar || '../images/user logo.jpg');
-            $('#profile-nickname').text(profile.nickname || '用户');
+            $('#profile-nickname').text(profile.nickname || profile.name || '用户');
             $('#profile-followers').text(profile.followersCount || 0);
             $('#profile-following').text(profile.followingCount || 0);
         }
@@ -827,9 +832,14 @@ function loadMyProfile() {
     // 显示个人资料卡片
     $('#my-profile-card').show();
 
+    // 根据用户类型选择不同的 API 路径
+    const apiPath = userInfo.userType === 'hr' ? 
+        `${API_BASE_URL}/api/v1/hr/profile` : 
+        `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
+
     // 加载用户资料
     $.ajax({
-        url: `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`,
+        url: apiPath,
         method: 'GET',
         headers: { 
             'Authorization': `Bearer ${userInfo.token}`
@@ -845,7 +855,7 @@ function loadMyProfile() {
                     : '../images/user logo.jpg';
                 $('#my-avatar').attr('src', avatarPath);
                 
-                // 更新用户名
+                // 更新用户名 - 支持 HR 和求职者的不同字段
                 $('#my-username').text(profile.nickname || profile.name || '用户');
                 
                 // 更新关注数和粉丝数 - 确保使用正确的属性名
