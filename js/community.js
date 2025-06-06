@@ -783,19 +783,22 @@ function renderComments(comments, containerId) {
     let html = '';
     comments.forEach(comment => {
         const userInfo = getCurrentUserInfo();
-        const authorName = comment.author?.nickname || comment.author?.name || '匿名用户';
-        const isHR = isHRUser(comment.author?.userType);
+        // 修复：同时检查author和user字段，支持HR和JobSeeker用户类型
+        const author = comment.author || comment.user || {};
+        const authorName = author.nickname || author.name || '匿名用户';
+        // 修复：检查HR用户类型
+        const isHR = author.userType === 'hr' || author.userType === 'HRUser';
         
         html += `
             <div class="comment-item mb-3">
                 <div class="d-flex">
-                    <img src="${comment.author?.avatar || '../images/user logo.jpg'}" class="rounded-circle me-2" width="32" height="32">
+                    <img src="${author.avatar || '../images/user logo.jpg'}" class="rounded-circle me-2" width="32" height="32">
                     <div>
                         <div class="d-flex align-items-center">
                             <strong class="me-2">${authorName}</strong>
                             ${isHR ? '<span class="badge bg-primary">HR</span>' : ''}
                         </div>
-                        <p class="mb-1">${comment.content}</p>
+                        <p class="mb-1">${comment.content || comment.text || ''}</p>
                         <small class="text-muted">${new Date(comment.createdAt).toLocaleString('zh-CN')}</small>
                     </div>
                 </div>

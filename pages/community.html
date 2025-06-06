@@ -1320,9 +1320,18 @@
     // 修改评论渲染函数，使用户名和头像可点击
     function renderCommentWithReplies(comment, postId, allComments = [], isFirstTopLevel = false) {
         const commentDate = new Date(comment.createdAt).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' });
-        const authorName = comment.user?.nickname || comment.user?.name || '匿名用户';
-        const authorAvatar = comment.user?.avatar ? `/images/avatars/${comment.user.avatar}` : '../images/user logo.jpg';
-        const authorId = comment.user?._id;
+        
+        // 修复：同时检查user和author字段，支持不同的API返回格式
+        const user = comment.user || comment.author || {};
+        const authorName = user.nickname || user.name || '匿名用户';
+        const authorAvatar = user.avatar ? 
+            (user.avatar.startsWith('http') ? user.avatar : `/images/avatars/${user.avatar}`) : 
+            '../images/user logo.jpg';
+        const authorId = user._id;
+        
+        // 判断是否是HR用户
+        const isHR = user.userType === 'hr' || user.userType === 'HRUser';
+        const hrBadge = isHR ? '<span class="badge bg-primary ms-1">HR</span>' : '';
         
         // 判断是否是顶层评论
         const isTopLevel = !comment.parentId;
@@ -1333,7 +1342,8 @@
         if (!isTopLevel && comment.parentId) {
             const parentComment = allComments.find(c => c._id === comment.parentId);
             if (parentComment) {
-                const parentAuthorName = parentComment.user?.nickname || parentComment.user?.name || '匿名用户';
+                const parentUser = parentComment.user || parentComment.author || {};
+                const parentAuthorName = parentUser.nickname || parentUser.name || '匿名用户';
                 replyPrefix = `回复 @${parentAuthorName}：`;
             }
         }
@@ -1352,6 +1362,7 @@
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center mb-1">
                             <strong class="me-2 clickable-user" data-user-id="${authorId}" style="cursor: pointer;">${authorName}</strong>
+                            ${hrBadge}
                             <small class="text-muted">${commentDate}</small>
                         </div>
                         <p class="mb-1 comment-text">${replyPrefix}${comment.text}</p>
