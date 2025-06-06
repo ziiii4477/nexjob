@@ -72,6 +72,12 @@ function renderPostCards(posts, containerId) {
 // 初始化Masonry网格
 function initMasonryForGrid($container) {
     if ($container && $container.length) {
+        // 先销毁可能存在的masonry实例
+        if ($container.data('masonry')) {
+            $container.masonry('destroy');
+        }
+        
+        // 重新初始化masonry
         $container.masonry({
             itemSelector: '.masonry-grid-item',
             columnWidth: '.masonry-grid-item',
@@ -81,9 +87,15 @@ function initMasonryForGrid($container) {
         });
         
         // 确保所有图片加载后重新布局
-        $container.imagesLoaded().progress(function() {
-            $container.masonry('layout');
-        });
+        if (typeof $.fn.imagesLoaded === 'function') {
+            $container.imagesLoaded().progress(function() {
+                console.log('图片加载中，重新布局');
+                $container.masonry('layout');
+            }).done(function() {
+                console.log('所有图片加载完成，最终布局');
+                $container.masonry('layout');
+            });
+        }
     }
 }
 
@@ -636,6 +648,7 @@ function deletePost(postId) {
 
 // 加载消息
 function loadMessages() {
+    console.log('开始加载通知...');
     $.ajax({
         url: `${API_BASE_URL}/api/v1/notifications`,
         method: 'GET',
@@ -644,6 +657,7 @@ function loadMessages() {
         },
         xhrFields: { withCredentials: true },
         success: function(res) {
+            console.log('通知加载成功:', res);
             if (res.success && res.data) {
                 // 处理不同类型的通知
                 const comments = res.data.filter(n => n.type === 'comment');
@@ -654,10 +668,17 @@ function loadMessages() {
                 renderNotifications(comments, '#tab-comment');
                 renderNotifications(likes, '#tab-like');
                 renderNotifications(follows, '#tab-follow');
+            } else {
+                $('#tab-comment').html('<div class="text-center text-muted my-3">暂无内容</div>');
+                $('#tab-like').html('<div class="text-center text-muted my-3">暂无内容</div>');
+                $('#tab-follow').html('<div class="text-center text-muted my-3">暂无内容</div>');
             }
         },
         error: function(xhr) {
             console.error('加载通知失败:', xhr);
+            $('#tab-comment').html('<div class="text-center text-danger my-3">加载失败</div>');
+            $('#tab-like').html('<div class="text-center text-danger my-3">加载失败</div>');
+            $('#tab-follow').html('<div class="text-center text-danger my-3">加载失败</div>');
         }
     });
 }
@@ -802,19 +823,28 @@ function loadMyProfile() {
         },
         xhrFields: { withCredentials: true },
         success: function(res) {
+            console.log('加载个人资料成功:', res);
             if (res.success && res.data) {
                 const profile = res.data;
-                // 更新头像
-                $('#my-avatar').attr('src', profile.avatar || '../images/user logo.jpg');
+                // 更新头像 - 修复路径处理
+                const avatarPath = profile.avatar ? 
+                    (profile.avatar.startsWith('http') ? profile.avatar : '../images/avatars/' + profile.avatar) 
+                    : '../images/user logo.jpg';
+                $('#my-avatar').attr('src', avatarPath);
+                
                 // 更新用户名
                 $('#my-username').text(profile.nickname || profile.name || '用户');
-                // 更新关注数和粉丝数
+                
+                // 更新关注数和粉丝数 - 确保使用正确的属性名
                 $('#my-following').text(profile.followingCount || 0);
                 $('#my-follower').text(profile.followerCount || 0);
             }
         },
         error: function(xhr) {
             console.error('加载个人资料失败:', xhr);
+            // 显示错误信息
+            $('#my-avatar').attr('src', '../images/user logo.jpg');
+            $('#my-username').text('加载失败');
         }
     });
 } 
