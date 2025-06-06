@@ -26,6 +26,9 @@ const hrAuth = require('./routes/hr-auth');
 
 const app = express();
 
+// 禁用ETag，避免304响应导致CORS头丢失
+app.disable('etag');
+
 // --- START CORS CONFIGURATION ---
 // 只在此处全局配置 CORS，必须放在所有中间件和路由之前
 const allowedOrigins = [
