@@ -953,6 +953,7 @@
     <!-- 自定义脚本 -->
     <script src="../js/api-config.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="../js/community.js"></script>
     <script>
         // 全局搜索函数
         function searchPosts() {
@@ -1372,10 +1373,10 @@
         commentsList.html('<p class="text-muted">正在加载评论...</p>'); // 加载提示
 
         $.ajax({
-            url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
+            url: `${API_BASE_URL}/api/v1/community-posts/${postId}/comments`,
             method: 'GET',
             headers: { 
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             xhrFields: { withCredentials: true },
             success: function(res) {
@@ -1456,10 +1457,10 @@
         }
 
         $.ajax({
-            url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
+            url: `${API_BASE_URL}/api/v1/community-posts/${postId}/comments`,
             method: 'POST',
             headers: { 
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
             },
             xhrFields: { withCredentials: true },
@@ -1489,10 +1490,10 @@
 
         // 加载用户的简历列表
         $.ajax({
-            url: 'http://localhost:3001/api/v1/resumes',
+            url: `${API_BASE_URL}/api/v1/resumes`,
             method: 'GET',
             headers: { 
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             xhrFields: { withCredentials: true },
             beforeSend: function() {
@@ -1538,10 +1539,10 @@
                         
                         // 发送投递请求
                         $.ajax({
-                            url: `http://localhost:3001/api/v1/applications/quick-apply/${postId}`,
+                            url: `${API_BASE_URL}/api/v1/applications/quick-apply/${postId}`,
                             method: 'POST',
                             headers: { 
-                                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`,
                                 'Content-Type': 'application/json'
                             },
                             contentType: 'application/json',
