@@ -755,9 +755,9 @@ async function loadUserProfile() {
     if (!userInfo.userId) return;
 
     try {
-        // 根据用户类型选择不同的 API 路径
+        // HR用户用 /hr/me，普通用户用 /users/:id/profile
         const apiPath = userInfo.userType === 'hr' ? 
-            `${API_BASE_URL}/api/v1/hr/${userInfo.userId}/profile` : 
+            `${API_BASE_URL}/api/v1/hr/me` : 
             `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
 
         const response = await fetch(apiPath, {
@@ -848,9 +848,9 @@ function loadMyProfile() {
     // 显示个人资料卡片
     $('#my-profile-card').show();
 
-    // 根据用户类型选择不同的 API 路径
+    // HR用户用 /hr/me，普通用户用 /users/:id/profile
     const apiPath = userInfo.userType === 'hr' ? 
-        `${API_BASE_URL}/api/v1/hr/${userInfo.userId}/profile` : 
+        `${API_BASE_URL}/api/v1/hr/me` : 
         `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
 
     // 加载用户资料
