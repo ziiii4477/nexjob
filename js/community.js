@@ -536,6 +536,10 @@ function toggleLike(postId, btnElement) {
 
 // 收藏功能
 function toggleFavorite(postId, btnElement) {
+    console.log('[社区页面] 开始处理收藏，postId:', postId);
+    const token = localStorage.getItem('token');
+    console.log('[社区页面] 收藏请求使用token:', token?.substring(0, 20) + '...');
+    
     $.ajax({
         url: `${API_BASE_URL}/api/v1/community-posts/${postId}/favorite`,
         method: 'POST',
@@ -548,6 +552,7 @@ function toggleFavorite(postId, btnElement) {
             cors: true
         },
         success: function(res) {
+            console.log('[社区页面] 收藏响应:', res);
             if (res.success) {
                 const $btn = $(btnElement);
                 const $icon = $btn.find('i');
@@ -556,16 +561,21 @@ function toggleFavorite(postId, btnElement) {
                 
                 if ($icon.hasClass('fas')) {
                     // 取消收藏
+                    console.log('[社区页面] 取消收藏');
                     $icon.removeClass('fas text-warning').addClass('far');
                     $count.text(` ${currentCount - 1}`);
                     $btn.data('favorited', false);
                 } else {
                     // 收藏
+                    console.log('[社区页面] 添加收藏');
                     $icon.removeClass('far').addClass('fas text-warning');
                     $count.text(` ${currentCount + 1}`);
                     $btn.data('favorited', true);
                 }
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('[社区页面] 收藏请求失败:', { status, error, response: xhr.responseText });
         }
     });
 }
