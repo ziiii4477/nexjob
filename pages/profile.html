@@ -1188,15 +1188,6 @@
             });
         });
 
-        // API 配置
-        function getApiBaseUrl() {
-            // 生产环境直接返回后端真实External URL
-            return 'https://nexjob-backend.onrender.com';
-        }
-
-        const API_BASE_URL = getApiBaseUrl();
-        console.log('API配置已内联定义');
-
         // 加载已上传的简历列表
         async function loadResumeList() {
             try {
