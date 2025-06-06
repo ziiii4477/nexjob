@@ -735,7 +735,11 @@ async function populateReplies(comment) {
     const populatedReplies = [];
     for (const replyId of comment.replies) {
         const reply = await Comment.findById(replyId)
-            .populate('user', 'name nickname avatar')
+            .populate({
+                path: 'user',
+                select: 'name nickname avatar',
+                model: reply => reply.userType
+            })
             .lean(); // 使用 .lean() 获取普通JS对象，便于修改
         if (reply) {
             const populatedReply = await populateReplies(reply); // 递归填充
@@ -761,7 +765,11 @@ router.get('/:postId/comments', async (req, res) => {
 
         // 仅获取顶层评论 (parentId 为 null)
         const topLevelComments = await Comment.find({ post: postId, parentId: null })
-            .populate('user', 'name nickname avatar')
+            .populate({
+                path: 'user',
+                select: 'name nickname avatar',
+                model: comment => comment.userType
+            })
             .sort({ createdAt: -1 }) // 顶层评论按最新时间倒序
             .lean(); // 使用 .lean() 获取普通JS对象
 
@@ -820,6 +828,7 @@ router.post('/:postId/comments', protect, async (req, res) => {
             text: String(text).trim(),
             post: postId,
             user: req.user._id,
+            userType: req.user.role === 'hr' ? 'HRUser' : 'JobSeeker',
             parentId: parentId || null,
             depth: depth
         });
@@ -878,7 +887,11 @@ router.post('/:postId/comments', protect, async (req, res) => {
         }
         
         const populatedComment = await Comment.findById(newComment._id)
-            .populate('user', 'name nickname avatar');
+            .populate({
+                path: 'user',
+                select: 'name nickname avatar',
+                model: comment => comment.userType
+            });
 
         res.status(201).json({ success: true, message: '评论已成功发表', data: populatedComment });
     } catch (error) {
