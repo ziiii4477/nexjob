@@ -757,7 +757,7 @@ async function loadUserProfile() {
     try {
         // 根据用户类型选择不同的 API 路径
         const apiPath = userInfo.userType === 'hr' ? 
-            `${API_BASE_URL}/api/v1/hr/profile` : 
+            `${API_BASE_URL}/api/v1/hr-users/${userInfo.userId}/profile` : 
             `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
 
         const response = await fetch(apiPath, {
@@ -771,7 +771,7 @@ async function loadUserProfile() {
         const data = await response.json();
         if (data.success) {
             const profile = data.data;
-            $('#profile-avatar').attr('src', profile.avatar || '../images/user logo.jpg');
+            $('#profile-avatar').attr('src', profile.avatar ? `/images/avatars/${profile.avatar}` : '../images/user logo.jpg');
             $('#profile-nickname').text(profile.nickname || profile.name || '用户');
             $('#profile-followers').text(profile.followersCount || 0);
             $('#profile-following').text(profile.followingCount || 0);
@@ -850,7 +850,7 @@ function loadMyProfile() {
 
     // 根据用户类型选择不同的 API 路径
     const apiPath = userInfo.userType === 'hr' ? 
-        `${API_BASE_URL}/api/v1/hr/profile` : 
+        `${API_BASE_URL}/api/v1/hr-users/${userInfo.userId}/profile` : 
         `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`;
 
     // 加载用户资料
@@ -867,7 +867,7 @@ function loadMyProfile() {
                 const profile = res.data;
                 // 更新头像 - 修复路径处理
                 const avatarPath = profile.avatar ? 
-                    (profile.avatar.startsWith('http') ? profile.avatar : '../images/avatars/' + profile.avatar) 
+                    (profile.avatar.startsWith('http') ? profile.avatar : '/images/avatars/' + profile.avatar) 
                     : '../images/user logo.jpg';
                 $('#my-avatar').attr('src', avatarPath);
                 
