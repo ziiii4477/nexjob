@@ -32,13 +32,13 @@ function renderPostCards(posts, containerId) {
                             ${deleteButton}
                         </div>
                         <div class="card-body">
-                            <h6 class="card-title">${post.title}</h6>
+                            <h6 class="card-title" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">${post.title}</h6>
                             <div class="d-flex align-items-center">
                                 <img src="${post.author?.avatar ? '/images/avatars/' + post.author.avatar : '../images/user logo.jpg'}" 
                                      class="rounded-circle me-1 clickable-user" 
                                      data-user-id="${post.author?._id}"
                                      style="cursor:pointer;" />
-                                <span class="clickable-user text-truncate" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
+                                <span class="clickable-user text-truncate" onclick="window.location.href='pages/user-profile.html?id=' + $(this).data('user-id')" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
                                     ${post.author?.nickname || post.author?.name || '匿名'}
                                     ${isHRUser(post.author?.userType) ? '<span class="badge bg-primary ms-1" style="font-size:0.6rem;">HR</span>' : ''}
                                 </span>
@@ -66,6 +66,7 @@ function renderPostCards(posts, containerId) {
 
     const $container = $(containerId);
     $container.html(html);
+    addHRFeatures();
 }
 
 // 初始化Masonry网格
@@ -391,6 +392,11 @@ $(document).ready(function() {
             $grid.masonry('layout');
         }
     });
+
+    // 加载用户资料
+    loadUserProfile();
+
+    addHRFeatures();
 });
 
 // 显示帖子详情
@@ -627,7 +633,7 @@ function deletePost(postId) {
 // 加载消息
 function loadMessages() {
     $.ajax({
-        url: `${API_BASE_URL}/api/v1/notifications`,
+        url: `${API_BASE_URL}/api/v1/community/notifications`,
         method: 'GET',
         headers: { 
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -696,4 +702,81 @@ function getNotificationAction(type) {
         default:
             return '与你互动';
     }
+}
+
+// 加载用户资料
+async function loadUserProfile() {
+    const userInfo = getCurrentUserInfo();
+    if (!userInfo.userId) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`, {
+            headers: {
+                'Authorization': `Bearer ${userInfo.token}`,
+                'Accept': 'application/json'
+            },
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            const profile = data.data;
+            $('#profile-avatar').attr('src', profile.avatar || '../images/user logo.jpg');
+            $('#profile-nickname').text(profile.nickname || '用户');
+            $('#profile-followers').text(profile.followersCount || 0);
+            $('#profile-following').text(profile.followingCount || 0);
+        }
+    } catch (error) {
+        console.error('加载用户资料失败:', error);
+    }
+}
+
+// 检查是否为HR用户
+function isHRUser(userType) {
+    return userType === 'hr';
+}
+
+// 添加HR特定的发布功能
+function addHRFeatures() {
+    const userInfo = getCurrentUserInfo();
+    if (isHRUser(userInfo.userType)) {
+        // 添加一键投递按钮
+        $('.post-card').each(function() {
+            const $card = $(this);
+            if (!$card.find('.quick-apply-btn').length) {
+                $card.find('.card-body').append(`
+                    <button class="btn btn-sm btn-outline-primary quick-apply-btn mt-2">
+                        <i class="fas fa-paper-plane"></i> 一键投递
+                    </button>
+                `);
+            }
+        });
+    }
+}
+
+function renderComments(comments, containerId) {
+    let html = '';
+    comments.forEach(comment => {
+        const userInfo = getCurrentUserInfo();
+        const authorName = comment.author?.nickname || comment.author?.name || '匿名用户';
+        const isHR = isHRUser(comment.author?.userType);
+        
+        html += `
+            <div class="comment-item mb-3">
+                <div class="d-flex">
+                    <img src="${comment.author?.avatar || '../images/user logo.jpg'}" class="rounded-circle me-2" width="32" height="32">
+                    <div>
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2">${authorName}</strong>
+                            ${isHR ? '<span class="badge bg-primary">HR</span>' : ''}
+                        </div>
+                        <p class="mb-1">${comment.content}</p>
+                        <small class="text-muted">${new Date(comment.createdAt).toLocaleString('zh-CN')}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    $(containerId).html(html);
 } 
