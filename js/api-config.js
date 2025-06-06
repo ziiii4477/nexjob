@@ -2,7 +2,7 @@
 function getApiBaseUrl() {
     // 检查当前是否在 Netlify 部署环境
     if (window.location.hostname.includes('netlify.app')) {
-        return 'https://nexjob.onrender.com';
+        return 'https://nexjob-backend.onrender.com';
     }
     // 本地开发环境
     return 'http://localhost:3001';
@@ -12,8 +12,8 @@ const API_BASE_URL = getApiBaseUrl();
 
 // API 路径
 const API_PATHS = {
-    HR_LOGIN: `${API_BASE_URL}/api/v1/auth/login`,
-    HR_REGISTER: `${API_BASE_URL}/api/v1/auth/register`,
+    HR_LOGIN: `${API_BASE_URL}/api/v1/hr/login`,
+    HR_REGISTER: `${API_BASE_URL}/api/v1/hr/register`,
     JOBSEEKER_LOGIN: `${API_BASE_URL}/api/v1/jobseeker/login`,
     JOBSEEKER_REGISTER: `${API_BASE_URL}/api/v1/jobseeker/register`,
     RESUMES: `${API_BASE_URL}/api/v1/resumes`,
@@ -23,4 +23,4 @@ const API_PATHS = {
     USERS: `${API_BASE_URL}/api/v1/users`
 };
 
-console.log('API配置脚本已注入'); 
+console.log('API配置已内联定义'); 
