@@ -109,16 +109,6 @@
                 <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
                     登录 NexJob
                 </h2>
-                <div class="flex justify-center">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="userTypeToggle">
-                        <span class="toggle-slider"></span>
-                        <div class="toggle-labels">
-                            <span>我是求职者</span>
-                            <span>我是HR</span>
-                        </div>
-                    </label>
-                </div>
             </div>
             <form class="mt-8 space-y-6" id="loginForm">
                 <div class="rounded-md shadow-sm -space-y-px">
@@ -146,7 +136,7 @@
                     </div>
 
                     <div class="text-sm">
-                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500" id="registerLink">
+                        <a href="jobseeker-register.html" class="font-medium text-indigo-600 hover:text-indigo-500" id="registerLink">
                             没有账号？立即注册
                         </a>
                     </div>
@@ -162,185 +152,47 @@
         </div>
     </div>
 
+    <!-- 在<head>或<body>底部添加 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script>
-        // API 配置
-        console.log('API配置已全局引入:', API_BASE_URL, API_PATHS);
-        
-        // 获取上次登录的用户类型
-        const lastUserType = localStorage.getItem('lastUserType') || 'jobseeker';
-        const userTypeToggle = document.getElementById('userTypeToggle');
-        const registerLink = document.getElementById('registerLink');
-
-        // 设置初始状态
-        userTypeToggle.checked = lastUserType === 'hr';
-        updateRegisterLink();
-
-        // 监听身份切换
-        userTypeToggle.addEventListener('change', function() {
-            updateRegisterLink();
-        });
-
-        // 更新注册链接
-        function updateRegisterLink() {
-            const isHR = userTypeToggle.checked;
-            registerLink.href = isHR ? 'hr-register.html' : 'jobseeker-register.html';
-        }
+        // 用你的 Firebase 配置信息替换下面内容
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSsIr6l53o4in4YkGHch1rnuSgOSF9Z1o",
+            authDomain: "nexjob-e5b22.firebaseapp.com",
+            projectId: "nexjob-e5b22",
+            storageBucket: "nexjob-e5b22.firebasestorage.app",
+            messagingSenderId: "697501887665",
+            appId: "1:697501887665:web:49ba97a48782f36be98690"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // 处理登录表单提交
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const isHR = userTypeToggle.checked;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
-
-            const userType = isHR ? 'hr' : 'jobseeker';
-            const apiEndpoint = isHR ? API_PATHS.HR_LOGIN : API_PATHS.JOBSEEKER_LOGIN;
-
-            console.log('[登录表单] 用户类型:', userType, 'API端点:', apiEndpoint);
-            console.log('[登录表单] 邮箱:', email, '密码长度:', password.length, '记住我:', remember);
-
             try {
-                // 创建URLSearchParams对象，避免触发预检请求
-                const formData = new URLSearchParams();
-                formData.append('email', email);
-                formData.append('password', password);
-
-                console.log('[登录表单] 发送请求数据:', formData.toString());
-
-                const response = await fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Accept': 'application/json'
-                    },
-                    body: formData,
-                    credentials: 'include',
-                    mode: 'cors'
-                });
-
-                console.log('[登录表单] fetch响应状态:', response.status, response.statusText);
-                console.log('[登录表单] 完整响应对象:', response);
-                const data = await response.json();
-                console.log('[登录表单] 登录响应完整数据:', data);
-
-                if (data.success) {
-                    // 检查并打印token信息
-                    let token;
-                    if (data.token) {
-                        token = data.token;
-                        console.log('[登录表单] 从data.token获取到token');
-                    } else if (data.data && data.data.token) {
-                        token = data.data.token;
-                        console.log('[登录表单] 从data.data.token获取到token');
-                    } else {
-                        console.error('[登录表单] 找不到有效的token，完整响应:', data);
-                        alert('登录失败：无法获取认证信息');
-                        return;
-                    }
-
-                    console.log('[登录表单] 获取到的token:', token.substring(0, 20) + '...');
-
-                    // 清除之前的存储
-                    console.log('[登录表单] 清除之前的localStorage');
-                    localStorage.clear();
-                    
-                    // 保存新的认证信息
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('userType', userType);
-                    
-                    // 如果是HR用户，保存用户信息
-                    if (isHR && data.data) {
-                        localStorage.setItem('hrUser', JSON.stringify(data.data));
-                        console.log('[登录表单] 保存HR用户信息:', data.data);
-                    }
-                    
-                    // 如果选择了"记住我"，保存最后登录的用户类型
-                    if (remember) {
-                        localStorage.setItem('lastUserType', userType);
-                        console.log('[登录表单] 保存最后登录的用户类型:', userType);
-                    }
-
-                    console.log('[登录表单] localStorage完整内容:', {
-                        token: localStorage.getItem('token')?.substring(0, 20) + '...',
-                        userType: localStorage.getItem('userType'),
-                        hrUser: localStorage.getItem('hrUser'),
-                        lastUserType: localStorage.getItem('lastUserType')
-                    });
-
-                    // 登录成功后处理
-                    if (userType === 'hr') {
-                        console.log('[登录表单] 开始获取HR用户详细信息');
-                        // 获取HR用户详细信息
-                        fetch(`${API_BASE_URL}/api/v1/hr/me`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Accept': 'application/json'
-                            },
-                            credentials: 'include',
-                            mode: 'cors'
-                        })
-                        .then(res => {
-                            console.log('[登录表单] HR用户信息响应状态:', res.status);
-                            return res.json();
-                        })
-                        .then(data => {
-                            console.log('[登录表单] HR用户信息响应数据:', data);
-                            if (data.success) {
-                                localStorage.setItem('user', JSON.stringify(data.data));
-                                console.log('[登录表单] HR用户信息已保存，准备跳转到dashboard');
-                                window.location.href = 'hr-dashboard.html';
-                            } else {
-                                console.error('[登录表单] 获取HR信息失败:', data);
-                                alert('获取HR信息失败');
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('[登录表单] 获取HR信息出错:', error);
-                            alert('获取HR信息失败');
-                        });
-                        return;
-                    } else {
-                        console.log('[登录表单] 开始获取求职者用户详细信息');
-                        // 获取普通用户详细信息
-                        fetch(`${API_BASE_URL}/api/v1/jobseeker/me`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': 'Bearer ' + token,
-                                'Accept': 'application/json'
-                            },
-                            credentials: 'include',
-                            mode: 'cors'
-                        })
-                        .then(res => {
-                            console.log('[登录表单] 求职者用户信息响应状态:', res.status);
-                            return res.json();
-                        })
-                        .then(data => {
-                            console.log('[登录表单] 求职者用户信息响应数据:', data);
-                            if (data.success) {
-                                localStorage.setItem('user', JSON.stringify(data.data));
-                                console.log('[登录表单] 求职者用户信息已保存，准备跳转到profile');
-                                window.location.href = 'profile.html';
-                            } else {
-                                console.error('[登录表单] 获取求职者信息失败:', data);
-                                alert('获取用户信息失败');
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('[登录表单] 获取求职者信息出错:', error);
-                            alert('获取用户信息失败');
-                        });
-                    }
+                // 1. Firebase 登录
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                // 2. 获取 Firestore 用户详细信息
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    alert('未找到用户详细信息，请联系管理员');
+                    return;
+                }
+                const userData = userDoc.data();
+                // 3. 根据 userType 跳转
+                if (userData.userType === 'hr') {
+                    window.location.href = 'hr-dashboard.html';
                 } else {
-                    console.error('[登录表单] 登录失败:', data.error || '未知错误', data);
-                    alert(data.error || '登录失败，请检查邮箱和密码');
+                    window.location.href = 'profile.html';
                 }
             } catch (error) {
-                console.error('[登录表单] 登录错误:', error);
-                alert('登录失败，请稍后重试');
+                alert('登录失败：' + error.message);
             }
         });
     </script>

@@ -136,12 +136,29 @@
         </div>
     </div>
 
+    <!-- 在<body>底部添加 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script>
+        // 用你的 Firebase 配置信息替换下面内容
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSsIr6l53o4in4YkGHch1rnuSgOSF9Z1o",
+            authDomain: "nexjob-e5b22.firebaseapp.com",
+            projectId: "nexjob-e5b22",
+            storageBucket: "nexjob-e5b22.firebasestorage.app",
+            messagingSenderId: "697501887665",
+            appId: "1:697501887665:web:49ba97a48782f36be98690"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
         // 密码匹配验证
         document.getElementById('confirmPassword').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
-            
             if (password !== confirmPassword) {
                 this.setCustomValidity('两次输入的密码不一致');
             } else {
@@ -155,60 +172,75 @@
             const hasLetter = /[A-Za-z]/.test(password);
             const hasNumber = /\d/.test(password);
             const isLongEnough = password.length >= 8;
-            
             let message = '';
             if (!isLongEnough) message += '密码至少需要8位\n';
             if (!hasLetter) message += '需要包含字母\n';
             if (!hasNumber) message += '需要包含数字';
-            
             this.setCustomValidity(message);
         });
 
         // 处理注册表单提交
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const position = document.getElementById('position').value;
+            const password = document.getElementById('password').value;
+            const inviteCode = document.getElementById('inviteCode').value;
+            const companyName = document.getElementById('companyName').value;
+            const companySize = document.getElementById('companySize').value;
+            const companyAddress = document.getElementById('companyAddress').value;
+            const businessLicense = document.getElementById('businessLicense').files[0];
+            if (!businessLicense) {
+                alert('请上传公司营业执照');
+                return;
+            }
             try {
-                const formData = new FormData(e.target);
-                
-                // 添加公司信息
-                const company = {
-                    name: formData.get('companyName'),
-                    position: formData.get('position'),
-                    size: formData.get('companySize'),
-                    address: formData.get('companyAddress')
-                };
-
-                // 更新company字段
-                formData.set('company', JSON.stringify(company));
-
-                // 移除已包含在company对象中的字段
-                formData.delete('companyName');
-                formData.delete('companySize');
-                formData.delete('companyAddress');
-
-                // 重命名一些字段以匹配后端期望
-                formData.set('name', formData.get('fullName'));
-                formData.delete('fullName');
-
-                const response = await fetch('http://localhost:3001/api/v1/auth/register', {
-                    method: 'POST',
-                    body: formData
+                // 1. Firebase 注册（自动登录）
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                // 2. 上传营业执照到 Storage
+                const licenseRef = storage.ref(`business_licenses/${user.uid}/${businessLicense.name}`);
+                await licenseRef.put(businessLicense);
+                const licenseUrl = await licenseRef.getDownloadURL();
+                // 3. 写入 Firestore 用户详细信息
+                await db.collection('users').doc(user.uid).set({
+                    fullName,
+                    phone,
+                    email,
+                    position,
+                    inviteCode,
+                    userType: 'hr',
+                    company: {
+                        name: companyName,
+                        size: companySize,
+                        address: companyAddress,
+                        businessLicenseUrl: licenseUrl
+                    },
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || '注册失败');
-                }
-
-                const data = await response.json();
-                alert('注册成功！请等待管理员审核。');
-                window.location.href = 'login.html';
+                // 4. 发送邮箱验证邮件
+                await user.sendEmailVerification();
+                alert('注册成功！验证邮件已发送到您的邮箱，请先完成邮箱验证。');
+                // 5. 轮询邮箱验证状态
+                checkEmailVerified(user);
             } catch (error) {
-                console.error('注册错误:', error);
-                alert(error.message || '注册失败，请稍后重试');
+                alert('注册失败：' + error.message);
             }
         });
+
+        // 轮询邮箱验证状态
+        function checkEmailVerified(user) {
+            const interval = setInterval(async () => {
+                await user.reload();
+                if (user.emailVerified) {
+                    clearInterval(interval);
+                    alert('邮箱验证成功！请登录。');
+                    window.location.href = 'login.html';
+                }
+            }, 2000);
+        }
     </script>
 </body>
 </html> 
