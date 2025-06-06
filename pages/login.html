@@ -6,6 +6,7 @@
     <title>登录 - NexJob</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../js/api-config.js"></script>
     <style>
         /* iOS风格的开关样式 */
         .toggle-switch {
@@ -163,24 +164,7 @@
 
     <script>
         // API 配置
-        function getApiBaseUrl() {
-            // 生产环境直接返回后端真实External URL
-            return 'https://nexjob-backend.onrender.com';
-        }
-
-        const API_BASE_URL = getApiBaseUrl();
-        const API_PATHS = {
-            HR_LOGIN: `${API_BASE_URL}/api/v1/hr/login`,
-            HR_REGISTER: `${API_BASE_URL}/api/v1/hr/register`,
-            JOBSEEKER_LOGIN: `${API_BASE_URL}/api/v1/jobseeker/login`,
-            JOBSEEKER_REGISTER: `${API_BASE_URL}/api/v1/jobseeker/register`,
-            RESUMES: `${API_BASE_URL}/api/v1/resumes`,
-            JOBS: `${API_BASE_URL}/api/v1/jobs`,
-            APPLICATIONS: `${API_BASE_URL}/api/v1/applications`,
-            COMMUNITY: `${API_BASE_URL}/api/v1/community-posts`,
-            USERS: `${API_BASE_URL}/api/v1/users`
-        };
-        console.log('API配置已内联定义');
+        console.log('API配置已全局引入:', API_BASE_URL, API_PATHS);
         
         // 获取上次登录的用户类型
         const lastUserType = localStorage.getItem('lastUserType') || 'jobseeker';
