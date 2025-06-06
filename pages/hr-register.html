@@ -222,8 +222,29 @@
                 });
                 // 4. 发送邮箱验证邮件
                 await user.sendEmailVerification();
-                alert('注册成功！验证邮件已发送到您的邮箱，请先完成邮箱验证。');
-                // 5. 轮询邮箱验证状态
+                // 5. 同步写入MongoDB
+                try {
+                    await fetch('https://nexjob-backend.onrender.com/api/v1/hr/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fullName,
+                            phone,
+                            email,
+                            position,
+                            password: 'firebase', // 标记为firebase注册
+                            inviteCode,
+                            company: {
+                                name: companyName,
+                                size: companySize,
+                                address: companyAddress
+                            }
+                        })
+                    });
+                } catch (err) {
+                    console.warn('同步MongoDB失败', err);
+                }
+                // 6. 轮询邮箱验证状态
                 checkEmailVerified(user);
             } catch (error) {
                 alert('注册失败：' + error.message);
