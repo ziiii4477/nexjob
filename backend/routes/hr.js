@@ -3,6 +3,23 @@ const router = express.Router();
 const HRUser = require('../models/HRUser');
 const { protect } = require('../middleware/auth');
 
+// 获取当前HR用户信息
+router.get('/me', protect, async (req, res) => {
+  try {
+    const user = await HRUser.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    console.error('获取用户信息错误:', err);
+    res.status(500).json({ message: '服务器错误' });
+  }
+});
+
 // HR 登录
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
