@@ -34,6 +34,15 @@ const allowedOrigins = [
     'http://127.0.0.1:5500'
 ];
 
+// 兜底CORS头，确保所有响应都带CORS头
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    next();
+});
+
 const corsOptions = {
     origin: function(origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -44,7 +53,8 @@ const corsOptions = {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    optionsSuccessStatus: 200 // 关键：让OPTIONS预检返回200而不是204/304
 };
 
 app.use(cors(corsOptions));
