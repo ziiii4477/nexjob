@@ -650,7 +650,7 @@ function deletePost(postId) {
 function loadMessages() {
     console.log('开始加载通知...');
     $.ajax({
-        url: `${API_BASE_URL}/api/v1/notifications`,
+        url: `${API_BASE_URL}/api/v1/community-posts/notifications/list`,
         method: 'GET',
         headers: { 
             'Authorization': `Bearer ${localStorage.getItem('token')}`
