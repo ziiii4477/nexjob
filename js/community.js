@@ -413,6 +413,16 @@ $(document).ready(function() {
     loadUserProfile();
 
     addHRFeatures();
+
+    // 在打开发布帖子模态框时检查用户身份
+    $('#createPostModal').on('show.bs.modal', function() {
+        const userInfo = getCurrentUserInfo();
+        if (isHRUser(userInfo.userType)) {
+            $('.hr-only-options').show();
+        } else {
+            $('.hr-only-options').hide();
+        }
+    });
 });
 
 // 显示帖子详情
@@ -780,6 +790,9 @@ function isHRUser(userType) {
 function addHRFeatures() {
     const userInfo = getCurrentUserInfo();
     if (isHRUser(userInfo.userType)) {
+        // 显示HR特有选项
+        $('.hr-only-options').show();
+        
         // 添加一键投递按钮
         $('.post-card').each(function() {
             const $card = $(this);
@@ -791,6 +804,9 @@ function addHRFeatures() {
                 `);
             }
         });
+    } else {
+        // 非HR用户隐藏HR特有选项
+        $('.hr-only-options').hide();
     }
 }
 
