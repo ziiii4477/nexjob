@@ -10,6 +10,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
+    
+    <!-- JavaScript -->
+    <script src="../js/api-config.js"></script>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -679,8 +682,8 @@
                 }
 
                 const apiEndpoint = userType === 'hr' ? 
-                    'http://localhost:3001/api/v1/auth/me' : 
-                    'http://localhost:3001/api/v1/jobseeker/me';
+                    `${API_BASE_URL}/api/v1/auth/me` : 
+                    `${API_BASE_URL}/api/v1/jobseeker/me`;
 
                 console.log('正在请求用户信息，API端点:', apiEndpoint);
                 console.log('使用的token:', token);
@@ -805,8 +808,8 @@
 
             // 构建API请求URL
             const apiEndpoint = userType === 'hr'
-                ? 'http://localhost:3001/api/v1/auth/updatedetails'
-                : 'http://localhost:3001/api/v1/jobseeker/updatedetails';
+                ? `${API_BASE_URL}/api/v1/auth/updatedetails`
+                : `${API_BASE_URL}/api/v1/jobseeker/updatedetails`;
 
             // 发送更新请求
             fetch(apiEndpoint, {
@@ -944,7 +947,7 @@
                 console.log('正在保存邮件订阅设置:', isChecked);
                 console.log('用户类型:', userType);
                 
-                const response = await fetch(`http://localhost:3001/api/v1/${userType === 'hr' ? 'auth' : 'jobseeker'}/updatedetails`, {
+                const response = await fetch(`${API_BASE_URL}/api/v1/${userType === 'hr' ? 'auth' : 'jobseeker'}/updatedetails`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
