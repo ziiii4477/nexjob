@@ -14,7 +14,7 @@ const Post = require('./models/Post');
 // 导入路由
 const auth = require('./routes/auth');
 const jobs = require('./routes/jobs');
-const chats = require('./routes/chats');
+// const chats = require('./routes/chats'); // 删除废弃的聊天功能
 const jobseekerAuth = require('./routes/jobseeker-auth');
 const applications = require('./routes/applications');
 const resumeRoutes = require('./routes/resume');
@@ -172,7 +172,7 @@ app.all('/api-test/login', (req, res) => {
 // 挂载路由
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/jobs', jobs);
-app.use('/api/v1/chats', chats);
+// app.use('/api/v1/chats', chats); // 删除废弃的聊天功能
 app.use('/api/v1/jobseeker', jobseekerAuth);
 app.use('/api/v1/applications/update-all-status', updateAllStatus);
 app.use('/api/v1/applications', applications);
