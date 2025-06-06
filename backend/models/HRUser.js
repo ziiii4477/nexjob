@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const HRUserSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -27,6 +28,15 @@ HRUserSchema.pre('save', async function(next) {
 
 HRUserSchema.methods.matchPassword = function(enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
+};
+
+// 生成JWT Token
+HRUserSchema.methods.getSignedJwtToken = function() {
+  return jwt.sign(
+    { id: this._id, role: this.role },
+    process.env.JWT_SECRET || 'nexjob_secret_key',
+    { expiresIn: process.env.JWT_EXPIRE || '30d' }
+  );
 };
 
 module.exports = mongoose.model('HRUser', HRUserSchema); 
