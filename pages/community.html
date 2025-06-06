@@ -949,6 +949,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script src="../js/api-config.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
         // 全局搜索函数
         function searchPosts() {
@@ -1004,7 +1008,6 @@
             });
         };
     </script>
-    <script src="../js/auth.js"></script>
     <script>
     let currentUserId = null;
 
@@ -1029,807 +1032,761 @@
     function fetchCurrentUserId(callback) {
         const token = localStorage.getItem('token');
         const userType = localStorage.getItem('userType');
-        console.log('当前令牌信息:', { 
-                const apiEndpoint = isHRUser(userType) ? 
-                    'http://localhost:3001/api/v1/auth/me' : 
-                    'http://localhost:3001/api/v1/jobseeker/me';
-                
-                console.log('加载用户信息，用户类型:', userType, '使用API端点:', apiEndpoint);
-                
-                $.ajax({
-                    url: apiEndpoint,
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    success: function(res) {
-                        console.log('用户信息API响应:', res);
-                        if (res.success && res.data) {
-                            $('#my-profile-card').show();
-                            
-                            // 安全地获取头像URL
-                            let avatarUrl = '../images/user logo.jpg'; // 默认头像
-                            if (res.data.avatar) {
-                                // HR和求职者可能有不同的头像路径处理
-                                avatarUrl = res.data.avatar.startsWith('/') ? 
-                                    res.data.avatar : 
-                                    '/images/avatars/' + res.data.avatar;
-                            }
-                            $('#my-avatar').attr('src', avatarUrl);
-                            
-                            // 安全地获取用户名 (HR用户可能没有nickname字段)
-                            const displayName = isHRUser(userType) ? 
-                                (res.data.name || '未命名HR') : 
-                                (res.data.nickname || res.data.name || '匿名用户');
-                            $('#my-username').text(displayName);
-                            
-                            // 安全地获取关注数据
-                            $('#my-following').text(res.data.followingCount || 0);
-                            $('#my-follower').text(res.data.followerCount || 0);
-                        } else {
-                            console.warn('加载用户信息失败:', res);
-                            $('#my-profile-card').show();
-                            $('#my-avatar').attr('src', '../images/user logo.jpg');
-                            $('#my-username').text(userType === 'hr' ? '未知HR' : '未知用户');
-                            $('#my-following').text('0');
-                            $('#my-follower').text('0');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('加载用户信息失败:', xhr.status, xhr.responseText);
-                        $('#my-profile-card').show();
-                        $('#my-avatar').attr('src', '../images/user logo.jpg');
-                        $('#my-username').text(userType === 'hr' ? '未知HR' : '未知用户');
-                        $('#my-following').text('0');
-                        $('#my-follower').text('0');
-                    }
-                });
-            }
+        console.log('当前令牌信息:', { token, userType });
+        
+        if (!token) {
+            console.log('未找到认证令牌');
+            return;
+        }
 
-            // 修改帖子卡片渲染函数
-            function renderPostCards(posts, containerId) {
-                let html = '';
-                if (!posts || posts.length === 0) {
-                    html = '<div class="text-center text-muted my-5">暂无内容</div>';
+        const apiEndpoint = isHRUser(userType) ? 
+            `${API_BASE_URL}/api/v1/hr/me` : 
+            `${API_BASE_URL}/api/v1/jobseeker/me`;
+        
+        console.log('加载用户信息，用户类型:', userType, '使用API端点:', apiEndpoint);
+        
+        $.ajax({
+            url: apiEndpoint,
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}`
+            },
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                if (res.success && res.data) {
+                    $('#my-profile-card').show();
+                    
+                    let avatarUrl = '../images/user logo.jpg';
+                    if (res.data.avatar) {
+                        avatarUrl = res.data.avatar.startsWith('/') ? 
+                            res.data.avatar : 
+                            '/images/avatars/' + res.data.avatar;
+                    }
+                    $('#my-avatar').attr('src', avatarUrl);
+                    
+                    const displayName = isHRUser(userType) ? 
+                        (res.data.name || '未命名HR') : 
+                        (res.data.nickname || res.data.name || '匿名用户');
+                    $('#my-username').text(displayName);
+                    
+                    $('#my-following').text(res.data.followingCount || 0);
+                    $('#my-follower').text(res.data.followerCount || 0);
                 } else {
-                    posts.forEach(function(post) {
-                        // 统一获取帖子图片路径，兼容旧数据格式
-                        let postImage = '../images/default-post.jpg'; // 默认图片
-                        
-                        if (post.images && post.images.length > 0) {
-                            postImage = post.images[0];
-                        } else if (post.image) {
-                            postImage = post.image;
-                        }
-                        
-                        const deleteButton = containerId === '#my-posts-list' ? `
-                            <button type="button" 
-                                class="btn btn-sm delete-post" 
-                                data-id="${post._id}" 
-                                style="position:absolute; top:5px; right:5px;">
-                                <i class="fas fa-trash-alt delete-post-icon" data-id="${post._id}"></i>
-                            </button>
-                        ` : '';
-                        
-                        html += `
-                            <div class="masonry-grid-item">
-                                <div class="card post-card" data-id="${post._id}" style="cursor:pointer;">
-                                    <div style="position:relative;margin:0;padding:0;">
-                                        <img src="${postImage}" class="card-img-top" alt="帖子图片">
-                                        <span class="view-count">
-                                            <i class="far fa-eye"></i> ${post.views || 0}
-                                        </span>
-                                        ${deleteButton}
-                                    </div>
-                                    <div class="card-body">
-                                        <h6 class="card-title">${post.title}</h6>
-                                        <div class="d-flex align-items-center">
-                                            <img src="${post.author?.avatar ? '/images/avatars/' + post.author.avatar : '../images/user logo.jpg'}" 
-                                                 class="rounded-circle me-1 clickable-user" 
-                                                 data-user-id="${post.author?._id}"
-                                                 style="cursor:pointer;">
-                                            <span class="clickable-user text-truncate" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
-                                                ${post.author?.nickname || post.author?.name || '匿名'}
-                                                ${isHRUser(post.author?.userType) ? '<span class="badge bg-primary ms-1" style="font-size:0.6rem;">HR</span>' : ''}
-                                            </span>
-                                        </div>
-                                        <div class="d-flex justify-content-between text-muted small">
-                                            <span class="like-btn" data-liked="${post.likes?.includes(currentUserId)}" data-id="${post._id}">
-                                                <i class="far fa-heart${post.likes?.includes(currentUserId) ? ' text-danger fas' : ''}"></i> ${post.likes?.length || 0}
-                                            </span>
-                                            <span class="comments-count-card" data-id="${post._id}">
-                                                <i class="far fa-comment"></i> ${post.totalCommentsCount || 0}
-                                            </span>
-                                            <span class="favorite-btn" data-favorited="${post.favorites?.includes(currentUserId)}" data-id="${post._id}">
-                                                <i class="far fa-star${post.favorites?.includes(currentUserId) ? ' text-warning fas' : ''}"></i> ${post.favorites?.length || 0}
-                                            </span>
-                                            <span class="share-btn" data-id="${post._id}" data-title="${post.title}"><i class="fas fa-share-alt"></i> 分享</span>
-                                        </div>
-                                    </div>
+                    console.warn('加载用户信息失败:', res);
+                    $('#my-profile-card').show();
+                    $('#my-avatar').attr('src', '../images/user logo.jpg');
+                    $('#my-username').text(userType === 'hr' ? '未知HR' : '未知用户');
+                    $('#my-following').text('0');
+                    $('#my-follower').text('0');
+                }
+            },
+            error: function(xhr) {
+                console.error('加载用户信息失败:', xhr.status, xhr.responseText);
+                $('#my-profile-card').show();
+                $('#my-avatar').attr('src', '../images/user logo.jpg');
+                $('#my-username').text(userType === 'hr' ? '未知HR' : '未知用户');
+                $('#my-following').text('0');
+                $('#my-follower').text('0');
+            }
+        });
+    }
+
+    // 修改帖子卡片渲染函数
+    function renderPostCards(posts, containerId) {
+        let html = '';
+        if (!posts || posts.length === 0) {
+            html = '<div class="text-center text-muted my-5">暂无内容</div>';
+        } else {
+            posts.forEach(function(post) {
+                let postImage = '../images/default-post.jpg';
+                
+                if (post.images && post.images.length > 0) {
+                    postImage = post.images[0];
+                } else if (post.image) {
+                    postImage = post.image;
+                }
+                
+                const deleteButton = containerId === '#my-posts-list' ? 
+                    `<button type="button" class="btn btn-sm delete-post" data-id="${post._id}" style="position:absolute; top:5px; right:5px;">
+                        <i class="fas fa-trash-alt delete-post-icon" data-id="${post._id}"></i>
+                    </button>` : '';
+                
+                html += `
+                    <div class="masonry-grid-item">
+                        <div class="card post-card" data-id="${post._id}" style="cursor:pointer;">
+                            <div style="position:relative;margin:0;padding:0;">
+                                <img src="${postImage}" class="card-img-top" alt="帖子图片" />
+                                <span class="view-count">
+                                    <i class="far fa-eye"></i> ${post.views || 0}
+                                </span>
+                                ${deleteButton}
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">${post.title}</h6>
+                                <div class="d-flex align-items-center">
+                                    <img src="${post.author?.avatar ? '/images/avatars/' + post.author.avatar : '../images/user logo.jpg'}" 
+                                         class="rounded-circle me-1 clickable-user" 
+                                         data-user-id="${post.author?._id}"
+                                         style="cursor:pointer;" />
+                                    <span class="clickable-user text-truncate" data-user-id="${post.author?._id}" style="font-size:0.65rem;cursor:pointer;max-width:96px;">
+                                        ${post.author?.nickname || post.author?.name || '匿名'}
+                                        ${isHRUser(post.author?.userType) ? '<span class="badge bg-primary ms-1" style="font-size:0.6rem;">HR</span>' : ''}
+                                    </span>
                                 </div>
-                            </div>
-                        `;
-                    });
-                }
-
-                const $container = $(containerId);
-                $container.html(html);
-                
-                console.log('渲染帖子到容器:', containerId, '帖子数量:', posts ? posts.length : 0);
-
-                // 确保DOM已更新并且脚本已加载
-                setTimeout(function() {
-                    try {
-                        console.log('准备初始化Masonry布局:', containerId);
-                        
-                        if (!$container.length) {
-                            console.warn('找不到容器元素:', containerId);
-                            return;
-                        }
-                        
-                        // 检查Masonry库是否已加载
-                        if (typeof $.fn.masonry !== 'function') {
-                            console.error('Masonry库未加载，无法初始化布局');
-                            return;
-                        }
-                        
-                        // 检查是否有子项
-                        if ($container.find('.masonry-grid-item').length === 0) {
-                            console.warn('容器内没有网格项，跳过Masonry初始化:', containerId);
-                            return;
-                        }
-                        
-                        // 初始化Masonry布局
-                        initMasonryForGrid($container);
-                        
-                        // 加载图片后重新布局
-                        if (typeof $.fn.imagesLoaded === 'function') {
-                            $container.imagesLoaded().progress(function() {
-                                console.log('图片加载中，重新布局:', containerId);
-                                if ($container.data('masonry')) {
-                                    $container.masonry('layout');
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error('初始化Masonry时出错:', error);
-                    }
-                }, 200);
-            }
-
-            // Specific load functions for 'My Posts' section tabs
-            window.newLoadMyPosts = function() {
-                console.log('加载我的帖子 (新版本)');
-                $.ajax({
-                    url: 'http://localhost:3001/api/v1/community-posts/my-posts',
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    success: function(res) {
-                        console.log('我的帖子加载成功:', res);
-                        if (res.success && res.data) {
-                            renderPostCards(res.data, '#my-posts-list');
-                        } else {
-                            console.warn('我的帖子返回异常:', res);
-                            $('#my-posts-list').html('<div class="text-center text-muted my-5">加载帖子失败</div>');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('加载我的帖子失败:', xhr.status, xhr.responseText);
-                        $('#my-posts-list').html('<div class="text-center text-muted my-5">加载帖子失败</div>');
-                    }
-                });
-            }
-
-            function loadMyFavorites() {
-                console.log('加载我的收藏');
-                $.ajax({
-                    url: 'http://localhost:3001/api/v1/community-posts/my-favorites',
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    success: function(res) {
-                        console.log('我的收藏加载成功:', res);
-                        if (res.success && res.data) {
-                            renderPostCards(res.data, '#my-favorites-list');
-                        } else {
-                            console.warn('我的收藏返回异常:', res);
-                            $('#my-favorites-list').html('<div class="text-center text-muted my-5">加载收藏失败</div>');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('加载我的收藏失败:', xhr.status, xhr.responseText);
-                        let errorMessage = '获取收藏失败';
-                        $('#my-favorites-list').html(`
-                            <div class="text-center text-muted my-5">
-                                <i class="fas fa-exclamation-circle mb-2"></i><br>
-                                ${errorMessage}
-                            </div>
-                        `);
-                    }
-                });
-            }
-
-            function loadMyLikes() {
-                console.log('加载我的点赞');
-                $.ajax({
-                    url: 'http://localhost:3001/api/v1/community-posts/my-likes',
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    success: function(res) {
-                        console.log('我的点赞加载成功:', res);
-                        if (res.success && res.data) {
-                            renderPostCards(res.data, '#my-likes-list');
-                        } else {
-                            console.warn('我的点赞返回异常:', res);
-                            $('#my-likes-list').html('<div class="text-center text-muted my-5">加载点赞失败</div>');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('加载我的点赞失败:', xhr.status, xhr.responseText);
-                        let errorMessage = '获取点赞失败';
-                        $('#my-likes-list').html(`
-                            <div class="text-center text-muted my-5">
-                                <i class="fas fa-exclamation-circle mb-2"></i><br>
-                                ${errorMessage}
-                            </div>
-                        `);
-                    }
-                });
-            }
-
-            // 'My Posts' section tab switching logic
-            $('#tab-myposts').on('click', function(e) {
-                e.preventDefault();
-                window.newLoadMyPosts();
-                $('#tab-myposts').addClass('active');
-                $('#tab-myfavorites').removeClass('active');
-                $('#tab-mylikes').removeClass('active');
-                $('#myposts').addClass('show active');
-                $('#myfavorites').removeClass('show active');
-                $('#mylikes').removeClass('show active');
-                
-                // 确保"我的帖子"标签页的卡片布局正确
-                setTimeout(function() {
-                    const $grid = $('#my-posts-list');
-                    if ($grid.data('masonry')) {
-                        $grid.masonry('destroy');
-                    }
-                    initMasonryForGrid($grid);
-                }, 300);
-            });
-            $('#tab-myfavorites').on('click', function(e) {
-                e.preventDefault();
-                loadMyFavorites();
-                $('#tab-myposts').removeClass('active');
-                $('#tab-myfavorites').addClass('active');
-                $('#tab-mylikes').removeClass('active');
-                $('#myposts').removeClass('show active');
-                $('#myfavorites').addClass('show active');
-                $('#mylikes').removeClass('show active');
-                
-                // 确保"我的收藏"标签页的卡片布局正确
-                setTimeout(function() {
-                    if ($('#my-favorites-list').data('masonry')) {
-                        $('#my-favorites-list').masonry('layout');
-                    }
-                }, 100);
-            });
-            $('#tab-mylikes').on('click', function(e) {
-                e.preventDefault();
-                loadMyLikes();
-                $('#tab-myposts').removeClass('active');
-                $('#tab-myfavorites').removeClass('active');
-                $('#tab-mylikes').addClass('active');
-                $('#myposts').removeClass('show active');
-                $('#myfavorites').removeClass('show active');
-                $('#mylikes').addClass('show active');
-                
-                // 确保"我的点赞"标签页的卡片布局正确
-                setTimeout(function() {
-                    if ($('#my-likes-list').data('masonry')) {
-                        $('#my-likes-list').masonry('layout');
-                    }
-                }, 100);
-            });
-
-            // Ensure loadPosts is defined before it is called if it was part of the deleted code
-            if (typeof loadPosts === 'undefined') {
-                window.loadPosts = function() {
-                    // Placeholder or a more robust implementation if needed
-                    console.log("loadPosts function was missing and has been re-initialized."); 
-                };
-            }
-
-            // 用户名/头像点击事件（使用事件委托）
-            $(document).on('click', '.clickable-user', function(e) {
-                e.stopPropagation(); // 阻止事件冒泡
-                const userId = $(this).data('user-id');
-                if (userId) {
-                    viewUserProfile(userId);
-                }
-            });
-
-            // 修改评论渲染函数，使用户名和头像可点击
-            function renderCommentWithReplies(comment, postId, allComments = [], isFirstTopLevel = false) {
-                const commentDate = new Date(comment.createdAt).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' });
-                const authorName = comment.user?.nickname || comment.user?.name || '匿名用户';
-                const authorAvatar = comment.user?.avatar ? `/images/avatars/${comment.user.avatar}` : '../images/user logo.jpg';
-                const authorId = comment.user?._id;
-                
-                // 判断是否是顶层评论
-                const isTopLevel = !comment.parentId;
-                const marginLeft = isTopLevel ? 0 : 40; // 所有回复统一缩进40px
-                
-                // 获取被回复者的名字
-                let replyPrefix = '';
-                if (!isTopLevel && comment.parentId) {
-                    const parentComment = allComments.find(c => c._id === comment.parentId);
-                    if (parentComment) {
-                        const parentAuthorName = parentComment.user?.nickname || parentComment.user?.name || '匿名用户';
-                        replyPrefix = `回复 @${parentAuthorName}：`;
-                    }
-                }
-
-                // 分割线在非第一个顶层评论的上方
-                const borderTop = isTopLevel && !isFirstTopLevel ? 'border-top pt-3' : '';
-
-                return `
-                    <div class="comment-item mb-3 p-2 ${borderTop}" style="margin-left: ${marginLeft}px;" data-comment-id="${comment._id}">
-                        <div class="d-flex align-items-start">
-                            <img src="${authorAvatar}" 
-                                 class="rounded-circle me-2 clickable-user" 
-                                 alt="${authorName}"
-                                 data-user-id="${authorId}"
-                                 style="cursor: pointer;">
-                            <div class="flex-grow-1">
-                                <div class="d-flex align-items-center mb-1">
-                                    <strong class="me-2 clickable-user" data-user-id="${authorId}" style="cursor: pointer;">${authorName}</strong>
-                                    <small class="text-muted">${commentDate}</small>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span class="like-btn" data-liked="${post.likes?.includes(currentUserId)}" data-id="${post._id}">
+                                        <i class="far fa-heart${post.likes?.includes(currentUserId) ? ' text-danger fas' : ''}"></i> ${post.likes?.length || 0}
+                                    </span>
+                                    <span class="comments-count-card" data-id="${post._id}">
+                                        <i class="far fa-comment"></i> ${post.totalCommentsCount || 0}
+                                    </span>
+                                    <span class="favorite-btn" data-favorited="${post.favorites?.includes(currentUserId)}" data-id="${post._id}">
+                                        <i class="far fa-star${post.favorites?.includes(currentUserId) ? ' text-warning fas' : ''}"></i> ${post.favorites?.length || 0}
+                                    </span>
+                                    <span class="share-btn" data-id="${post._id}" data-title="${post.title}">
+                                        <i class="fas fa-share-alt"></i> 分享
+                                    </span>
                                 </div>
-                                <p class="mb-1 comment-text">${replyPrefix}${comment.text}</p>
-                                <button class="btn btn-sm btn-link text-muted p-0 reply-to-comment-btn" data-comment-id="${comment._id}" data-post-id="${postId}" data-author-name="${authorName}">
-                                    <small>回复</small>
-                                </button>
                             </div>
                         </div>
-                        <div class="reply-form-container mt-2"></div>
                     </div>
                 `;
+            });
+        }
+
+        const $container = $(containerId);
+        $container.html(html);
+    }
+
+    // Specific load functions for 'My Posts' section tabs
+    window.newLoadMyPosts = function() {
+        console.log('加载我的帖子 (新版本)');
+        $.ajax({
+            url: 'http://localhost:3001/api/v1/community-posts/my-posts',
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                console.log('我的帖子加载成功:', res);
+                if (res.success && res.data) {
+                    renderPostCards(res.data, '#my-posts-list');
+                } else {
+                    console.warn('我的帖子返回异常:', res);
+                    $('#my-posts-list').html('<div class="text-center text-muted my-5">加载帖子失败</div>');
+                }
+            },
+            error: function(xhr) {
+                console.error('加载我的帖子失败:', xhr.status, xhr.responseText);
+                $('#my-posts-list').html('<div class="text-center text-muted my-5">加载帖子失败</div>');
             }
+        });
+    }
 
-            // 函数：加载并渲染帖子的所有评论
-            function loadAndRenderComments(postId) {
-                const commentsList = $('#detail-comments-list');
-                commentsList.html('<p class="text-muted">正在加载评论...</p>'); // 加载提示
+    function loadMyFavorites() {
+        console.log('加载我的收藏');
+        $.ajax({
+            url: 'http://localhost:3001/api/v1/community-posts/my-favorites',
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                console.log('我的收藏加载成功:', res);
+                if (res.success && res.data) {
+                    renderPostCards(res.data, '#my-favorites-list');
+                } else {
+                    console.warn('我的收藏返回异常:', res);
+                    $('#my-favorites-list').html('<div class="text-center text-muted my-5">加载收藏失败</div>');
+                }
+            },
+            error: function(xhr) {
+                console.error('加载我的收藏失败:', xhr.status, xhr.responseText);
+                let errorMessage = '获取收藏失败';
+                $('#my-favorites-list').html(`
+                    <div class="text-center text-muted my-5">
+                        <i class="fas fa-exclamation-circle mb-2"></i><br>
+                        ${errorMessage}
+                    </div>
+                `);
+            }
+        });
+    }
 
-                $.ajax({
-                    url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    success: function(res) {
-                        if (res.success && res.data && res.data.length > 0) {
-                            // 先扁平化所有评论
-                            const flatComments = flattenComments(res.data);
-                            
-                            let commentsHtml = '';
-                            // 按照小红书风格渲染：先渲染顶层评论，然后渲染它的所有回复
-                            res.data.forEach((topComment, index) => {
-                                // 渲染顶层评论（第一个顶层评论不需要分割线）
-                                commentsHtml += renderCommentWithReplies(topComment, postId, flatComments, index === 0);
-                                
-                                // 获取并渲染这个评论的所有回复（扁平化）
-                                if (topComment.replies && topComment.replies.length > 0) {
-                                    const allReplies = flattenComments(topComment.replies);
-                                    allReplies.forEach(reply => {
-                                        commentsHtml += renderCommentWithReplies(reply, postId, flatComments, false);
+    function loadMyLikes() {
+        console.log('加载我的点赞');
+        $.ajax({
+            url: 'http://localhost:3001/api/v1/community-posts/my-likes',
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                console.log('我的点赞加载成功:', res);
+                if (res.success && res.data) {
+                    renderPostCards(res.data, '#my-likes-list');
+                } else {
+                    console.warn('我的点赞返回异常:', res);
+                    $('#my-likes-list').html('<div class="text-center text-muted my-5">加载点赞失败</div>');
+                }
+            },
+            error: function(xhr) {
+                console.error('加载我的点赞失败:', xhr.status, xhr.responseText);
+                let errorMessage = '获取点赞失败';
+                $('#my-likes-list').html(`
+                    <div class="text-center text-muted my-5">
+                        <i class="fas fa-exclamation-circle mb-2"></i><br>
+                        ${errorMessage}
+                    </div>
+                `);
+            }
+        });
+    }
+
+    // 'My Posts' section tab switching logic
+    $('#tab-myposts').on('click', function(e) {
+        e.preventDefault();
+        window.newLoadMyPosts();
+        $('#tab-myposts').addClass('active');
+        $('#tab-myfavorites').removeClass('active');
+        $('#tab-mylikes').removeClass('active');
+        $('#myposts').addClass('show active');
+        $('#myfavorites').removeClass('show active');
+        $('#mylikes').removeClass('show active');
+        
+        // 确保"我的帖子"标签页的卡片布局正确
+        setTimeout(function() {
+            const $grid = $('#my-posts-list');
+            if ($grid.data('masonry')) {
+                $grid.masonry('destroy');
+            }
+            initMasonryForGrid($grid);
+        }, 300);
+    });
+    $('#tab-myfavorites').on('click', function(e) {
+        e.preventDefault();
+        loadMyFavorites();
+        $('#tab-myposts').removeClass('active');
+        $('#tab-myfavorites').addClass('active');
+        $('#tab-mylikes').removeClass('active');
+        $('#myposts').removeClass('show active');
+        $('#myfavorites').addClass('show active');
+        $('#mylikes').removeClass('show active');
+        
+        // 确保"我的收藏"标签页的卡片布局正确
+        setTimeout(function() {
+            if ($('#my-favorites-list').data('masonry')) {
+                $('#my-favorites-list').masonry('layout');
+            }
+        }, 100);
+    });
+    $('#tab-mylikes').on('click', function(e) {
+        e.preventDefault();
+        loadMyLikes();
+        $('#tab-myposts').removeClass('active');
+        $('#tab-myfavorites').removeClass('active');
+        $('#tab-mylikes').addClass('active');
+        $('#myposts').removeClass('show active');
+        $('#myfavorites').removeClass('show active');
+        $('#mylikes').addClass('show active');
+        
+        // 确保"我的点赞"标签页的卡片布局正确
+        setTimeout(function() {
+            if ($('#my-likes-list').data('masonry')) {
+                $('#my-likes-list').masonry('layout');
+            }
+        }, 100);
+    });
+
+    // Ensure loadPosts is defined before it is called if it was part of the deleted code
+    if (typeof loadPosts === 'undefined') {
+        window.loadPosts = function() {
+            // Placeholder or a more robust implementation if needed
+            console.log("loadPosts function was missing and has been re-initialized."); 
+        };
+    }
+
+    // 用户名/头像点击事件（使用事件委托）
+    $(document).on('click', '.clickable-user', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        const userId = $(this).data('user-id');
+        if (userId) {
+            viewUserProfile(userId);
+        }
+    });
+
+    // 修改评论渲染函数，使用户名和头像可点击
+    function renderCommentWithReplies(comment, postId, allComments = [], isFirstTopLevel = false) {
+        const commentDate = new Date(comment.createdAt).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' });
+        const authorName = comment.user?.nickname || comment.user?.name || '匿名用户';
+        const authorAvatar = comment.user?.avatar ? `/images/avatars/${comment.user.avatar}` : '../images/user logo.jpg';
+        const authorId = comment.user?._id;
+        
+        // 判断是否是顶层评论
+        const isTopLevel = !comment.parentId;
+        const marginLeft = isTopLevel ? 0 : 40; // 所有回复统一缩进40px
+        
+        // 获取被回复者的名字
+        let replyPrefix = '';
+        if (!isTopLevel && comment.parentId) {
+            const parentComment = allComments.find(c => c._id === comment.parentId);
+            if (parentComment) {
+                const parentAuthorName = parentComment.user?.nickname || parentComment.user?.name || '匿名用户';
+                replyPrefix = `回复 @${parentAuthorName}：`;
+            }
+        }
+
+        // 分割线在非第一个顶层评论的上方
+        const borderTop = isTopLevel && !isFirstTopLevel ? 'border-top pt-3' : '';
+
+        return `
+            <div class="comment-item mb-3 p-2 ${borderTop}" style="margin-left: ${marginLeft}px;" data-comment-id="${comment._id}">
+                <div class="d-flex align-items-start">
+                    <img src="${authorAvatar}" 
+                         class="rounded-circle me-2 clickable-user" 
+                         alt="${authorName}"
+                         data-user-id="${authorId}"
+                         style="cursor: pointer;">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <strong class="me-2 clickable-user" data-user-id="${authorId}" style="cursor: pointer;">${authorName}</strong>
+                            <small class="text-muted">${commentDate}</small>
+                        </div>
+                        <p class="mb-1 comment-text">${replyPrefix}${comment.text}</p>
+                        <button class="btn btn-sm btn-link text-muted p-0 reply-to-comment-btn" data-comment-id="${comment._id}" data-post-id="${postId}" data-author-name="${authorName}">
+                            <small>回复</small>
+                        </button>
+                    </div>
+                </div>
+                <div class="reply-form-container mt-2"></div>
+            </div>
+        `;
+    }
+
+    // 函数：加载并渲染帖子的所有评论
+    function loadAndRenderComments(postId) {
+        const commentsList = $('#detail-comments-list');
+        commentsList.html('<p class="text-muted">正在加载评论...</p>'); // 加载提示
+
+        $.ajax({
+            url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                if (res.success && res.data && res.data.length > 0) {
+                    // 先扁平化所有评论
+                    const flatComments = flattenComments(res.data);
+                    
+                    let commentsHtml = '';
+                    // 按照小红书风格渲染：先渲染顶层评论，然后渲染它的所有回复
+                    res.data.forEach((topComment, index) => {
+                        // 渲染顶层评论（第一个顶层评论不需要分割线）
+                        commentsHtml += renderCommentWithReplies(topComment, postId, flatComments, index === 0);
+                        
+                        // 获取并渲染这个评论的所有回复（扁平化）
+                        if (topComment.replies && topComment.replies.length > 0) {
+                            const allReplies = flattenComments(topComment.replies);
+                            allReplies.forEach(reply => {
+                                commentsHtml += renderCommentWithReplies(reply, postId, flatComments, false);
+                            });
+                        }
+                    });
+                    
+                    commentsList.html(commentsHtml);
+                } else {
+                    commentsList.html('<p class="text-muted no-comments-yet">暂无评论，快来抢沙发吧！</p>');
+                }
+            },
+            error: function(xhr) {
+                console.error('加载评论失败:', xhr);
+                commentsList.html('<p class="text-danger">加载评论失败，请稍后重试。</p>');
+            }
+        });
+    }
+
+    // 处理点击回复按钮的事件
+    $(document).on('click', '.reply-to-comment-btn', function() {
+        const parentCommentId = $(this).data('comment-id');
+        const postId = $(this).data('post-id');
+        const replyToAuthorName = $(this).data('author-name');
+        const $parentCommentItem = $(this).closest('.comment-item');
+        const $replyFormContainer = $parentCommentItem.find('.reply-form-container').first();
+
+        // 移除所有其他已打开的回复框
+        $('.reply-form-container').not($replyFormContainer).empty();
+
+        if ($replyFormContainer.is(':empty')) {
+            const replyFormHtml = `
+                <div class="reply-input-group mt-2">
+                    <textarea class="form-control form-control-sm" rows="2" placeholder="回复 @${replyToAuthorName}..."></textarea>
+                    <div class="mt-1">
+                        <button class="btn btn-primary btn-sm submit-reply-btn" data-post-id="${postId}" data-parent-id="${parentCommentId}">发送</button>
+                        <button class="btn btn-link btn-sm text-muted cancel-reply-btn">取消</button>
+                    </div>
+                </div>
+            `;
+            $replyFormContainer.html(replyFormHtml);
+            $replyFormContainer.find('textarea').focus(); // 自动聚焦到输入框
+        } else {
+            $replyFormContainer.empty();
+        }
+    });
+
+    // 处理取消回复
+    $(document).on('click', '.cancel-reply-btn', function() {
+        $(this).closest('.reply-form-container').empty();
+    });
+
+    // 处理提交回复的事件
+    $(document).on('click', '.submit-reply-btn', function() {
+        const postId = $(this).data('post-id');
+        const parentId = $(this).data('parent-id');
+        const $replyFormContainer = $(this).closest('.reply-form-container');
+        const commentText = $replyFormContainer.find('textarea').val().trim();
+
+        if (!commentText) {
+            alert('回复内容不能为空！');
+            return;
+        }
+
+        $.ajax({
+            url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            },
+            xhrFields: { withCredentials: true },
+            data: JSON.stringify({ text: commentText, parentId: parentId }),
+            success: function(res) {
+                if (res.success) {
+                    loadAndRenderComments(postId); // 重新加载整个评论区以显示新回复
+                } else {
+                    alert('发表回复失败：' + (res.message || '未知错误'));
+                }
+            },
+            error: function(xhr) {
+                console.error('发表回复错误:', xhr);
+                alert('发表回复失败，请稍后重试。');
+            }
+        });
+    });
+
+    // 处理一键投递按钮点击事件
+    $(document).on('click', '#quick-apply-btn', function() {
+        // 获取当前帖子ID
+        const postId = $('#submit-comment-btn').data('post-id');
+        if (!postId) {
+            alert('无法投递：帖子ID未知');
+            return;
+        }
+
+        // 加载用户的简历列表
+        $.ajax({
+            url: 'http://localhost:3001/api/v1/resumes',
+            method: 'GET',
+            headers: { 
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            xhrFields: { withCredentials: true },
+            beforeSend: function() {
+                console.log('正在请求简历列表...');
+                console.log('Authorization Token:', localStorage.getItem('token'));
+                console.log('User Type:', localStorage.getItem('userType'));
+            },
+            success: function(res) {
+                console.log('获取简历列表响应:', res);
+                
+                const resumeList = $('#resumeList');
+                const noResumeTip = $('#no-resume-tip');
+                
+                // 修改这里：使用 res.resumes 而不是 res.data
+                if (res.success && res.resumes && res.resumes.length > 0) {
+                    console.log('找到简历数量:', res.resumes.length);
+                    resumeList.empty();
+                    noResumeTip.hide();
+                    
+                    res.resumes.forEach(resume => {
+                        console.log('处理简历:', resume);
+                        resumeList.append(`
+                            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                                    data-resume-id="${resume._id}">
+                                <div>
+                                    <h6 class="mb-1">${resume.language === 'zh' ? '中文简历' : 'English Resume'}</h6>
+                                    <small class="text-muted">最后更新: ${new Date(resume.uploadDate).toLocaleDateString()}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">选择</span>
+                            </button>
+                        `);
+                    });
+
+                    // 绑定简历选择事件
+                    $('#resumeList .list-group-item').click(function() {
+                        const resumeId = $(this).data('resume-id');
+                        const postId = $('#submit-comment-btn').data('post-id');
+                        
+                        console.log('准备投递简历:', {
+                            resumeId: resumeId,
+                            postId: postId
+                        });
+                        
+                        // 发送投递请求
+                        $.ajax({
+                            url: `http://localhost:3001/api/v1/applications/quick-apply/${postId}`,
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                                'Content-Type': 'application/json'
+                            },
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                resumeId: resumeId
+                            }),
+                            xhrFields: { withCredentials: true },
+                            success: function(res) {
+                                if (res.success) {
+                                    // 关闭简历选择模态框
+                                    $('#resumeSelectModal').modal('hide');
+                                    
+                                    // 显示成功提示
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '投递成功！',
+                                        text: '您的简历已成功投递',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                    
+                                    // 禁用投递按钮，防止重复投递
+                                    $('#quick-apply-btn').prop('disabled', true)
+                                        .removeClass('btn-primary')
+                                        .addClass('btn-secondary')
+                                        .html('<i class="fas fa-check me-2"></i>已投递');
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '投递失败',
+                                        text: res.message || '未知错误'
                                     });
                                 }
-                            });
-                            
-                            commentsList.html(commentsHtml);
-                        } else {
-                            commentsList.html('<p class="text-muted no-comments-yet">暂无评论，快来抢沙发吧！</p>');
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('加载评论失败:', xhr);
-                        commentsList.html('<p class="text-danger">加载评论失败，请稍后重试。</p>');
-                    }
-                });
-            }
-
-            // 处理点击回复按钮的事件
-            $(document).on('click', '.reply-to-comment-btn', function() {
-                const parentCommentId = $(this).data('comment-id');
-                const postId = $(this).data('post-id');
-                const replyToAuthorName = $(this).data('author-name');
-                const $parentCommentItem = $(this).closest('.comment-item');
-                const $replyFormContainer = $parentCommentItem.find('.reply-form-container').first();
-
-                // 移除所有其他已打开的回复框
-                $('.reply-form-container').not($replyFormContainer).empty();
-
-                if ($replyFormContainer.is(':empty')) {
-                    const replyFormHtml = `
-                        <div class="reply-input-group mt-2">
-                            <textarea class="form-control form-control-sm" rows="2" placeholder="回复 @${replyToAuthorName}..."></textarea>
-                            <div class="mt-1">
-                                <button class="btn btn-primary btn-sm submit-reply-btn" data-post-id="${postId}" data-parent-id="${parentCommentId}">发送</button>
-                                <button class="btn btn-link btn-sm text-muted cancel-reply-btn">取消</button>
-                            </div>
-                        </div>
-                    `;
-                    $replyFormContainer.html(replyFormHtml);
-                    $replyFormContainer.find('textarea').focus(); // 自动聚焦到输入框
+                            },
+                            error: function(xhr) {
+                                // 关闭简历选择模态框
+                                $('#resumeSelectModal').modal('hide');
+                                
+                                console.error('投递失败:', xhr.responseText);
+                                
+                                let errorMsg;
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    errorMsg = response.error || '服务器错误，请稍后再试';
+                                    console.log('解析到的错误信息:', errorMsg);
+                                } catch (e) {
+                                    console.error('解析错误响应失败:', e);
+                                    errorMsg = '服务器错误，请稍后再试';
+                                }
+                                
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '投递失败',
+                                    text: errorMsg,
+                                    showConfirmButton: true
+                                });
+                            }
+                        });
+                    });
                 } else {
-                    $replyFormContainer.empty();
-                }
-            });
-
-            // 处理取消回复
-            $(document).on('click', '.cancel-reply-btn', function() {
-                $(this).closest('.reply-form-container').empty();
-            });
-
-            // 处理提交回复的事件
-            $(document).on('click', '.submit-reply-btn', function() {
-                const postId = $(this).data('post-id');
-                const parentId = $(this).data('parent-id');
-                const $replyFormContainer = $(this).closest('.reply-form-container');
-                const commentText = $replyFormContainer.find('textarea').val().trim();
-
-                if (!commentText) {
-                    alert('回复内容不能为空！');
-                    return;
+                    console.log('未找到简历，res:', res);
+                    resumeList.empty();
+                    noResumeTip.show();
                 }
 
-                $.ajax({
-                    url: `http://localhost:3001/api/v1/community-posts/${postId}/comments`,
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                        'Content-Type': 'application/json'
-                    },
-                    xhrFields: { withCredentials: true },
-                    data: JSON.stringify({ text: commentText, parentId: parentId }),
-                    success: function(res) {
-                        if (res.success) {
-                            loadAndRenderComments(postId); // 重新加载整个评论区以显示新回复
-                        } else {
-                            alert('发表回复失败：' + (res.message || '未知错误'));
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('发表回复错误:', xhr);
-                        alert('发表回复失败，请稍后重试。');
-                    }
+                // 显示模态框
+                const resumeModal = new bootstrap.Modal(document.getElementById('resumeSelectModal'));
+                resumeModal.show();
+            },
+            error: function(xhr, status, error) {
+                console.error('加载简历列表失败:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
                 });
-            });
-
-            // 处理一键投递按钮点击事件
-            $(document).on('click', '#quick-apply-btn', function() {
-                // 获取当前帖子ID
-                const postId = $('#submit-comment-btn').data('post-id');
-                if (!postId) {
-                    alert('无法投递：帖子ID未知');
-                    return;
-                }
-
-                // 加载用户的简历列表
-                $.ajax({
-                    url: 'http://localhost:3001/api/v1/resumes',
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    xhrFields: { withCredentials: true },
-                    beforeSend: function() {
-                        console.log('正在请求简历列表...');
-                        console.log('Authorization Token:', localStorage.getItem('token'));
-                        console.log('User Type:', localStorage.getItem('userType'));
-                    },
-                    success: function(res) {
-                        console.log('获取简历列表响应:', res);
-                        
-                        const resumeList = $('#resumeList');
-                        const noResumeTip = $('#no-resume-tip');
-                        
-                        // 修改这里：使用 res.resumes 而不是 res.data
-                        if (res.success && res.resumes && res.resumes.length > 0) {
-                            console.log('找到简历数量:', res.resumes.length);
-                            resumeList.empty();
-                            noResumeTip.hide();
-                            
-                            res.resumes.forEach(resume => {
-                                console.log('处理简历:', resume);
-                                resumeList.append(`
-                                    <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
-                                            data-resume-id="${resume._id}">
-                                        <div>
-                                            <h6 class="mb-1">${resume.language === 'zh' ? '中文简历' : 'English Resume'}</h6>
-                                            <small class="text-muted">最后更新: ${new Date(resume.uploadDate).toLocaleDateString()}</small>
-                                        </div>
-                                        <span class="badge bg-primary rounded-pill">选择</span>
-                                    </button>
-                                `);
-                            });
-
-                            // 绑定简历选择事件
-                            $('#resumeList .list-group-item').click(function() {
-                                const resumeId = $(this).data('resume-id');
-                                const postId = $('#submit-comment-btn').data('post-id');
-                                
-                                console.log('准备投递简历:', {
-                                    resumeId: resumeId,
-                                    postId: postId
-                                });
-                                
-                                // 发送投递请求
-                                $.ajax({
-                                    url: `http://localhost:3001/api/v1/applications/quick-apply/${postId}`,
-                                    method: 'POST',
-                                    headers: { 
-                                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                                        'Content-Type': 'application/json'
-                                    },
-                                    contentType: 'application/json',
-                                    data: JSON.stringify({
-                                        resumeId: resumeId
-                                    }),
-                                    xhrFields: { withCredentials: true },
-                                    success: function(res) {
-                                        if (res.success) {
-                                            // 关闭简历选择模态框
-                                            $('#resumeSelectModal').modal('hide');
-                                            
-                                            // 显示成功提示
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: '投递成功！',
-                                                text: '您的简历已成功投递',
-                                                showConfirmButton: false,
-                                                timer: 1500
-                                            });
-                                            
-                                            // 禁用投递按钮，防止重复投递
-                                            $('#quick-apply-btn').prop('disabled', true)
-                                                .removeClass('btn-primary')
-                                                .addClass('btn-secondary')
-                                                .html('<i class="fas fa-check me-2"></i>已投递');
-                                        } else {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: '投递失败',
-                                                text: res.message || '未知错误'
-                                            });
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        // 关闭简历选择模态框
-                                        $('#resumeSelectModal').modal('hide');
-                                        
-                                        console.error('投递失败:', xhr.responseText);
-                                        
-                                        let errorMsg;
-                                        try {
-                                            const response = JSON.parse(xhr.responseText);
-                                            errorMsg = response.error || '服务器错误，请稍后再试';
-                                            console.log('解析到的错误信息:', errorMsg);
-                                        } catch (e) {
-                                            console.error('解析错误响应失败:', e);
-                                            errorMsg = '服务器错误，请稍后再试';
-                                        }
-                                        
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: '投递失败',
-                                            text: errorMsg,
-                                            showConfirmButton: true
-                                        });
-                                    }
-                                });
-                            });
-                        } else {
-                            console.log('未找到简历，res:', res);
-                            resumeList.empty();
-                            noResumeTip.show();
-                        }
-
-                        // 显示模态框
-                        const resumeModal = new bootstrap.Modal(document.getElementById('resumeSelectModal'));
-                        resumeModal.show();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('加载简历列表失败:', {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            error: error
-                        });
-                        
-                        const errorMsg = xhr.responseJSON?.message || '无法加载简历列表，请稍后再试';
-                        Swal.fire({
-                            icon: 'error',
-                            title: '加载失败',
-                            text: errorMsg
-                        });
-                    }
-                });
-            });
-
-            // 查看用户主页
-            function viewUserProfile(userId) {
-                if (userId === currentUserId) {
-                    // 如果是查看自己的主页，直接跳转到"我"板块
-                    $('#tab-my-posts').click();
-                    return;
-                }
-
-                // 跳转到用户主页页面
-                window.location.href = `user-profile.html?id=${userId}`;
-            }
-
-            // 函数：扁平化评论数组（将嵌套结构转为扁平结构）
-            function flattenComments(comments, result = []) {
-                comments.forEach(comment => {
-                    result.push(comment);
-                    if (comment.replies && comment.replies.length > 0) {
-                        flattenComments(comment.replies, result);
-                    }
-                });
-                return result;
-            }
-
-            // 智能调整图片高度
-            function adjustImageHeight(imgElement) {
-                // 只处理帖子卡片的主图片，不处理头像和其他图片
-                if (!imgElement.classList.contains('card-img-top')) {
-                    return;
-                }
                 
-                // 确保不处理头像（双重保护）
-                if (imgElement.classList.contains('rounded-circle') || 
-                    imgElement.classList.contains('clickable-user') ||
-                    imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '32' ||
-                    imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '36' ||
-                    imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '40') {
-                    return;
-                }
-                
-                const img = new Image();
-                img.onload = function() {
-                    const aspectRatio = this.width / this.height;
-                    const cardWidth = imgElement.parentElement.offsetWidth;
-                    let targetHeight;
-                    
-                    if (aspectRatio > 1.5) {
-                        // 宽图片，使用较小高度
-                        targetHeight = Math.max(150, cardWidth / aspectRatio);
-                    } else if (aspectRatio < 0.8) {
-                        // 高图片，限制最大高度
-                        targetHeight = Math.min(300, cardWidth / aspectRatio);
-                    } else {
-                        // 接近方形的图片，使用标准高度
-                        targetHeight = 200;
-                    }
-                    
-                    // 确保在合理范围内
-                    targetHeight = Math.min(Math.max(targetHeight, 150), 300);
-                    imgElement.style.height = targetHeight + 'px';
-                };
-                img.src = imgElement.src;
+                const errorMsg = xhr.responseJSON?.message || '无法加载简历列表，请稍后再试';
+                Swal.fire({
+                    icon: 'error',
+                    title: '加载失败',
+                    text: errorMsg
+                });
             }
+        });
+    });
 
-            // 为动态生成的图片应用智能高度调整
-            $(document).on('load', '.post-card img.card-img-top', function() {
+    // 查看用户主页
+    function viewUserProfile(userId) {
+        if (userId === currentUserId) {
+            // 如果是查看自己的主页，直接跳转到"我"板块
+            $('#tab-my-posts').click();
+            return;
+        }
+
+        // 跳转到用户主页页面
+        window.location.href = `user-profile.html?id=${userId}`;
+    }
+
+    // 函数：扁平化评论数组（将嵌套结构转为扁平结构）
+    function flattenComments(comments, result = []) {
+        comments.forEach(comment => {
+            result.push(comment);
+            if (comment.replies && comment.replies.length > 0) {
+                flattenComments(comment.replies, result);
+            }
+        });
+        return result;
+    }
+
+    // 智能调整图片高度
+    function adjustImageHeight(imgElement) {
+        // 只处理帖子卡片的主图片，不处理头像和其他图片
+        if (!imgElement.classList.contains('card-img-top')) {
+            return;
+        }
+        
+        // 确保不处理头像（双重保护）
+        if (imgElement.classList.contains('rounded-circle') || 
+            imgElement.classList.contains('clickable-user') ||
+            imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '32' ||
+            imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '36' ||
+            imgElement.hasAttribute('width') && imgElement.getAttribute('width') === '40') {
+            return;
+        }
+        
+        const img = new Image();
+        img.onload = function() {
+            const aspectRatio = this.width / this.height;
+            const cardWidth = imgElement.parentElement.offsetWidth;
+            let targetHeight;
+            
+            if (aspectRatio > 1.5) {
+                // 宽图片，使用较小高度
+                targetHeight = Math.max(150, cardWidth / aspectRatio);
+            } else if (aspectRatio < 0.8) {
+                // 高图片，限制最大高度
+                targetHeight = Math.min(300, cardWidth / aspectRatio);
+            } else {
+                // 接近方形的图片，使用标准高度
+                targetHeight = 200;
+            }
+            
+            // 确保在合理范围内
+            targetHeight = Math.min(Math.max(targetHeight, 150), 300);
+            imgElement.style.height = targetHeight + 'px';
+        };
+        img.src = imgElement.src;
+    }
+
+    // 为动态生成的图片应用智能高度调整
+    $(document).on('load', '.post-card img.card-img-top', function() {
+        adjustImageHeight(this);
+    });
+
+    // 页面加载完成后调整现有图片
+    $(document).ready(function() {
+        setTimeout(function() {
+            $('.post-card img.card-img-top').each(function() {
                 adjustImageHeight(this);
             });
+        }, 100);
+    });
 
-            // 页面加载完成后调整现有图片
-            $(document).ready(function() {
-                setTimeout(function() {
-                    $('.post-card img.card-img-top').each(function() {
-                        adjustImageHeight(this);
-                    });
-                }, 100);
-            });
+    // 页面加载时调用loadPosts函数
+    loadPosts();
 
-            // 页面加载时调用loadPosts函数
-            loadPosts();
+    // 图片预览功能
+    $(document).on('change', '#postForm input[type="file"]', function(e) {
+        const files = e.target.files;
+        const maxFiles = 9;
+        const previewContainer = $('#image-preview');
+        
+        if (files.length > maxFiles) {
+            alert(`最多只能上传${maxFiles}张图片`);
+            $(this).val('');
+            previewContainer.empty();
+            return;
+        }
+        
+        previewContainer.empty();
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                previewContainer.append(`
+                    <div class="position-relative">
+                        <img src="${e.target.result}" class="img-thumbnail">
+                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-preview" 
+                                style="padding: 0.1rem 0.3rem;">×</button>
+                    </div>
+                `);
+            }
+            
+            reader.readAsDataURL(file);
+        }
+    });
 
-            // 图片预览功能
-            $(document).on('change', '#postForm input[type="file"]', function(e) {
-                const files = e.target.files;
-                const maxFiles = 9;
-                const previewContainer = $('#image-preview');
-                
-                if (files.length > maxFiles) {
-                    alert(`最多只能上传${maxFiles}张图片`);
-                    $(this).val('');
-                    previewContainer.empty();
-                    return;
-                }
-                
-                previewContainer.empty();
-                
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        previewContainer.append(`
-                            <div class="position-relative">
-                                <img src="${e.target.result}" class="img-thumbnail">
-                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-preview" 
-                                        style="padding: 0.1rem 0.3rem;">×</button>
-                            </div>
-                        `);
-                    }
-                    
-                    reader.readAsDataURL(file);
-                }
-            });
+    // 移除预览图片
+    $(document).on('click', '.remove-preview', function() {
+        $(this).parent().remove();
+        // 清除文件输入框的值，允许重新选择同一文件
+        $('#postForm input[type="file"]').val('');
+    });
 
-            // 移除预览图片
-            $(document).on('click', '.remove-preview', function() {
-                $(this).parent().remove();
-                // 清除文件输入框的值，允许重新选择同一文件
-                $('#postForm input[type="file"]').val('');
-            });
-
-            // 搜索框回车事件
-            $('#search-input').on('keypress', function(e) {
-                if (e.which === 13) { // 回车键
-                    const searchTerm = $(this).val().trim();
-                    if (!searchTerm && (!window.activeFilters || window.activeFilters.length === 0)) {
-                        loadPosts();
-                        $('#clear-search').hide();
-                    } else {
-                        searchPosts();
-                    }
-                }
-            });
-
-            // 搜索按钮点击事件
-            $('#search-btn').on('click', function() {
-                searchPosts();
-            });
-
-            // 清除搜索
-            $('#clear-search').on('click', function() {
-                $('#search-input').val('');
-                $('.filter-btn').removeClass('active');
-                window.activeFilters = [];
-                
-                // 重新加载所有帖子
+    // 搜索框回车事件
+    $('#search-input').on('keypress', function(e) {
+        if (e.which === 13) { // 回车键
+            const searchTerm = $(this).val().trim();
+            if (!searchTerm && (!window.activeFilters || window.activeFilters.length === 0)) {
                 loadPosts();
-                $(this).hide();
-            });
+                $('#clear-search').hide();
+            } else {
+                searchPosts();
+            }
+        }
+    });
 
-            // 删除帖子图标点击事件
-            $(document).on('click', '.delete-post-icon', function(e) {
-                e.preventDefault();
-                e.stopPropagation(); // 阻止事件冒泡
-                
-                console.log('删除图标被点击');
-                
-                // 触发父元素按钮的点击事件
-                $(this).closest('.delete-post').trigger('click');
-            });
+    // 搜索按钮点击事件
+    $('#search-btn').on('click', function() {
+        searchPosts();
+    });
 
-        });
+    // 清除搜索
+    $('#clear-search').on('click', function() {
+        $('#search-input').val('');
+        $('.filter-btn').removeClass('active');
+        window.activeFilters = [];
+        
+        // 重新加载所有帖子
+        loadPosts();
+        $(this).hide();
+    });
+
+    // 删除帖子图标点击事件
+    $(document).on('click', '.delete-post-icon', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // 阻止事件冒泡
+        
+        console.log('删除图标被点击');
+        
+        // 触发父元素按钮的点击事件
+        $(this).closest('.delete-post').trigger('click');
     });
 
     // 函数：判断是否是HR用户

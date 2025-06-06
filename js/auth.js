@@ -25,8 +25,8 @@ async function getCurrentUser() {
         
         // 根据用户类型选择正确的API端点
         const apiEndpoint = userType === 'hr' 
-            ? 'http://localhost:3001/api/v1/auth/me'
-            : 'http://localhost:3001/api/v1/jobseeker/me';
+            ? `${API_BASE_URL}/api/v1/hr/me`
+            : `${API_BASE_URL}/api/v1/jobseeker/me`;
         
         console.log('使用API端点:', apiEndpoint); // 调试信息
         
