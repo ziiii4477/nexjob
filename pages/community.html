@@ -1010,8 +1010,6 @@
         };
     </script>
     <script>
-    let currentUserId = null;
-
     // 获取当前用户ID和类型
     function getCurrentUserInfo() {
         const token = localStorage.getItem('token');
@@ -1135,14 +1133,14 @@
                                     </span>
                                 </div>
                                 <div class="d-flex justify-content-between text-muted small">
-                                    <span class="like-btn" data-liked="${post.likes?.includes(currentUserId)}" data-id="${post._id}">
-                                        <i class="far fa-heart${post.likes?.includes(currentUserId) ? ' text-danger fas' : ''}"></i> ${post.likes?.length || 0}
+                                    <span class="like-btn" data-liked="${post.likes?.includes(window.currentUserId)}" data-id="${post._id}">
+                                        <i class="far fa-heart${post.likes?.includes(window.currentUserId) ? ' text-danger fas' : ''}"></i> ${post.likes?.length || 0}
                                     </span>
                                     <span class="comments-count-card" data-id="${post._id}">
                                         <i class="far fa-comment"></i> ${post.totalCommentsCount || 0}
                                     </span>
-                                    <span class="favorite-btn" data-favorited="${post.favorites?.includes(currentUserId)}" data-id="${post._id}">
-                                        <i class="far fa-star${post.favorites?.includes(currentUserId) ? ' text-warning fas' : ''}"></i> ${post.favorites?.length || 0}
+                                    <span class="favorite-btn" data-favorited="${post.favorites?.includes(window.currentUserId)}" data-id="${post._id}">
+                                        <i class="far fa-star${post.favorites?.includes(window.currentUserId) ? ' text-warning fas' : ''}"></i> ${post.favorites?.length || 0}
                                     </span>
                                     <span class="share-btn" data-id="${post._id}" data-title="${post.title}">
                                         <i class="fas fa-share-alt"></i> 分享
@@ -1163,7 +1161,7 @@
     window.newLoadMyPosts = function() {
         console.log('加载我的帖子 (新版本)');
         $.ajax({
-            url: 'http://localhost:3001/api/v1/community-posts/my-posts',
+            url: `${API_BASE_URL}/api/v1/community-posts/my-posts`,
             method: 'GET',
             headers: { 
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -1188,7 +1186,7 @@
     function loadMyFavorites() {
         console.log('加载我的收藏');
         $.ajax({
-            url: 'http://localhost:3001/api/v1/community-posts/my-favorites',
+            url: `${API_BASE_URL}/api/v1/community-posts/my-favorites`,
             method: 'GET',
             headers: { 
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -1219,7 +1217,7 @@
     function loadMyLikes() {
         console.log('加载我的点赞');
         $.ajax({
-            url: 'http://localhost:3001/api/v1/community-posts/my-likes',
+            url: `${API_BASE_URL}/api/v1/community-posts/my-likes`,
             method: 'GET',
             headers: { 
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
