@@ -203,6 +203,10 @@ function applyFilters() {
 
 // 页面初始化
 $(document).ready(function() {
+    // 获取当前用户信息
+    const userInfo = getCurrentUserInfo();
+    window.currentUserId = userInfo.userId;
+
     // 筛选按钮点击事件
     $('.filter-btn').on('click', function() {
         $(this).toggleClass('active');
@@ -217,6 +221,8 @@ $(document).ready(function() {
         $('#recommend-section').show();
         $('#message-section').hide();
         $('#my-posts-section').hide();
+        $('#recommend-search-container').show();
+        $('#recommend-filter-container').show();
         loadPosts(); // 重新加载推荐内容
     });
 
@@ -224,6 +230,8 @@ $(document).ready(function() {
         $('#recommend-section').hide();
         $('#message-section').show();
         $('#my-posts-section').hide();
+        $('#recommend-search-container').hide();
+        $('#recommend-filter-container').hide();
         // 加载消息内容
         loadMessages();
     });
@@ -232,8 +240,16 @@ $(document).ready(function() {
         $('#recommend-section').hide();
         $('#message-section').hide();
         $('#my-posts-section').show();
+        $('#recommend-search-container').hide();
+        $('#recommend-filter-container').hide();
         // 加载"我的"内容
         window.newLoadMyPosts();
+    });
+
+    // 发布按钮点击事件
+    $('#open-post-modal').on('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('postModal'));
+        modal.show();
     });
 
     // 帖子卡片点击事件
@@ -249,6 +265,7 @@ $(document).ready(function() {
 
     // 点赞按钮点击事件
     $(document).on('click', '.like-btn', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         const postId = $(this).data('id');
         const isLiked = $(this).data('liked');
@@ -257,6 +274,7 @@ $(document).ready(function() {
 
     // 收藏按钮点击事件
     $(document).on('click', '.favorite-btn', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         const postId = $(this).data('id');
         const isFavorited = $(this).data('favorited');
@@ -265,6 +283,7 @@ $(document).ready(function() {
 
     // 分享按钮点击事件
     $(document).on('click', '.share-btn', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         const postId = $(this).data('id');
         const title = $(this).data('title');
@@ -273,9 +292,68 @@ $(document).ready(function() {
 
     // 删除按钮点击事件
     $(document).on('click', '.delete-post, .delete-post-icon', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         const postId = $(this).data('id');
         deletePost(postId);
+    });
+
+    // 提交评论事件
+    $('#submit-comment-btn').on('click', function() {
+        const postId = $(this).data('post-id');
+        const commentText = $('#new-comment-text').val().trim();
+        
+        if (!commentText) {
+            Swal.fire({
+                icon: 'warning',
+                title: '请输入评论内容',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return;
+        }
+        
+        $.ajax({
+            url: `${API_BASE_URL}/api/v1/community-posts/${postId}/comments`,
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({ text: commentText }),
+            xhrFields: { withCredentials: true },
+            success: function(res) {
+                if (res.success) {
+                    // 清空输入框
+                    $('#new-comment-text').val('');
+                    // 重新加载评论
+                    loadAndRenderComments(postId);
+                    // 显示成功提示
+                    Swal.fire({
+                        icon: 'success',
+                        title: '评论成功',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            },
+            error: function(xhr) {
+                console.error('发表评论失败:', xhr);
+                Swal.fire({
+                    icon: 'error',
+                    title: '评论失败',
+                    text: '发表评论失败，请稍后重试'
+                });
+            }
+        });
+    });
+
+    // 监听图片加载完成事件
+    $(document).on('load', '.post-card img.card-img-top', function() {
+        const $grid = $(this).closest('.masonry-grid');
+        if ($grid.data('masonry')) {
+            $grid.masonry('layout');
+        }
     });
 });
 

@@ -24,7 +24,7 @@ async function getCurrentUser() {
         }
         
         // 根据用户类型选择正确的API端点
-        const apiEndpoint = userType === 'hr' 
+        const apiEndpoint = isHRUser(userType)
             ? `${API_BASE_URL}/api/v1/hr/me`
             : `${API_BASE_URL}/api/v1/jobseeker/me`;
         
@@ -52,6 +52,10 @@ async function getCurrentUser() {
         console.log('API响应数据:', data); // 调试信息
         
         if (data.success) {
+            // 确保用户类型正确存储
+            if (data.data.userType) {
+                localStorage.setItem('userType', data.data.userType);
+            }
             return data.data;
         }
         return null;
@@ -59,6 +63,16 @@ async function getCurrentUser() {
         console.error('获取用户信息出错:', error);
         return null;
     }
+}
+
+// 判断是否是HR用户
+function isHRUser(userType) {
+    return userType && (userType.toLowerCase() === 'hr' || userType.toLowerCase() === 'hruser');
+}
+
+// 判断是否是求职者用户
+function isJobSeekerUser(userType) {
+    return userType && (userType.toLowerCase() === 'jobseeker' || userType.toLowerCase() === 'jobseekeruser');
 }
 
 // 更新导航栏用户状态
@@ -76,7 +90,7 @@ async function updateNavbarUserStatus() {
         authButtons.innerHTML = `
             <div class="dropdown">
                 <button class="btn btn-primary" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    ${user.name || '用户'}
+                    ${user.name || user.nickname || '用户'}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="${profilePath}">个人中心</a></li>
@@ -92,6 +106,7 @@ async function updateNavbarUserStatus() {
             // 清除localStorage中的token
             localStorage.removeItem('token');
             localStorage.removeItem('userType');
+            localStorage.removeItem('user');
             
             // 刷新当前页面或返回首页
             if (window.location.pathname.includes('/pages/')) {
