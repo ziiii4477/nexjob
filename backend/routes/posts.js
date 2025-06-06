@@ -734,13 +734,22 @@ async function populateReplies(comment) {
 
     const populatedReplies = [];
     for (const replyId of comment.replies) {
+        // 先获取评论数据，以便获取 userType
+        const replyDoc = await Comment.findById(replyId).lean();
+        if (!replyDoc) continue;
+        
+        // 根据 userType 选择正确的模型
+        const userModel = replyDoc.userType === 'HRUser' ? 'HRUser' : 'JobSeeker';
+        
+        // 使用字符串模型名称而不是回调函数
         const reply = await Comment.findById(replyId)
             .populate({
                 path: 'user',
                 select: 'name nickname avatar',
-                model: reply => reply.userType
+                model: userModel
             })
-            .lean(); // 使用 .lean() 获取普通JS对象，便于修改
+            .lean();
+            
         if (reply) {
             const populatedReply = await populateReplies(reply); // 递归填充
             populatedReplies.push(populatedReply);
@@ -764,17 +773,32 @@ router.get('/:postId/comments', async (req, res) => {
         }
 
         // 仅获取顶层评论 (parentId 为 null)
-        const topLevelComments = await Comment.find({ post: postId, parentId: null })
-            .populate({
-                path: 'user',
-                select: 'name nickname avatar',
-                model: comment => comment.userType
-            })
-            .sort({ createdAt: -1 }) // 顶层评论按最新时间倒序
-            .lean(); // 使用 .lean() 获取普通JS对象
-
-        const commentsWithReplies = [];
+        const topLevelComments = await Comment.find({ post: postId, parentId: null }).lean();
+        
+        // 为每个评论填充用户信息
+        const commentsWithUser = [];
         for (const comment of topLevelComments) {
+            // 根据 userType 选择正确的模型
+            const userModel = comment.userType === 'HRUser' ? 'HRUser' : 'JobSeeker';
+            
+            // 使用字符串模型名称而不是回调函数
+            const populatedComment = await Comment.findById(comment._id)
+                .populate({
+                    path: 'user',
+                    select: 'name nickname avatar',
+                    model: userModel
+                })
+                .sort({ createdAt: -1 }) // 顶层评论按最新时间倒序
+                .lean();
+                
+            if (populatedComment) {
+                commentsWithUser.push(populatedComment);
+            }
+        }
+
+        // 填充回复
+        const commentsWithReplies = [];
+        for (const comment of commentsWithUser) {
             const populatedComment = await populateReplies(comment);
             commentsWithReplies.push(populatedComment);
         }
@@ -890,7 +914,7 @@ router.post('/:postId/comments', protect, async (req, res) => {
             .populate({
                 path: 'user',
                 select: 'name nickname avatar',
-                model: comment => comment.userType
+                model: newComment.userType // 直接使用已知的 userType
             });
 
         res.status(201).json({ success: true, message: '评论已成功发表', data: populatedComment });
