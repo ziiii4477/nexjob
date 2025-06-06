@@ -274,10 +274,28 @@
                         hrUser: localStorage.getItem('hrUser')
                     });
 
-                    // 根据用户类型跳转到不同的页面
-                    if (isHR) {
-                        console.log('[登录表单] HR用户登录成功，跳转到hr-dashboard.html');
-                        window.location.href = 'hr-dashboard.html';
+                    // 登录成功后处理
+                    if (userType === 'hr') {
+                        // 获取HR用户详细信息
+                        fetch(`${API_BASE_URL}/api/v1/hr/me`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                localStorage.setItem('user', JSON.stringify(data.data));
+                                window.location.href = 'hr-dashboard.html';
+                            } else {
+                                alert('获取HR信息失败');
+                            }
+                        })
+                        .catch(() => {
+                            alert('获取HR信息失败');
+                        });
+                        return;
                     } else {
                         console.log('[登录表单] 求职者用户登录成功，跳转到profile.html');
                         window.location.href = 'profile.html';

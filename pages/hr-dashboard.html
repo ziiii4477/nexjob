@@ -700,10 +700,8 @@
             }
 
             try {
-                // 使用API_BASE_URL获取正确的API基础地址
-                const apiBaseUrl = getApiBaseUrl();
                 // 使用HR专用的API端点
-                const response = await fetch(`${apiBaseUrl}/api/v1/auth/me`, {
+                const response = await fetch(`${API_BASE_URL}/api/v1/hr/me`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -723,6 +721,8 @@
 
                 if (data.success) {
                     currentUser = data.data;
+                    // 同步localStorage.user，便于社区等页面读取
+                    localStorage.setItem('user', JSON.stringify(currentUser));
                     updateUserInfo();
                 } else {
                     throw new Error(data.message || '认证失败');
@@ -731,7 +731,7 @@
                 console.error('认证错误:', error);
                 // 如果是401错误，重定向到登录页面
                 if (error.message.includes('401')) {
-                    console.log('认证失败：无效或过期的token');
+                    console.log('认证失败：token无效或过期');
                     redirectToLogin();
                 } else {
                     console.log('其他错误:', error.message);
@@ -739,16 +739,6 @@
                     redirectToLogin();
                 }
             }
-        }
-
-        // 获取API基础URL
-        function getApiBaseUrl() {
-            // 检查当前是否在生产环境
-            if (window.location.hostname.includes('netlify.app')) {
-                return 'https://nexjob.onrender.com';
-            }
-            // 本地开发环境
-            return 'http://localhost:3001';
         }
 
         function redirectToLogin() {
