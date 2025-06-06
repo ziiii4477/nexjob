@@ -29,39 +29,30 @@ const app = express();
 app.disable('etag');
 
 // --- START CORS CONFIGURATION ---
-// 只在此处全局配置 CORS，必须放在所有中间件和路由之前
-const allowedOrigins = [
-    'https://aesthetic-cheesecake-0dcd44.netlify.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:5500'
-];
-
-// 兜底CORS头，确保所有响应都带CORS头
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,Accept,Origin');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    next();
-});
-
-const corsOptions = {
-    origin: function(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, origin);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+app.use(cors({
+    origin: ['https://aesthetic-cheesecake-0dcd44.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    optionsSuccessStatus: 200 // 关键：让OPTIONS预检返回200而不是204/304
-};
+    optionsSuccessStatus: 200
+}));
 
-app.use(cors(corsOptions));
-// 全局兜底处理所有OPTIONS预检请求，必须放在所有中间件和路由之前
-app.options('*', cors(corsOptions));
+// 确保所有响应都带有正确的CORS头
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && ['https://aesthetic-cheesecake-0dcd44.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'].includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+    next();
+});
+
+// 处理 OPTIONS 预检请求
+app.options('*', (req, res) => {
+    res.sendStatus(200);
+});
 // --- END CORS CONFIGURATION ---
 
 // 连接数据库
