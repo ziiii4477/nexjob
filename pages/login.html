@@ -235,6 +235,7 @@
                 });
 
                 console.log('[登录表单] fetch响应状态:', response.status, response.statusText);
+                console.log('[登录表单] 完整响应对象:', response);
                 const data = await response.json();
                 console.log('[登录表单] 登录响应完整数据:', data);
 
@@ -243,15 +244,20 @@
                     let token;
                     if (data.token) {
                         token = data.token;
+                        console.log('[登录表单] 从data.token获取到token');
                     } else if (data.data && data.data.token) {
                         token = data.data.token;
+                        console.log('[登录表单] 从data.data.token获取到token');
                     } else {
-                        console.error('[登录表单] 找不到有效的token');
+                        console.error('[登录表单] 找不到有效的token，完整响应:', data);
                         alert('登录失败：无法获取认证信息');
                         return;
                     }
 
+                    console.log('[登录表单] 获取到的token:', token.substring(0, 20) + '...');
+
                     // 清除之前的存储
+                    console.log('[登录表单] 清除之前的localStorage');
                     localStorage.clear();
                     
                     // 保存新的认证信息
@@ -261,21 +267,25 @@
                     // 如果是HR用户，保存用户信息
                     if (isHR && data.data) {
                         localStorage.setItem('hrUser', JSON.stringify(data.data));
+                        console.log('[登录表单] 保存HR用户信息:', data.data);
                     }
                     
                     // 如果选择了"记住我"，保存最后登录的用户类型
                     if (remember) {
                         localStorage.setItem('lastUserType', userType);
+                        console.log('[登录表单] 保存最后登录的用户类型:', userType);
                     }
 
-                    console.log('[登录表单] 保存的认证信息:', {
-                        token: localStorage.getItem('token'),
+                    console.log('[登录表单] localStorage完整内容:', {
+                        token: localStorage.getItem('token')?.substring(0, 20) + '...',
                         userType: localStorage.getItem('userType'),
-                        hrUser: localStorage.getItem('hrUser')
+                        hrUser: localStorage.getItem('hrUser'),
+                        lastUserType: localStorage.getItem('lastUserType')
                     });
 
                     // 登录成功后处理
                     if (userType === 'hr') {
+                        console.log('[登录表单] 开始获取HR用户详细信息');
                         // 获取HR用户详细信息
                         fetch(`${API_BASE_URL}/api/v1/hr/me`, {
                             method: 'GET',
@@ -283,22 +293,54 @@
                                 'Authorization': 'Bearer ' + token
                             }
                         })
-                        .then(res => res.json())
+                        .then(res => {
+                            console.log('[登录表单] HR用户信息响应状态:', res.status);
+                            return res.json();
+                        })
                         .then(data => {
+                            console.log('[登录表单] HR用户信息响应数据:', data);
                             if (data.success) {
                                 localStorage.setItem('user', JSON.stringify(data.data));
+                                console.log('[登录表单] HR用户信息已保存，准备跳转到dashboard');
                                 window.location.href = 'hr-dashboard.html';
                             } else {
+                                console.error('[登录表单] 获取HR信息失败:', data);
                                 alert('获取HR信息失败');
                             }
                         })
-                        .catch(() => {
+                        .catch((error) => {
+                            console.error('[登录表单] 获取HR信息出错:', error);
                             alert('获取HR信息失败');
                         });
                         return;
                     } else {
-                        console.log('[登录表单] 求职者用户登录成功，跳转到profile.html');
-                        window.location.href = 'profile.html';
+                        console.log('[登录表单] 开始获取求职者用户详细信息');
+                        // 获取普通用户详细信息
+                        fetch(`${API_BASE_URL}/api/v1/jobseeker/me`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        })
+                        .then(res => {
+                            console.log('[登录表单] 求职者用户信息响应状态:', res.status);
+                            return res.json();
+                        })
+                        .then(data => {
+                            console.log('[登录表单] 求职者用户信息响应数据:', data);
+                            if (data.success) {
+                                localStorage.setItem('user', JSON.stringify(data.data));
+                                console.log('[登录表单] 求职者用户信息已保存，准备跳转到profile');
+                                window.location.href = 'profile.html';
+                            } else {
+                                console.error('[登录表单] 获取求职者信息失败:', data);
+                                alert('获取用户信息失败');
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('[登录表单] 获取求职者信息出错:', error);
+                            alert('获取用户信息失败');
+                        });
                     }
                 } else {
                     console.error('[登录表单] 登录失败:', data.error || '未知错误', data);

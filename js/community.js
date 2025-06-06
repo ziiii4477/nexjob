@@ -81,37 +81,44 @@ function initMasonryForGrid($container) {
 
 // 加载帖子列表
 async function loadPosts() {
-    console.log('开始加载帖子列表...');
+    console.log('[社区页面] 开始加载帖子列表...');
     try {
         // 获取当前用户信息
         const userInfo = getCurrentUserInfo();
         window.currentUserId = userInfo.userId;
+        console.log('[社区页面] 设置当前用户ID:', window.currentUserId);
+        
+        const token = localStorage.getItem('token');
+        console.log('[社区页面] 准备发送请求，使用token:', token?.substring(0, 20) + '...');
         
         // 使用API_BASE_URL加载帖子
         const response = await fetch(`${API_BASE_URL}/api/v1/community-posts`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
             credentials: 'include'
         });
         
+        console.log('[社区页面] 帖子列表响应状态:', response.status, response.statusText);
         const data = await response.json();
-        console.log('帖子数据:', data);
+        console.log('[社区页面] 帖子列表响应数据:', data);
         
         if (data.success && data.data) {
+            console.log('[社区页面] 成功获取帖子列表，数量:', data.data.length);
             renderPostCards(data.data, '#post-masonry');
             
             // 初始化Masonry布局
             setTimeout(function() {
+                console.log('[社区页面] 开始初始化Masonry布局');
                 const $grid = $('#post-masonry');
                 initMasonryForGrid($grid);
                 
                 // 图片加载完成后重新布局
                 if (typeof $.fn.imagesLoaded === 'function') {
                     $grid.imagesLoaded().progress(function() {
-                        console.log('图片加载中，重新布局');
+                        console.log('[社区页面] 图片加载中，重新布局');
                         if ($grid.data('masonry')) {
                             $grid.masonry('layout');
                         }
@@ -120,10 +127,10 @@ async function loadPosts() {
             }, 300);
         } else {
             $('#post-masonry').html('<div class="text-center text-muted my-5">暂无内容</div>');
-            console.warn('加载帖子失败:', data);
+            console.warn('[社区页面] 加载帖子失败:', data);
         }
     } catch (error) {
-        console.error('加载帖子出错:', error);
+        console.error('[社区页面] 加载帖子出错:', error);
         $('#post-masonry').html('<div class="text-center text-danger my-5">加载失败，请刷新页面重试</div>');
     }
 }
@@ -131,17 +138,44 @@ async function loadPosts() {
 // 获取当前用户ID和类型
 function getCurrentUserInfo() {
     const token = localStorage.getItem('token');
+    console.log('[社区页面] 从localStorage获取到token:', token ? token.substring(0, 20) + '...' : 'null');
+    
     let user = null;
     try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {}
+        const userStr = localStorage.getItem('user');
+        console.log('[社区页面] 从localStorage获取到user字符串:', userStr);
+        user = JSON.parse(userStr);
+        console.log('[社区页面] 解析后的user对象:', user);
+    } catch (e) {
+        console.error('[社区页面] 解析user对象失败:', e);
+    }
+    
     const userType = localStorage.getItem('userType');
+    console.log('[社区页面] 从localStorage获取到userType:', userType);
+    
     let userId = null;
+    
+    // 首先尝试从user对象获取ID
     if (user && user._id) {
         userId = user._id;
+        console.log('[社区页面] 从user._id获取到userId:', userId);
     } else if (user && user.id) {
         userId = user.id;
+        console.log('[社区页面] 从user.id获取到userId:', userId);
     }
+    
+    // 如果user对象中没有ID，尝试从token中解析
+    if (!userId && token) {
+        try {
+            const tokenData = JSON.parse(atob(token.split('.')[1]));
+            userId = tokenData.id;
+            console.log('[社区页面] 从token解析出userId:', userId);
+        } catch (e) {
+            console.error('[社区页面] 解析token失败:', e);
+        }
+    }
+    
+    console.log('[社区页面] 最终获取到的用户信息:', { token: token?.substring(0, 20) + '...', userType, userId });
     return { token, userType, userId, user };
 }
 
@@ -434,14 +468,19 @@ window.switchDetailImage = function(imgSrc) {
 
 // 点赞功能
 function toggleLike(postId, btnElement) {
+    console.log('[社区页面] 开始处理点赞，postId:', postId);
+    const token = localStorage.getItem('token');
+    console.log('[社区页面] 点赞请求使用token:', token?.substring(0, 20) + '...');
+    
     $.ajax({
         url: `${API_BASE_URL}/api/v1/community-posts/${postId}/like`,
         method: 'POST',
         headers: { 
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
         },
         xhrFields: { withCredentials: true },
         success: function(res) {
+            console.log('[社区页面] 点赞响应:', res);
             if (res.success) {
                 const $btn = $(btnElement);
                 const $icon = $btn.find('i');
@@ -449,17 +488,20 @@ function toggleLike(postId, btnElement) {
                 const currentCount = parseInt($count.text()) || 0;
                 
                 if ($icon.hasClass('fas')) {
-                    // 取消点赞
+                    console.log('[社区页面] 取消点赞');
                     $icon.removeClass('fas text-danger').addClass('far');
                     $count.text(` ${currentCount - 1}`);
                     $btn.data('liked', false);
                 } else {
-                    // 点赞
+                    console.log('[社区页面] 添加点赞');
                     $icon.removeClass('far').addClass('fas text-danger');
                     $count.text(` ${currentCount + 1}`);
                     $btn.data('liked', true);
                 }
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('[社区页面] 点赞请求失败:', { status, error, response: xhr.responseText });
         }
     });
 }
