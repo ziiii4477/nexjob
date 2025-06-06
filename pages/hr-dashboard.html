@@ -675,6 +675,9 @@
     
     <script src="../js/api-config.js"></script>
     <script>
+        // API基础URL配置
+        const API_BASE_URL = 'https://nexjob-backend.onrender.com';
+        
         let currentUser = null;
         let currentApplication = null;
 
@@ -1141,7 +1144,7 @@
                 params.append('order', 'asc'); // 升序（早的在前）
                 params.append('priorityStatus', 'unread'); // 优先显示未读状态
 
-                const url = `http://localhost:3001/api/v1/applications?${params.toString()}`;
+                const url = `${API_BASE_URL}/api/v1/applications?${params.toString()}`;
                 console.log('请求URL:', url);
 
                 const token = localStorage.getItem('token');
@@ -1223,7 +1226,7 @@
                 const resumeModal = new bootstrap.Modal(document.getElementById('resumeModal'));
                 resumeModal.show();
                 
-                const response = await fetch(`http://localhost:3001/api/v1/applications/${applicationId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/v1/applications/${applicationId}`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -1272,7 +1275,7 @@
                     `;
                 } else if (currentApplication.resume.path) {
                     // 构建正确的文件URL，使用专门的简历预览API
-                    const fileUrl = `http://localhost:3001/api/v1/resumes/${currentApplication.resume._id}/view`;
+                    const fileUrl = `${API_BASE_URL}/api/v1/resumes/${currentApplication.resume._id}/view`;
                     const fileName = currentApplication.resume.originalName || currentApplication.resume.filename || '简历文件';
                     
                     console.log('预览URL:', fileUrl);
@@ -1336,7 +1339,7 @@
 
             const dbStatus = statusMap[status] || status;
 
-            const response = await fetch(`http://localhost:3001/api/v1/applications/${applicationId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/v1/applications/${applicationId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1370,7 +1373,7 @@
             try {
                 console.log('开始加载HR帖子列表');
                 
-                const response = await fetch('http://localhost:3001/api/v1/community-posts/my-posts', {
+                const response = await fetch(`${API_BASE_URL}/api/v1/community-posts/my-posts`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -1453,7 +1456,7 @@
                 params.append('sort', 'createdAt'); // 按创建时间排序
                 params.append('order', 'asc'); // 升序（早的在前）
 
-                const url = `http://localhost:3001/api/v1/applications?${params.toString()}`;
+                const url = `${API_BASE_URL}/api/v1/applications?${params.toString()}`;
                 console.log('请求URL:', url);
 
                 const token = localStorage.getItem('token');
@@ -1696,7 +1699,7 @@
                 params.append('page', page);
                 params.append('limit', 10);
 
-                const url = `http://localhost:3001/api/v1/applications?${params.toString()}`;
+                const url = `${API_BASE_URL}/api/v1/applications?${params.toString()}`;
                 console.log('发送请求到URL:', url);
 
                 const token = localStorage.getItem('token');
@@ -1895,7 +1898,7 @@
                 }
                 
                 // 发送请求
-                const response = await fetch(`http://localhost:3001/api/v1/applications/${applicationId}/interview-invitation`, {
+                const response = await fetch(`${API_BASE_URL}/api/v1/applications/${applicationId}/interview-invitation`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1947,7 +1950,7 @@
                 console.log('选中的候选人ID:', applicationIds);
                 
                 // 发送请求
-                const response = await fetch('http://localhost:3001/api/v1/applications/export-resumes', {
+                const response = await fetch(`${API_BASE_URL}/api/v1/applications/export-resumes`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1983,7 +1986,7 @@
                 }
                 
                 // 发送请求
-                const response = await fetch('http://localhost:3001/api/v1/applications/export-resumes', {
+                const response = await fetch(`${API_BASE_URL}/api/v1/applications/export-resumes`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
