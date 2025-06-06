@@ -96,9 +96,11 @@ async function loadPosts() {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            credentials: 'include'
+            credentials: 'include',
+            mode: 'cors'
         });
         
         console.log('[社区页面] 帖子列表响应状态:', response.status, response.statusText);
@@ -476,9 +478,13 @@ function toggleLike(postId, btnElement) {
         url: `${API_BASE_URL}/api/v1/community-posts/${postId}/like`,
         method: 'POST',
         headers: { 
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
         },
-        xhrFields: { withCredentials: true },
+        xhrFields: { 
+            withCredentials: true,
+            cors: true
+        },
         success: function(res) {
             console.log('[社区页面] 点赞响应:', res);
             if (res.success) {
@@ -512,9 +518,13 @@ function toggleFavorite(postId, btnElement) {
         url: `${API_BASE_URL}/api/v1/community-posts/${postId}/favorite`,
         method: 'POST',
         headers: { 
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
         },
-        xhrFields: { withCredentials: true },
+        xhrFields: { 
+            withCredentials: true,
+            cors: true
+        },
         success: function(res) {
             if (res.success) {
                 const $btn = $(btnElement);

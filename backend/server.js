@@ -32,9 +32,11 @@ app.disable('etag');
 app.use(cors({
     origin: ['https://aesthetic-cheesecake-0dcd44.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-    optionsSuccessStatus: 200
+    exposedHeaders: ['Content-Length', 'X-Requested-With', 'Authorization'],
+    optionsSuccessStatus: 200,
+    preflightContinue: false
 }));
 
 // 确保所有响应都带有正确的CORS头
@@ -42,16 +44,30 @@ app.use((req, res, next) => {
     const origin = req.headers.origin;
     if (origin && ['https://aesthetic-cheesecake-0dcd44.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'].includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Length, X-Requested-With, Authorization');
+        
+        // 如果是预检请求，直接返回200
+        if (req.method === 'OPTIONS') {
+            return res.status(200).end();
+        }
     }
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
     next();
 });
 
 // 处理 OPTIONS 预检请求
 app.options('*', (req, res) => {
-    res.sendStatus(200);
+    const origin = req.headers.origin;
+    if (origin && ['https://aesthetic-cheesecake-0dcd44.netlify.app', 'http://localhost:3000', 'http://127.0.0.1:5500'].includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+        res.setHeader('Access-Control-Max-Age', '86400'); // 24小时内不再发送预检请求
+    }
+    res.status(200).end();
 });
 // --- END CORS CONFIGURATION ---
 
