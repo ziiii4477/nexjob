@@ -320,8 +320,11 @@
             }
 
             $.ajax({
-                url: `http://localhost:3001/api/v1/users/${viewingUserId}/profile`,
+                url: `${API_BASE_URL}/api/v1/users/${viewingUserId}/profile`,
                 method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
                 xhrFields: { withCredentials: true },
                 success: function(res) {
                     if (res.success) {
@@ -363,8 +366,11 @@
         // 加载用户的帖子
         function loadUserPosts() {
             $.ajax({
-                url: `http://localhost:3001/api/v1/users/${viewingUserId}/posts`,
+                url: `${API_BASE_URL}/api/v1/users/${viewingUserId}/posts`,
                 method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
                 xhrFields: { withCredentials: true },
                 success: function(res) {
                     renderPostCards(res.data, '#posts-list');
@@ -375,8 +381,11 @@
         // 加载用户的收藏
         function loadUserFavorites() {
             $.ajax({
-                url: `http://localhost:3001/api/v1/users/${viewingUserId}/favorites`,
+                url: `${API_BASE_URL}/api/v1/users/${viewingUserId}/favorites`,
                 method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
                 xhrFields: { withCredentials: true },
                 success: function(res) {
                     renderPostCards(res.data, '#favorites-list');
@@ -387,8 +396,11 @@
         // 加载用户的点赞
         function loadUserLikes() {
             $.ajax({
-                url: `http://localhost:3001/api/v1/users/${viewingUserId}/likes`,
+                url: `${API_BASE_URL}/api/v1/users/${viewingUserId}/likes`,
                 method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
                 xhrFields: { withCredentials: true },
                 success: function(res) {
                     renderPostCards(res.data, '#likes-list');

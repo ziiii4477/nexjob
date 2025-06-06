@@ -75,7 +75,14 @@ function initMasonryForGrid($container) {
         $container.masonry({
             itemSelector: '.masonry-grid-item',
             columnWidth: '.masonry-grid-item',
-            percentPosition: true
+            percentPosition: true,
+            horizontalOrder: true,
+            transitionDuration: '0.3s'
+        });
+        
+        // 确保所有图片加载后重新布局
+        $container.imagesLoaded().progress(function() {
+            $container.masonry('layout');
         });
     }
 }
@@ -118,15 +125,11 @@ async function loadPosts() {
                 const $grid = $('#post-masonry');
                 initMasonryForGrid($grid);
                 
-                // 图片加载完成后重新布局
-                if (typeof $.fn.imagesLoaded === 'function') {
-                    $grid.imagesLoaded().progress(function() {
-                        console.log('[社区页面] 图片加载中，重新布局');
-                        if ($grid.data('masonry')) {
-                            $grid.masonry('layout');
-                        }
-                    });
-                }
+                // 确保所有图片加载完成后重新布局
+                $grid.imagesLoaded().done(function() {
+                    console.log('[社区页面] 所有图片加载完成，重新布局');
+                    $grid.masonry('layout');
+                });
             }, 300);
         } else {
             $('#post-masonry').html('<div class="text-center text-muted my-5">暂无内容</div>');
@@ -280,6 +283,7 @@ $(document).ready(function() {
         $('#recommend-search-container').hide();
         $('#recommend-filter-container').hide();
         // 加载"我的"内容
+        loadMyProfile();
         window.newLoadMyPosts();
     });
 
@@ -633,7 +637,7 @@ function deletePost(postId) {
 // 加载消息
 function loadMessages() {
     $.ajax({
-        url: `${API_BASE_URL}/api/v1/community/notifications`,
+        url: `${API_BASE_URL}/api/v1/notifications`,
         method: 'GET',
         headers: { 
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -779,4 +783,38 @@ function renderComments(comments, containerId) {
     });
     
     $(containerId).html(html);
+}
+
+// 加载我的个人资料
+function loadMyProfile() {
+    const userInfo = getCurrentUserInfo();
+    if (!userInfo.userId) return;
+
+    // 显示个人资料卡片
+    $('#my-profile-card').show();
+
+    // 加载用户资料
+    $.ajax({
+        url: `${API_BASE_URL}/api/v1/users/${userInfo.userId}/profile`,
+        method: 'GET',
+        headers: { 
+            'Authorization': `Bearer ${userInfo.token}`
+        },
+        xhrFields: { withCredentials: true },
+        success: function(res) {
+            if (res.success && res.data) {
+                const profile = res.data;
+                // 更新头像
+                $('#my-avatar').attr('src', profile.avatar || '../images/user logo.jpg');
+                // 更新用户名
+                $('#my-username').text(profile.nickname || profile.name || '用户');
+                // 更新关注数和粉丝数
+                $('#my-following').text(profile.followingCount || 0);
+                $('#my-follower').text(profile.followerCount || 0);
+            }
+        },
+        error: function(xhr) {
+            console.error('加载个人资料失败:', xhr);
+        }
+    });
 } 
