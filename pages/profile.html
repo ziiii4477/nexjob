@@ -985,127 +985,117 @@
             }
         });
 
-        // 领英登录相关功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const connectLinkedinBtn = document.getElementById('connectLinkedin');
-            const importLinkedinDataBtn = document.getElementById('importLinkedinData');
-            const disconnectLinkedinBtn = document.getElementById('disconnectLinkedin');
-            const linkedinNotConnected = document.getElementById('linkedinNotConnected');
-            const linkedinConnected = document.getElementById('linkedinConnected');
+        // 检查LinkedIn连接状态
+        async function checkLinkedInStatus() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/linkedin/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
 
-            // 检查是否已连接领英
-            async function checkLinkedinConnection() {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/linkedin/status', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.connected) {
-                            showConnectedState(data.profile);
-                        } else {
-                            showDisconnectedState();
-                        }
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.connected) {
+                        showLinkedInConnected(data);
+                    } else {
+                        showLinkedInNotConnected();
                     }
-                } catch (error) {
-                    console.error('检查领英连接状态失败:', error);
-                    showDisconnectedState();
+                } else {
+                    console.error('检查领英连接状态失败');
+                    showLinkedInNotConnected();
                 }
+            } catch (error) {
+                console.error('检查领英连接状态失败:', error);
+                showLinkedInNotConnected();
             }
+        }
 
-            // 显示已连接状态
-            function showConnectedState(profile) {
-                linkedinNotConnected.style.display = 'none';
-                linkedinConnected.style.display = 'block';
-                
-                // 更新用户信息显示
-                document.getElementById('linkedinAvatar').src = profile.pictureUrl || '../images/user logo.jpg';
-                document.getElementById('linkedinName').textContent = profile.name;
-                document.getElementById('linkedinHeadline').textContent = profile.headline;
+        // 连接LinkedIn
+        async function connectLinkedIn() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/linkedin/connect`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authUrl) {
+                        window.location.href = data.authUrl;
+                    } else {
+                        alert('无法获取LinkedIn授权链接');
+                    }
+                } else {
+                    throw new Error('连接LinkedIn失败');
+                }
+            } catch (error) {
+                console.error('连接LinkedIn失败:', error);
+                alert('连接LinkedIn失败，请稍后重试');
             }
+        }
 
-            // 显示未连接状态
-            function showDisconnectedState() {
-                linkedinNotConnected.style.display = 'block';
-                linkedinConnected.style.display = 'none';
+        // 断开LinkedIn连接
+        async function disconnectLinkedIn() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/linkedin/disconnect`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    showLinkedInNotConnected();
+                } else {
+                    throw new Error('断开LinkedIn连接失败');
+                }
+            } catch (error) {
+                console.error('断开LinkedIn连接失败:', error);
+                alert('断开LinkedIn连接失败，请稍后重试');
             }
+        }
 
-            // 连接领英账号
-            connectLinkedinBtn.addEventListener('click', async function() {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/linkedin/auth-url', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+        // 导入LinkedIn数据
+        async function importLinkedInData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/linkedin/import`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        // 在新窗口打开领英授权页面
-                        window.open(data.authUrl, 'linkedin-auth', 'width=600,height=600');
-                    }
-                } catch (error) {
-                    console.error('获取领英授权链接失败:', error);
-                    alert('连接领英账号失败，请稍后重试');
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('LinkedIn数据导入成功');
+                    location.reload();
+                } else {
+                    throw new Error('导入LinkedIn数据失败');
                 }
-            });
-
-            // 导入领英数据
-            importLinkedinDataBtn.addEventListener('click', async function() {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/linkedin/import', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        alert('领英资料导入成功！');
-                        // 更新显示
-                        showConnectedState(data.profile);
-                    }
-                } catch (error) {
-                    console.error('导入领英数据失败:', error);
-                    alert('导入领英数据失败，请稍后重试');
-                }
-            });
-
-            // 断开领英连接
-            disconnectLinkedinBtn.addEventListener('click', async function() {
-                if (!confirm('确定要断开领英账号连接吗？')) {
-                    return;
-                }
-
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/linkedin/disconnect', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        showDisconnectedState();
-                        alert('已成功断开领英账号连接');
-                    }
-                } catch (error) {
-                    console.error('断开领英连接失败:', error);
-                    alert('断开连接失败，请稍后重试');
-                }
-            });
-
-            // 页面加载时检查领英连接状态
-            checkLinkedinConnection();
-        });
+            } catch (error) {
+                console.error('导入LinkedIn数据失败:', error);
+                alert('导入LinkedIn数据失败，请稍后重试');
+            }
+        }
     </script>
 
     <!-- 头像选择模态框 -->
@@ -1195,242 +1185,204 @@
             });
         });
 
-        // 简历上传相关功能
-        document.addEventListener('DOMContentLoaded', function() {
-            const chineseResumeFile = document.getElementById('chineseResumeFile');
-            const englishResumeFile = document.getElementById('englishResumeFile');
-            const resumeFilesList = document.getElementById('resumeFilesList');
-
-            // 加载已上传的简历列表
-            async function loadResumeList() {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/resumes', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        updateResumeList(data.resumes);
-                    }
-                } catch (error) {
-                    console.error('加载简历列表失败:', error);
-                }
-            }
-
-            // 更新简历列表显示
-            function updateResumeList(resumes) {
-                resumeFilesList.innerHTML = '';
-                
-                if (!resumes || resumes.length === 0) {
-                    resumeFilesList.innerHTML = `
-                        <div class="text-center p-4 text-muted">
-                            <i class="fas fa-file-alt fa-3x mb-3"></i>
-                            <p>暂无上传的简历</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                resumes.forEach(resume => {
-                    const item = document.createElement('div');
-                    item.className = 'list-group-item';
-                    item.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">${resume.language === 'zh' ? '中文简历' : '英文简历'}</h6>
-                                <small class="text-muted">
-                                    ${resume.filename} · ${formatFileSize(resume.size)} · 
-                                    上传于 ${formatDate(resume.uploadDate)}
-                                </small>
-                            </div>
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary" onclick="downloadResume('${resume._id}')">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteResume('${resume._id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    resumeFilesList.appendChild(item);
-                });
-            }
-
-            // 上传中文简历
-            async function uploadResume(file, language) {
-                if (!file) {
-                    alert('请选择要上传的文件');
-                    return;
-                }
-
-                try {
-                    // 检查文件大小
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('文件大小不能超过5MB');
-                        return;
-                    }
-
-                    // 检查文件类型
-                    const allowedTypes = ['.pdf'];
-                    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-                    if (!allowedTypes.includes(fileExtension)) {
-                        alert('仅支持PDF格式，文件大小不超过5MB');
-                        return;
-                    }
-
-                    const formData = new FormData();
-                    formData.append('resume', file);
-                    formData.append('language', language);
-
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:3001/api/v1/resumes/upload', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        alert('简历上传成功！');
-                        // 清空文件输入
-                        chineseResumeFile.value = '';
-                        englishResumeFile.value = '';
-                        // 重新加载简历列表
-                        await loadResumeList();
-                    } else {
-                        throw new Error('上传失败');
-                    }
-                } catch (error) {
-                    console.error('上传简历失败:', error);
-                    alert('上传简历失败，请稍后重试');
-                }
-            }
-
-            // 下载简历
-            window.downloadResume = async function(resumeId) {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch(`http://localhost:3001/api/v1/resumes/${resumeId}/download`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || '下载失败');
-                    }
-
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `resume-${resumeId}${blob.type === 'application/pdf' ? '.pdf' : '.docx'}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                } catch (error) {
-                    console.error('下载简历失败:', error);
-                    alert(error.message || '下载简历失败，请稍后重试');
-                }
-            };
-
-            // 删除简历
-            window.deleteResume = async function(resumeId) {
-                if (!confirm('确定要删除这份简历吗？')) {
-                    return;
-                }
-
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch(`http://localhost:3001/api/v1/resumes/${resumeId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || '删除失败');
-                    }
-
-                    alert('简历删除成功！');
-                    await loadResumeList();
-                } catch (error) {
-                    console.error('删除简历失败:', error);
-                    alert(error.message || '删除简历失败，请稍后重试');
-                }
-            };
-
-            // 格式化文件大小
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 B';
-                const k = 1024;
-                const sizes = ['B', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-
-            // 格式化日期
-            function formatDate(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-
-            // 页面加载时加载简历列表
-            loadResumeList();
-        });
-    </script>
-
-    <script>
-    async function uploadResume(file, language) {
-        if (!file) {
-            alert('请选择要上传的文件');
-            return;
+        // API 配置
+        function getApiBaseUrl() {
+            // 生产环境直接返回后端真实External URL
+            return 'https://nexjob-backend.onrender.com';
         }
 
-        try {
-            const formData = new FormData();
-            formData.append('resume', file);
-            formData.append('language', language);
+        const API_BASE_URL = getApiBaseUrl();
+        console.log('API配置已内联定义');
 
-            const response = await fetch('http://localhost:3001/api/v1/resumes/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: formData
+        // 加载已上传的简历列表
+        async function loadResumeList() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/resumes`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateResumeList(data.resumes);
+                }
+            } catch (error) {
+                console.error('加载简历列表失败:', error);
+            }
+        }
+
+        // 更新简历列表显示
+        function updateResumeList(resumes) {
+            resumeFilesList.innerHTML = '';
+            
+            if (!resumes || resumes.length === 0) {
+                resumeFilesList.innerHTML = `
+                    <div class="text-center p-4 text-muted">
+                        <i class="fas fa-file-alt fa-3x mb-3"></i>
+                        <p>暂无上传的简历</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resumes.forEach(resume => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item';
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${resume.language === 'zh' ? '中文简历' : '英文简历'}</h6>
+                            <small class="text-muted">
+                                ${resume.filename} · ${formatFileSize(resume.size)} · 
+                                上传于 ${formatDate(resume.uploadDate)}
+                            </small>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="downloadResume('${resume._id}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteResume('${resume._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                resumeFilesList.appendChild(item);
             });
-
-            if (!response.ok) {
-                throw new Error('上传失败');
-            }
-
-            const data = await response.json();
-            if (data.success) {
-                alert('简历上传成功');
-                location.reload(); // 刷新页面以显示新上传的简历
-            } else {
-                throw new Error(data.error || '上传失败');
-            }
-        } catch (error) {
-            console.error('上传简历失败:', error);
-            alert(error.message);
         }
-    }
+
+        // 上传中文简历
+        async function uploadResume(file, language) {
+            if (!file) {
+                alert('请选择要上传的文件');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('resume', file);
+                formData.append('language', language);
+
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/resumes/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('简历上传成功！');
+                    // 清空文件输入
+                    chineseResumeFile.value = '';
+                    englishResumeFile.value = '';
+                    // 重新加载简历列表
+                    await loadResumeList();
+                } else {
+                    throw new Error('上传失败');
+                }
+            } catch (error) {
+                console.error('上传简历失败:', error);
+                alert('上传简历失败，请稍后重试');
+            }
+        }
+
+        // 下载简历
+        window.downloadResume = async function(resumeId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/resumes/${resumeId}/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '下载失败');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `resume-${resumeId}${blob.type === 'application/pdf' ? '.pdf' : '.docx'}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('下载简历失败:', error);
+                alert(error.message || '下载简历失败，请稍后重试');
+            }
+        };
+
+        // 删除简历
+        window.deleteResume = async function(resumeId) {
+            if (!confirm('确定要删除这份简历吗？')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/api/v1/resumes/${resumeId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '删除失败');
+                }
+
+                alert('简历删除成功！');
+                await loadResumeList();
+            } catch (error) {
+                console.error('删除简历失败:', error);
+                alert(error.message || '删除简历失败，请稍后重试');
+            }
+        };
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 页面加载时加载简历列表
+        loadResumeList();
     </script>
 </body>
 </html>
