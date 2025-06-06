@@ -211,4 +211,359 @@ $(document).ready(function() {
     
     // 加载帖子
     loadPosts();
-}); 
+
+    // 左侧栏按钮点击事件
+    $('#tab-recommend').on('click', function() {
+        $('#recommend-section').show();
+        $('#message-section').hide();
+        $('#my-posts-section').hide();
+        loadPosts(); // 重新加载推荐内容
+    });
+
+    $('#tab-message').on('click', function() {
+        $('#recommend-section').hide();
+        $('#message-section').show();
+        $('#my-posts-section').hide();
+        // 加载消息内容
+        loadMessages();
+    });
+
+    $('#tab-my-posts').on('click', function() {
+        $('#recommend-section').hide();
+        $('#message-section').hide();
+        $('#my-posts-section').show();
+        // 加载"我的"内容
+        window.newLoadMyPosts();
+    });
+
+    // 帖子卡片点击事件
+    $(document).on('click', '.post-card', function(e) {
+        // 如果点击的是操作按钮，不触发帖子详情
+        if ($(e.target).closest('.like-btn, .favorite-btn, .share-btn, .delete-post, .delete-post-icon').length) {
+            return;
+        }
+        
+        const postId = $(this).data('id');
+        showPostDetail(postId);
+    });
+
+    // 点赞按钮点击事件
+    $(document).on('click', '.like-btn', function(e) {
+        e.stopPropagation();
+        const postId = $(this).data('id');
+        const isLiked = $(this).data('liked');
+        toggleLike(postId, this);
+    });
+
+    // 收藏按钮点击事件
+    $(document).on('click', '.favorite-btn', function(e) {
+        e.stopPropagation();
+        const postId = $(this).data('id');
+        const isFavorited = $(this).data('favorited');
+        toggleFavorite(postId, this);
+    });
+
+    // 分享按钮点击事件
+    $(document).on('click', '.share-btn', function(e) {
+        e.stopPropagation();
+        const postId = $(this).data('id');
+        const title = $(this).data('title');
+        sharePost(postId, title);
+    });
+
+    // 删除按钮点击事件
+    $(document).on('click', '.delete-post, .delete-post-icon', function(e) {
+        e.stopPropagation();
+        const postId = $(this).data('id');
+        deletePost(postId);
+    });
+});
+
+// 显示帖子详情
+function showPostDetail(postId) {
+    $.ajax({
+        url: `${API_BASE_URL}/api/v1/community-posts/${postId}`,
+        method: 'GET',
+        headers: { 
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        xhrFields: { withCredentials: true },
+        success: function(res) {
+            if (res.success && res.data) {
+                const post = res.data;
+                
+                // 设置帖子详情
+                $('#detail-author-avatar').attr('src', post.author?.avatar ? 
+                    `/images/avatars/${post.author.avatar}` : '../images/user logo.jpg');
+                $('#detail-author-name').text(post.author?.nickname || post.author?.name || '匿名');
+                $('#detail-title').text(post.title);
+                $('#detail-content').text(post.content || '');
+                
+                // 设置统计信息
+                $('#detail-stats').html(`
+                    <span><i class="far fa-heart"></i> ${post.likes?.length || 0}</span>
+                    <span><i class="far fa-comment"></i> ${post.totalCommentsCount || 0}</span>
+                    <span><i class="far fa-star"></i> ${post.favorites?.length || 0}</span>
+                `);
+                
+                // 处理图片
+                const imageBox = $('#detail-image-box');
+                const thumbnails = $('#detail-image-thumbnails');
+                imageBox.empty();
+                thumbnails.empty();
+                
+                if (post.images && post.images.length > 0) {
+                    // 显示第一张图片
+                    imageBox.html(`<img src="${post.images[0]}" class="img-fluid" alt="帖子图片">`);
+                    
+                    // 显示缩略图
+                    post.images.forEach((img, index) => {
+                        thumbnails.append(`
+                            <img src="${img}" class="thumbnail${index === 0 ? ' active' : ''}" 
+                                 onclick="switchDetailImage('${img}')" alt="缩略图">
+                        `);
+                    });
+                }
+                
+                // 设置评论按钮的帖子ID
+                $('#submit-comment-btn').data('post-id', postId);
+                
+                // 加载评论
+                loadAndRenderComments(postId);
+                
+                // 显示模态框
+                const modal = new bootstrap.Modal(document.getElementById('postDetailModal'));
+                modal.show();
+            }
+        },
+        error: function(xhr) {
+            console.error('加载帖子详情失败:', xhr);
+            Swal.fire({
+                icon: 'error',
+                title: '加载失败',
+                text: '无法加载帖子详情，请稍后重试'
+            });
+        }
+    });
+}
+
+// 切换帖子详情图片
+window.switchDetailImage = function(imgSrc) {
+    $('#detail-image-box img').attr('src', imgSrc);
+    $('#detail-image-thumbnails img').removeClass('active');
+    $(`#detail-image-thumbnails img[src="${imgSrc}"]`).addClass('active');
+};
+
+// 点赞功能
+function toggleLike(postId, btnElement) {
+    $.ajax({
+        url: `${API_BASE_URL}/api/v1/community-posts/${postId}/like`,
+        method: 'POST',
+        headers: { 
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        xhrFields: { withCredentials: true },
+        success: function(res) {
+            if (res.success) {
+                const $btn = $(btnElement);
+                const $icon = $btn.find('i');
+                const $count = $btn.contents().last();
+                const currentCount = parseInt($count.text()) || 0;
+                
+                if ($icon.hasClass('fas')) {
+                    // 取消点赞
+                    $icon.removeClass('fas text-danger').addClass('far');
+                    $count.text(` ${currentCount - 1}`);
+                    $btn.data('liked', false);
+                } else {
+                    // 点赞
+                    $icon.removeClass('far').addClass('fas text-danger');
+                    $count.text(` ${currentCount + 1}`);
+                    $btn.data('liked', true);
+                }
+            }
+        }
+    });
+}
+
+// 收藏功能
+function toggleFavorite(postId, btnElement) {
+    $.ajax({
+        url: `${API_BASE_URL}/api/v1/community-posts/${postId}/favorite`,
+        method: 'POST',
+        headers: { 
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        xhrFields: { withCredentials: true },
+        success: function(res) {
+            if (res.success) {
+                const $btn = $(btnElement);
+                const $icon = $btn.find('i');
+                const $count = $btn.contents().last();
+                const currentCount = parseInt($count.text()) || 0;
+                
+                if ($icon.hasClass('fas')) {
+                    // 取消收藏
+                    $icon.removeClass('fas text-warning').addClass('far');
+                    $count.text(` ${currentCount - 1}`);
+                    $btn.data('favorited', false);
+                } else {
+                    // 收藏
+                    $icon.removeClass('far').addClass('fas text-warning');
+                    $count.text(` ${currentCount + 1}`);
+                    $btn.data('favorited', true);
+                }
+            }
+        }
+    });
+}
+
+// 分享功能
+function sharePost(postId, title) {
+    // 构建分享链接
+    const shareUrl = `${window.location.origin}/pages/community.html?post=${postId}`;
+    
+    // 创建临时输入框
+    const tempInput = document.createElement('input');
+    tempInput.value = shareUrl;
+    document.body.appendChild(tempInput);
+    
+    // 选择并复制链接
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    
+    // 显示提示
+    Swal.fire({
+        icon: 'success',
+        title: '链接已复制',
+        text: '帖子链接已复制到剪贴板',
+        showConfirmButton: false,
+        timer: 1500
+    });
+}
+
+// 删除帖子
+function deletePost(postId) {
+    Swal.fire({
+        title: '确认删除',
+        text: '确定要删除这个帖子吗？此操作不可撤销。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `${API_BASE_URL}/api/v1/community-posts/${postId}`,
+                method: 'DELETE',
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                xhrFields: { withCredentials: true },
+                success: function(res) {
+                    if (res.success) {
+                        // 从页面移除帖子
+                        $(`.post-card[data-id="${postId}"]`).closest('.masonry-grid-item').remove();
+                        
+                        // 重新布局
+                        const $grid = $('#post-masonry');
+                        if ($grid.data('masonry')) {
+                            $grid.masonry('layout');
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: '删除成功',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    console.error('删除帖子失败:', xhr);
+                    Swal.fire({
+                        icon: 'error',
+                        title: '删除失败',
+                        text: '无法删除帖子，请稍后重试'
+                    });
+                }
+            });
+        }
+    });
+}
+
+// 加载消息
+function loadMessages() {
+    $.ajax({
+        url: `${API_BASE_URL}/api/v1/notifications`,
+        method: 'GET',
+        headers: { 
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        xhrFields: { withCredentials: true },
+        success: function(res) {
+            if (res.success && res.data) {
+                // 处理不同类型的通知
+                const comments = res.data.filter(n => n.type === 'comment');
+                const likes = res.data.filter(n => n.type === 'like');
+                const follows = res.data.filter(n => n.type === 'follow');
+                
+                // 渲染评论通知
+                renderNotifications(comments, '#tab-comment');
+                renderNotifications(likes, '#tab-like');
+                renderNotifications(follows, '#tab-follow');
+            }
+        },
+        error: function(xhr) {
+            console.error('加载通知失败:', xhr);
+        }
+    });
+}
+
+// 渲染通知
+function renderNotifications(notifications, containerId) {
+    const container = $(containerId);
+    if (!notifications || notifications.length === 0) {
+        container.html('<div class="text-center text-muted my-3">暂无内容</div>');
+        return;
+    }
+    
+    let html = '';
+    notifications.forEach(notification => {
+        const date = new Date(notification.createdAt).toLocaleString('zh-CN');
+        html += `
+            <div class="notification-item p-3 border-bottom">
+                <div class="d-flex align-items-start">
+                    <img src="${notification.from?.avatar || '../images/user logo.jpg'}" 
+                         class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <p class="mb-1">
+                            <strong>${notification.from?.nickname || '匿名用户'}</strong>
+                            ${getNotificationAction(notification.type)}
+                            <a href="#" onclick="showPostDetail('${notification.post?._id}')">${notification.post?.title || '帖子'}</a>
+                        </p>
+                        <small class="text-muted">${date}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.html(html);
+}
+
+// 获取通知动作文本
+function getNotificationAction(type) {
+    switch (type) {
+        case 'comment':
+            return '评论了你的';
+        case 'like':
+            return '点赞了你的';
+        case 'follow':
+            return '关注了你';
+        default:
+            return '与你互动';
+    }
+} 
